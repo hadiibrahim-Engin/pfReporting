@@ -1,0 +1,22 @@
+{% set ampel_class = {
+    'ok':        'ampel-ok',
+    'warning':   'ampel-warnung',
+    'violation': 'ampel-verletzung'
+}[overall.status] %}
+
+{% set ampel_icon = {
+    'ok':        '&#10004;',
+    'warning':   '&#9888;',
+    'violation': '&#10008;'
+}[overall.status] %}
+
+{% set ampel_text = {
+    'ok':        'FREISCHALTUNG ZULÄSSIG',
+    'warning':   'FREISCHALTUNG MIT EINSCHRÄNKUNGEN',
+    'violation': 'FREISCHALTUNG NICHT ZULÄSSIG'
+}[overall.status] %}
+
+<div class="ampel-box {{ ampel_class }}">
+    <span class="ampel-icon">{{ ampel_icon }}</span>
+    <span class="ampel-text">{{ ampel_text }}</span>
+</div>

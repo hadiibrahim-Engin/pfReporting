@@ -1,0 +1,29 @@
+<section>
+    <h2>Lastflussergebnisse</h2>
+    <div class="lf-grid">
+        <div class="lf-item">
+            <div class="lf-label">Status</div>
+            <div class="lf-wert">
+                <span class="{{ 'badge-ok' if lf.converged else 'badge-verletzung' }}">
+                    {{ lf.status_text }}
+                </span>
+            </div>
+        </div>
+        <div class="lf-item">
+            <div class="lf-label">Iterationen</div>
+            <div class="lf-wert">{{ lf.iterations }}</div>
+        </div>
+        <div class="lf-item">
+            <div class="lf-label">Gesamtlast</div>
+            <div class="lf-wert">{{ "%.2f"|format(lf.total_load_mw) }} MW</div>
+        </div>
+        <div class="lf-item">
+            <div class="lf-label">Gesamterzeugung</div>
+            <div class="lf-wert">{{ "%.2f"|format(lf.total_gen_mw) }} MW</div>
+        </div>
+        <div class="lf-item">
+            <div class="lf-label">Verluste</div>
+            <div class="lf-wert">{{ "%.2f"|format(lf.losses_mw) }} MW</div>
+        </div>
+    </div>
+</section>

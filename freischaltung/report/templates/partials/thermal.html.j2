@@ -1,0 +1,37 @@
+{% from 'partials/_macros.html.j2' import badge, loading_bar %}
+<section>
+    <h2>Thermische Auslastung</h2>
+    <div class="section-toolbar">
+        <span class="grenzwert-info">
+            Warnung ab {{ tcfg.warning_pct }}% /
+            Kritisch ab {{ tcfg.violation_pct }}%
+        </span>
+        <div class="toolbar-right">
+            <button class="filter-btn">Nur Auffälligkeiten</button>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th data-sort="text">Element</th>
+                <th data-sort="text">Typ</th>
+                <th data-sort="num">Auslastung</th>
+                <th data-sort="num">I [kA]</th>
+                <th data-sort="num">I_nenn [kA]</th>
+                <th>Bewertung</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in loading %}
+            <tr>
+                <td>{{ r.name }}</td>
+                <td>{{ r.type }}</td>
+                <td class="num">{{ loading_bar(r.loading_pct, r.status) }}</td>
+                <td class="num">{{ "%.3f"|format(r.i_ka) }}</td>
+                <td class="num">{{ "%.3f"|format(r.i_nenn_ka) }}</td>
+                <td>{{ badge(r.status) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

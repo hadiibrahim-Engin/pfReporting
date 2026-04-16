@@ -1,0 +1,14 @@
+{% macro badge(status) %}
+{% set cls = {'ok': 'badge-ok', 'warning': 'badge-warnung', 'violation': 'badge-verletzung'}[status] %}
+{% set lbl = {'ok': 'OK', 'warning': 'WARNUNG', 'violation': 'VERLETZUNG'}[status] %}
+<span class="{{ cls }}">{{ lbl }}</span>
+{% endmacro %}
+
+{% macro loading_bar(pct, status) %}
+{% set bar_cls = {'ok': 'bar-ok', 'warning': 'bar-warnung', 'violation': 'bar-verletzung'}[status] %}
+{% set width = (pct * 0.66) | round(3) %}
+<div class="bar-container">
+    <div class="bar {{ bar_cls }}" style="width:{{ width }}%"></div>
+    <span class="bar-label">{{ "%.1f"|format(pct) }}%</span>
+</div>
+{% endmacro %}

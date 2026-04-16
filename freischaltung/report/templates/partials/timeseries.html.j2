@@ -1,0 +1,39 @@
+<section>
+    <h2>Quasi-Dynamische Zeitverläufe</h2>
+    <p style="font-size:13px;color:var(--grau-600);margin-bottom:16px;">
+        Dargestellt sind nur kritische Elemente, die mindestens einmal eine Warnschwelle überschreiten.
+        Zoom: Mausrad · Pan: Ziehen.
+    </p>
+
+    {% for viz in viz_requests %}
+    {% set cid = viz.chart_id %}
+    {% if cid in ts_data.sections and ts_data.sections[cid] %}
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--grau-900);">
+        {{ viz.label }}
+        <span style="font-size:12px;font-weight:400;color:var(--grau-600);">
+            [{{ viz.unit }}] – {{ ts_data.sections[cid] | length }} Elemente
+        </span>
+    </h3>
+
+    <div class="chart-grid">
+        <div class="chart-card" style="grid-column: 1 / -1;">
+            <div class="chart-wrapper">
+                <canvas id="chart-{{ cid }}"></canvas>
+            </div>
+            <div class="chart-hint">Mausrad: Zoom · Ziehen: Pan · Doppelklick: Reset</div>
+        </div>
+    </div>
+
+    {% if viz.heatmap %}
+    <h4 style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--grau-800);">
+        Heatmap – {{ viz.label }}
+    </h4>
+    <div class="heatmap-wrapper">
+        <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+    {% endfor %}
+</section>
