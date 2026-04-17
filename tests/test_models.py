@@ -1,8 +1,8 @@
-"""Tests für Pydantic-Modelle."""
+"""Tests for Pydantic models."""
 import pytest
 from pydantic import ValidationError
 
-from freischaltung.models import (
+from pfreporting.models import (
     LoadFlowResult,
     LoadingResult,
     N1Result,
@@ -30,12 +30,12 @@ class TestVoltageResult:
 
 class TestLoadingResult:
     def test_defaults(self):
-        r = LoadingResult(name="Lne", type="Leitung", loading_pct=50.0, i_ka=0.3, i_nenn_ka=0.5)
+        r = LoadingResult(name="Lne", type="Line", loading_pct=50.0, i_ka=0.3, i_nenn_ka=0.5)
         assert r.status == "ok"
         assert r.time_series == []
 
     def test_stores_values(self):
-        r = LoadingResult(name="Lne", type="Leitung", loading_pct=104.2, i_ka=0.59, i_nenn_ka=0.565, status="violation")
+        r = LoadingResult(name="Lne", type="Line", loading_pct=104.2, i_ka=0.59, i_nenn_ka=0.565, status="violation")
         assert r.loading_pct == 104.2
         assert r.status == "violation"
 
@@ -43,7 +43,7 @@ class TestLoadingResult:
 class TestN1Result:
     def test_default_status(self):
         r = N1Result(
-            outage_element="X", type="Leitung", converged=True,
+            outage_element="X", type="Line", converged=True,
             max_loading_pct=80.0, max_loading_element="Y",
             min_voltage_pu=0.97, min_voltage_node="Z",
             max_voltage_pu=1.03, max_voltage_node="W",
@@ -53,7 +53,7 @@ class TestN1Result:
 
     def test_non_convergence(self):
         r = N1Result(
-            outage_element="T", type="Transformator (2W)", converged=False,
+            outage_element="T", type="Transformer (2W)", converged=False,
             max_loading_pct=0.0, max_loading_element="-",
             min_voltage_pu=0.0, min_voltage_node="-",
             max_voltage_pu=0.0, max_voltage_node="-",

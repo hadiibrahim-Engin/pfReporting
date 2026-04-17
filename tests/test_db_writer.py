@@ -4,8 +4,8 @@ from __future__ import annotations
 import math
 import pytest
 
-from freischaltung.config import FreischaltungConfig, VizRequest
-from freischaltung.db_writer import (
+from pfreporting.config import PFReportConfig, VizRequest
+from pfreporting.db_writer import (
     PFTableWriter,
     meta_table_name,
     table_name,
@@ -13,7 +13,7 @@ from freischaltung.db_writer import (
     _SUFFIX_SHORT_DESC,
     _SUFFIX_UNIT,
 )
-from freischaltung.models import TimeSeriesData
+from pfreporting.models import TimeSeriesData
 
 
 # ── Mock PowerFactory objects ──────────────────────────────────────────────────
@@ -38,13 +38,12 @@ class MockElmRes:
 
     def __init__(self) -> None:
         self._objs = [
-            None,                                    # col 0 = time (no object)
-            MockElmObj("ElmLne", "Leitung_1"),       # col 1
-            MockElmObj("ElmLne", "Leitung_2"),       # col 2
-            MockElmObj("ElmTr2", "Trafo_1"),         # col 3
+            None,                                 # col 0 = time (no object)
+            MockElmObj("ElmLne", "Line_1"),       # col 1
+            MockElmObj("ElmLne", "Line_2"),       # col 2
+            MockElmObj("ElmTr2", "Trafo_1"),      # col 3
         ]
         self._vars = ["t", "c:loading", "c:loading", "c:loading"]
-        # Simple data: rows × cols
         self._data = [
             [0.0, 50.0, 80.0, 30.0],   # t=0
             [1.0, 60.0, 90.0, 35.0],   # t=1
@@ -143,13 +142,13 @@ class MockApp:
 # ── Fixtures ───────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def minimal_config() -> FreischaltungConfig:
-    return FreischaltungConfig(
+def minimal_config() -> PFReportConfig:
+    return PFReportConfig(
         visualizations=[
             VizRequest(
                 element_class="ElmLne",
                 variable="c:loading",
-                label="Leitungen – Auslastung",
+                label="Lines – Loading",
                 unit="%",
                 warn_hi=80.0,
                 violation_hi=100.0,
@@ -157,7 +156,7 @@ def minimal_config() -> FreischaltungConfig:
             VizRequest(
                 element_class="ElmTr2",
                 variable="c:loading",
-                label="Transformatoren – Auslastung",
+                label="Transformers – Loading",
                 unit="%",
             ),
         ]
@@ -225,19 +224,18 @@ def test_write_all_element_values(writer, report, elmres):
     ts_data = writer.write_all(report, elmres)
     vr = writer._cfg.visualizations[0]  # ElmLne c:loading
     tbl = table_name(vr.chart_id)
-    # Leitung_1: 50.0, 60.0, 70.0
-    assert report.GetValue(tbl, "Leitung_1", 0) == pytest.approx(50.0)
-    assert report.GetValue(tbl, "Leitung_1", 2) == pytest.approx(70.0)
-    # Leitung_2: 80.0, 90.0, 95.0
-    assert report.GetValue(tbl, "Leitung_2", 1) == pytest.approx(90.0)
+    # Line_1: 50.0, 60.0, 70.0
+    assert report.GetValue(tbl, "Line_1", 0) == pytest.approx(50.0)
+    assert report.GetValue(tbl, "Line_1", 2) == pytest.approx(70.0)
+    # Line_2: 80.0, 90.0, 95.0
+    assert report.GetValue(tbl, "Line_2", 1) == pytest.approx(90.0)
 
 
 def test_write_all_meta_unit_stored(writer, report, elmres):
     writer.write_all(report, elmres)
     vr = writer._cfg.visualizations[0]
     tbl_meta = meta_table_name(vr.chart_id)
-    # Unit for Leitung_1 should be stored
-    unit_val = report.GetValue(tbl_meta, "Leitung_1" + _SUFFIX_UNIT, 0)
+    unit_val = report.GetValue(tbl_meta, "Line_1" + _SUFFIX_UNIT, 0)
     assert unit_val is not None
 
 
@@ -276,7 +274,7 @@ def test_returned_ts_data_series_values(writer, report, elmres):
     ts_data = writer.write_all(report, elmres)
     vr = writer._cfg.visualizations[0]
     section = ts_data.sections[vr.chart_id]
-    assert section["Leitung_1"].values == pytest.approx([50.0, 60.0, 70.0])
+    assert section["Line_1"].values == pytest.approx([50.0, 60.0, 70.0])
 
 
 def test_returned_ts_data_not_empty(writer, report, elmres):
@@ -287,7 +285,7 @@ def test_returned_ts_data_not_empty(writer, report, elmres):
 # ── max_elements cap ──────────────────────────────────────────────────────────
 
 def test_max_elements_cap():
-    config = FreischaltungConfig(
+    config = PFReportConfig(
         visualizations=[
             VizRequest(
                 element_class="ElmLne",

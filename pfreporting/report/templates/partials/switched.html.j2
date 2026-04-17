@@ -1,0 +1,27 @@
+<section>
+    <h2>De-Energized Equipment</h2>
+    {% if switched %}
+    <table>
+        <thead>
+            <tr>
+                <th data-sort="text">Name</th>
+                <th>Type</th>
+                <th>Status Before</th>
+                <th>Status Assessment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for el in switched %}
+            <tr>
+                <td><strong>{{ el.name }}</strong></td>
+                <td>{{ el.type }}</td>
+                <td>{{ el.status_before }}</td>
+                <td><span class="badge-violation">{{ el.status_assessment }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--gray-600); font-size: 13px;">No equipment de-energized.</p>
+    {% endif %}
+</section>

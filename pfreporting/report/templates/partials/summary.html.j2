@@ -1,0 +1,22 @@
+<section class="summary">
+    <h2>Summary</h2>
+    <p>{{ overall.summary_text | safe }}</p>
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi-value">{{ overall.total_nodes }}</div>
+            <div class="kpi-label">Nodes checked</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-value">{{ overall.total_elements }}</div>
+            <div class="kpi-label">Elements checked</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-value">{{ overall.total_n1 }}</div>
+            <div class="kpi-label">N-1 cases checked</div>
+        </div>
+        <div class="kpi {% if overall.total_violations > 0 %}kpi-highlight{% endif %}">
+            <div class="kpi-value">{{ overall.total_violations }}</div>
+            <div class="kpi-label">Total violations</div>
+        </div>
+    </div>
+</section>

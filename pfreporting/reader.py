@@ -1,0 +1,465 @@
+"""PowerFactory data extraction.
+
+All public methods return pure Pydantic models –
+no PowerFactory object leaves this file.
+"""
+from __future__ import annotations
+
+import datetime
+import getpass
+import logging
+from typing import Any
+
+from pfreporting.config import PFReportConfig, VizRequest
+from pfreporting.exceptions import ReaderError
+from pfreporting.models import (
+    LoadFlowResult,
+    LoadingResult,
+    N1Result,
+    ProjectInfo,
+    QDSInfo,
+    SwitchedElement,
+    TimeSeries,
+    TimeSeriesData,
+    VoltageResult,
+)
+from pfreporting.utils import sanitize_name
+
+log = logging.getLogger("pfreporting")
+
+
+class PowerFactoryReader:
+    """Encapsulates all access to the PowerFactory Python API."""
+
+    def __init__(self, app: Any, config: PFReportConfig) -> None:
+        self._app = app
+        self._cfg = config
+
+    # ── Project metadata ──────────────────────────────────────────────────
+
+    def get_project_info(self) -> ProjectInfo:
+        app = self._app
+        project = app.GetActiveProject()
+        sc = app.GetActiveStudyCase()
+        now = datetime.datetime.now()
+        return ProjectInfo(
+            project=self._loc_name(project, "Unknown"),
+            study_case=self._loc_name(sc, "Unknown"),
+            date=now.strftime("%d.%m.%Y"),
+            time=now.strftime("%H:%M"),
+            datetime_full=now.strftime("%d.%m.%Y %H:%M:%S"),
+            company=self._cfg.report.company,
+            author=self._safe_getuser(),
+        )
+
+    # ── QDS simulation settings ───────────────────────────────────────────
+
+    def get_qds_info(self) -> QDSInfo:
+        """Read ComStatsim settings for the QDS info block."""
+        try:
+            qds = self._app.GetFromStudyCase("ComStatsim")
+            if qds is None:
+                return QDSInfo()
+            t_start = float(getattr(qds, "Tstart", 0) or 0)
+            t_end   = float(getattr(qds, "Tshow",  24) or 24)
+            dt      = float(getattr(qds, "dt",      1) or 1)
+            n_steps = max(0, round((t_end - t_start) / dt)) if dt > 0 else 0
+
+            # Scenario name via active scenario object
+            scenario = ""
+            try:
+                scen = self._app.GetActiveScenario()
+                scenario = self._loc_name(scen, "")
+            except Exception:
+                pass
+
+            # Study time start (optional, PF-version dependent)
+            study_time_start = ""
+            try:
+                sc = self._app.GetActiveStudyCase()
+                st = getattr(sc, "iStudyTime", None)
+                if st:
+                    study_time_start = str(st)
+            except Exception:
+                pass
+
+            return QDSInfo(
+                t_start_h=t_start,
+                t_end_h=t_end,
+                dt_h=dt,
+                n_steps=n_steps,
+                result_file=self._cfg.report.quasi_dynamic_result_file,
+                scenario=scenario,
+                study_time_start=study_time_start,
+            )
+        except Exception as exc:
+            log.warning("QDS settings not readable: %s", exc)
+            return QDSInfo()
+
+    # ── De-energized equipment ────────────────────────────────────────────
+
+    def get_switched_elements(self) -> list[SwitchedElement]:
+        results: list[SwitchedElement] = []
+        type_map = {
+            "ElmLne": "Line",
+            "ElmTr2": "Transformer (2W)",
+            "ElmTr3": "Transformer (3W)",
+        }
+        for cls, label in type_map.items():
+            for elem in self._calc_objects(f"*.{cls}"):
+                if getattr(elem, "outserv", 0) == 1:
+                    results.append(
+                        SwitchedElement(
+                            name=self._loc_name(elem),
+                            type=label,
+                        )
+                    )
+        log.info("De-energized equipment: %d", len(results))
+        return results
+
+    # ── Load flow results ─────────────────────────────────────────────────
+
+    def get_loadflow_results(self) -> LoadFlowResult:
+        app = self._app
+        try:
+            ldf = app.GetFromStudyCase("ComLdf")
+            app.EchoOff()
+            ldf.Execute()
+            app.EchoOn()
+        except Exception as exc:
+            log.warning("Load flow calculation failed: %s", exc)
+
+        converged = True
+        iterations = 0
+        try:
+            ldf = app.GetFromStudyCase("ComLdf")
+            converged = getattr(ldf, "iopt_notconv", 0) == 0
+            iterations = int(getattr(ldf, "nrItNum", 0) or 0)
+        except Exception:
+            pass
+
+        total_load = sum(
+            getattr(e, "m:P:bus1", 0) or 0 for e in self._calc_objects("*.ElmLod")
+        )
+        total_gen = sum(
+            getattr(e, "m:P:bus1", 0) or 0
+            for cls in ("*.ElmSym", "*.ElmGenstat", "*.ElmPvsys", "*.ElmWind")
+            for e in self._calc_objects(cls)
+        )
+        losses = round(total_gen - total_load, 2)
+        log.info(
+            "Load flow: converged=%s  Load=%.2f MW  Generation=%.2f MW  Losses=%.2f MW",
+            converged,
+            total_load,
+            total_gen,
+            losses,
+        )
+        return LoadFlowResult(
+            converged=converged,
+            status_text="Converged" if converged else "Not Converged",
+            iterations=iterations,
+            total_load_mw=round(total_load, 2),
+            total_gen_mw=round(total_gen, 2),
+            losses_mw=losses,
+        )
+
+    # ── Voltage results ───────────────────────────────────────────────────
+
+    def get_voltage_results(self) -> list[VoltageResult]:
+        results: list[VoltageResult] = []
+        for bus in self._calc_objects("*.ElmTerm"):
+            u_pu = getattr(bus, "m:u", None)
+            if u_pu is None:
+                continue
+            u_nenn = float(getattr(bus, "uknom", 0) or 0)
+            u_kv = round(u_pu * u_nenn, 2)
+            dev = round((u_pu - 1.0) * 100, 2)
+            results.append(
+                VoltageResult(
+                    node=self._loc_name(bus),
+                    u_nenn_kv=round(u_nenn, 1),
+                    u_kv=u_kv,
+                    u_pu=round(u_pu, 4),
+                    deviation_pct=dev,
+                )
+            )
+        log.info("Voltage results: %d nodes", len(results))
+        return results
+
+    # ── Thermal loading ───────────────────────────────────────────────────
+
+    def get_loading_results(self) -> list[LoadingResult]:
+        results: list[LoadingResult] = []
+        type_map = {
+            "ElmLne": "Line",
+            "ElmTr2": "Transformer (2W)",
+            "ElmTr3": "Transformer (3W)",
+        }
+        for cls, label in type_map.items():
+            for elem in self._calc_objects(f"*.{cls}"):
+                loading = getattr(elem, "c:loading", None)
+                if loading is None:
+                    continue
+                i_ka = float(getattr(elem, "m:i1:bus1", 0) or getattr(elem, "m:i1", 0) or 0)
+                i_nenn = float(
+                    getattr(elem, "Inom", 0)
+                    or getattr(elem, "ratedCurrent", 0)
+                    or 0
+                )
+                results.append(
+                    LoadingResult(
+                        name=self._loc_name(elem),
+                        type=label,
+                        loading_pct=round(float(loading), 1),
+                        i_ka=round(i_ka, 3),
+                        i_nenn_ka=round(i_nenn, 3),
+                    )
+                )
+        results.sort(key=lambda r: r.loading_pct, reverse=True)
+        log.info("Thermal loading: %d elements", len(results))
+        return results
+
+    # ── N-1 analysis ──────────────────────────────────────────────────────
+
+    def get_n1_results(self) -> list[N1Result]:
+        """Perform a manual N-1 analysis (ComSimoutage as fallback)."""
+        results = self._try_simoutage()
+        if not results:
+            results = self._manual_n1()
+        log.info("N-1 analysis: %d cases", len(results))
+        return results
+
+    def _try_simoutage(self) -> list[N1Result]:
+        try:
+            cmd = self._app.GetFromStudyCase("ComSimoutage")
+            if cmd is None:
+                return []
+            self._app.EchoOff()
+            cmd.Execute()
+            self._app.EchoOn()
+        except Exception:
+            return []
+        return []  # Result extraction depends heavily on PF version → fallback
+
+    def _manual_n1(self) -> list[N1Result]:
+        app = self._app
+        ldf = app.GetFromStudyCase("ComLdf")
+        if ldf is None:
+            raise ReaderError("No ComLdf object found in study case")
+
+        candidates = [
+            (e, "Line") for e in self._calc_objects("*.ElmLne")
+        ] + [
+            (e, "Transformer (2W)") for e in self._calc_objects("*.ElmTr2")
+        ]
+
+        results: list[N1Result] = []
+        for elem, etype in candidates:
+            name = self._loc_name(elem)
+            elem.outserv = 1
+            try:
+                app.EchoOff()
+                ldf.Execute()
+                app.EchoOn()
+                converged = True
+            except Exception:
+                converged = False
+                app.EchoOn()
+
+            entry = N1Result(
+                outage_element=name,
+                type=etype,
+                converged=converged,
+                max_loading_pct=0.0,
+                max_loading_element="-",
+                min_voltage_pu=0.0,
+                min_voltage_node="-",
+                max_voltage_pu=0.0,
+                max_voltage_node="-",
+            )
+
+            if converged:
+                self._fill_n1_postcontingency(entry)
+
+            elem.outserv = 0
+            results.append(entry)
+
+        # Restore normal operation
+        try:
+            app.EchoOff()
+            ldf.Execute()
+            app.EchoOn()
+        except Exception:
+            pass
+
+        return results
+
+    def _fill_n1_postcontingency(self, entry: N1Result) -> None:
+        n1_cfg = self._cfg.n1
+        max_load, max_load_elem = 0.0, "-"
+        for cls in ("*.ElmLne", "*.ElmTr2"):
+            for branch in self._calc_objects(cls):
+                loading = float(getattr(branch, "c:loading", 0) or 0)
+                if loading > max_load:
+                    max_load = loading
+                    max_load_elem = self._loc_name(branch)
+
+        min_v, min_v_node = 1.0, "-"
+        max_v, max_v_node = 0.0, "-"
+        for bus in self._calc_objects("*.ElmTerm"):
+            u = getattr(bus, "m:u", None)
+            if u is None:
+                continue
+            bname = self._loc_name(bus)
+            if u < min_v:
+                min_v, min_v_node = u, bname
+            if u > max_v:
+                max_v, max_v_node = u, bname
+
+        entry.max_loading_pct = round(max_load, 1)
+        entry.max_loading_element = max_load_elem
+        entry.min_voltage_pu = round(min_v, 4)
+        entry.min_voltage_node = min_v_node
+        entry.max_voltage_pu = round(max_v, 4)
+        entry.max_voltage_node = max_v_node
+
+        if max_load > n1_cfg.max_loading_pct:
+            entry.violations.append(f"Overload: {max_load_elem} at {max_load:.1f}%")
+        if min_v < n1_cfg.min_voltage_pu:
+            entry.violations.append(
+                f"Undervoltage: {min_v_node} at {min_v:.4f} p.u."
+            )
+        if max_v > n1_cfg.max_voltage_pu:
+            entry.violations.append(
+                f"Overvoltage: {max_v_node} at {max_v:.4f} p.u."
+            )
+
+    # ── Time series (quasi-dynamic) ───────────────────────────────────────
+
+    def load_elmres(self, name: str | None = None):
+        sc = self._app.GetActiveStudyCase()
+        if not sc:
+            raise ReaderError("No active study case")
+        res_name = name or self._cfg.report.quasi_dynamic_result_file
+        res_list = sc.GetContents(res_name) or sc.GetContents("*.ElmRes")
+        if not res_list:
+            raise ReaderError("No ElmRes object found. Run simulation first.")
+        elmres = res_list[0]
+        elmres.Load()
+        log.info("ElmRes loaded: %s", self._loc_name(elmres))
+        return elmres
+
+    def get_time_series(
+        self, elmres: Any, viz_requests: list[VizRequest]
+    ) -> TimeSeriesData:
+        nrows: int = elmres.GetNumberOfRows()
+        ncols: int = elmres.GetNumberOfColumns()
+        time_col = self._find_time_col(elmres)
+
+        time_vals = [self._get_val(elmres, r, time_col) or float(r) for r in range(nrows)]
+
+        # Index: (element_class, variable) → VizRequest
+        req_index: dict[tuple[str, str], VizRequest] = {
+            (vr.element_class, vr.variable): vr for vr in viz_requests
+        }
+        # Counter per chart_id
+        count_per_chart: dict[str, int] = {vr.chart_id: 0 for vr in viz_requests}
+        sections: dict[str, dict[str, TimeSeries]] = {}
+        seen_names: dict[str, set[str]] = {}
+
+        for col in range(ncols):
+            try:
+                obj = elmres.GetObject(col)
+                if obj is None:
+                    continue
+                cls_name: str = obj.GetClassName()
+                var: str = elmres.GetVariable(col)
+            except Exception:
+                continue
+
+            key = (cls_name, var)
+            if key not in req_index:
+                continue
+            vr = req_index[key]
+            chart_id = vr.chart_id
+
+            if count_per_chart.get(chart_id, 0) >= vr.max_elements:
+                continue
+
+            base_name = sanitize_name(self._loc_name(obj))
+            if chart_id not in seen_names:
+                seen_names[chart_id] = set()
+            unique_name = base_name
+            k = 2
+            while unique_name in seen_names[chart_id]:
+                unique_name = f"{base_name}_{k}"
+                k += 1
+            seen_names[chart_id].add(unique_name)
+
+            values = [self._get_val(elmres, r, col) for r in range(nrows)]
+            try:
+                unit = elmres.GetUnit(col)
+            except Exception:
+                unit = vr.unit
+
+            ts = TimeSeries(
+                element_class=cls_name,
+                variable=var,
+                label=vr.label,
+                unit=unit or vr.unit,
+                values=values,
+            )
+            if chart_id not in sections:
+                sections[chart_id] = {}
+            sections[chart_id][unique_name] = ts
+            count_per_chart[chart_id] = count_per_chart.get(chart_id, 0) + 1
+
+        total_series = sum(len(s) for s in sections.values())
+        log.info(
+            "Time series extracted: %d sections, %d series, %d time steps",
+            len(sections),
+            total_series,
+            nrows,
+        )
+        return TimeSeriesData(time=time_vals, sections=sections)
+
+    # ── Helper methods ────────────────────────────────────────────────────
+
+    def _calc_objects(self, pattern: str) -> list[Any]:
+        try:
+            return self._app.GetCalcRelevantObjects(pattern) or []
+        except Exception:
+            return []
+
+    @staticmethod
+    def _loc_name(obj: Any, fallback: str = "?") -> str:
+        if obj is None:
+            return fallback
+        return getattr(obj, "loc_name", None) or fallback
+
+    @staticmethod
+    def _safe_getuser() -> str:
+        try:
+            return getpass.getuser()
+        except Exception:
+            return "Unknown"
+
+    @staticmethod
+    def _find_time_col(elmres: Any) -> int:
+        for cand in ("t", "time", "Time", "TIME"):
+            try:
+                idx = elmres.FindColumn(cand)
+                if isinstance(idx, int) and idx >= 0:
+                    return idx
+            except Exception:
+                pass
+        return 0
+
+    def _get_val(self, elmres: Any, row: int, col: int) -> float | None:
+        try:
+            _, val = elmres.GetValue(row, col)
+            if val is not None and self._app.IsNAN(val):
+                return None
+            return float(val) if val is not None else None
+        except Exception:
+            return None

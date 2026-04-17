@@ -2,13 +2,13 @@
 # Run setup:
 #   uv sync                      # install all deps
 #   uv run python scripts/download_assets.py   # fetch Chart.js vendor files
-#   uv run freischaltung-report generate --mock --output-dir ./output
+#   uv run pfreporting generate --mock --output-dir ./output
 # =============================================================================
 
 [project]
-name            = "freischaltung"
+name            = "pfreporting"
 version         = "0.1.0"
-description     = "Automatische Freischaltungsbewertung mit PowerFactory – HTML-Report-Generator."
+description     = "Automated De-Energization Assessment with PowerFactory – HTML Report Generator."
 requires-python = ">=3.11"
 readme          = "README.md"
 
@@ -30,7 +30,7 @@ pdf = [
 ]
 
 [project.scripts]
-freischaltung-report = "cli:app"
+pfreporting = "cli:app"
 
 # ── uv ────────────────────────────────────────────────────────────────────────
 [tool.uv]
@@ -62,7 +62,7 @@ requires      = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["freischaltung"]
+packages = ["pfreporting"]
 
 [tool.hatch.build.targets.wheel.sources]
 "cli.py" = "cli.py"

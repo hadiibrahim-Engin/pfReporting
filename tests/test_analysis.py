@@ -1,13 +1,13 @@
-"""Tests für die AnalysisEngine – Grenzwertlogik."""
+"""Tests for AnalysisEngine – threshold logic."""
 import pytest
 
-from freischaltung.analysis import AnalysisEngine
-from freischaltung.config import FreischaltungConfig
+from pfreporting.analysis import AnalysisEngine
+from pfreporting.config import PFReportConfig
 
 
 @pytest.fixture
 def engine() -> AnalysisEngine:
-    return AnalysisEngine(FreischaltungConfig())
+    return AnalysisEngine(PFReportConfig())
 
 
 class TestVoltageAnalysis:
@@ -17,25 +17,25 @@ class TestVoltageAnalysis:
         assert result.status == "ok"
 
     def test_lower_boundary_warning(self, engine):
-        from freischaltung.models import VoltageResult
+        from pfreporting.models import VoltageResult
         r = VoltageResult(node="X", u_nenn_kv=110.0, u_kv=104.5, u_pu=0.95, deviation_pct=-5.0)
         engine.analyze_voltages([r])
         assert r.status == "warning"
 
     def test_lower_boundary_ok_just_above_warn(self, engine):
-        from freischaltung.models import VoltageResult
+        from pfreporting.models import VoltageResult
         r = VoltageResult(node="X", u_nenn_kv=110.0, u_kv=105.6, u_pu=0.9501, deviation_pct=-4.99)
         engine.analyze_voltages([r])
         assert r.status == "ok"
 
     def test_lower_violation(self, engine):
-        from freischaltung.models import VoltageResult
+        from pfreporting.models import VoltageResult
         r = VoltageResult(node="X", u_nenn_kv=110.0, u_kv=98.0, u_pu=0.89, deviation_pct=-11.0)
         engine.analyze_voltages([r])
         assert r.status == "violation"
 
     def test_upper_violation(self, engine):
-        from freischaltung.models import VoltageResult
+        from pfreporting.models import VoltageResult
         r = VoltageResult(node="X", u_nenn_kv=110.0, u_kv=122.1, u_pu=1.11, deviation_pct=+11.0)
         engine.analyze_voltages([r])
         assert r.status == "violation"
@@ -48,35 +48,35 @@ class TestVoltageAnalysis:
 
 class TestThermalAnalysis:
     def test_boundary_79_9_is_ok(self, engine):
-        from freischaltung.models import LoadingResult
-        r = LoadingResult(name="X", type="Leitung", loading_pct=79.9, i_ka=0.0, i_nenn_ka=0.0)
+        from pfreporting.models import LoadingResult
+        r = LoadingResult(name="X", type="Line", loading_pct=79.9, i_ka=0.0, i_nenn_ka=0.0)
         engine.analyze_thermal([r])
         assert r.status == "ok"
 
     def test_boundary_80_is_warning(self, engine):
-        from freischaltung.models import LoadingResult
-        r = LoadingResult(name="X", type="Leitung", loading_pct=80.0, i_ka=0.0, i_nenn_ka=0.0)
+        from pfreporting.models import LoadingResult
+        r = LoadingResult(name="X", type="Line", loading_pct=80.0, i_ka=0.0, i_nenn_ka=0.0)
         engine.analyze_thermal([r])
         assert r.status == "warning"
 
     def test_boundary_100_is_violation(self, engine):
-        from freischaltung.models import LoadingResult
-        r = LoadingResult(name="X", type="Leitung", loading_pct=100.0, i_ka=0.0, i_nenn_ka=0.0)
+        from pfreporting.models import LoadingResult
+        r = LoadingResult(name="X", type="Line", loading_pct=100.0, i_ka=0.0, i_nenn_ka=0.0)
         engine.analyze_thermal([r])
         assert r.status == "violation"
 
     def test_overload_is_violation(self, engine):
-        from freischaltung.models import LoadingResult
-        r = LoadingResult(name="X", type="Leitung", loading_pct=120.0, i_ka=0.0, i_nenn_ka=0.0)
+        from pfreporting.models import LoadingResult
+        r = LoadingResult(name="X", type="Line", loading_pct=120.0, i_ka=0.0, i_nenn_ka=0.0)
         engine.analyze_thermal([r])
         assert r.status == "violation"
 
 
 class TestN1Analysis:
     def test_converged_no_violations_is_ok(self, engine):
-        from freischaltung.models import N1Result
+        from pfreporting.models import N1Result
         r = N1Result(
-            outage_element="X", type="Leitung", converged=True,
+            outage_element="X", type="Line", converged=True,
             max_loading_pct=90.0, max_loading_element="Y",
             min_voltage_pu=0.96, min_voltage_node="Z",
             max_voltage_pu=1.04, max_voltage_node="W",
@@ -97,7 +97,6 @@ class TestN1Analysis:
 
 class TestOverallStatus:
     def test_no_violations_is_ok(self, engine, mock_voltage_results, mock_loading_results, mock_n1_results):
-        # Force all to ok
         for r in mock_voltage_results:
             r.status = "ok"
         for r in mock_loading_results:

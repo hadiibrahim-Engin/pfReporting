@@ -1,8 +1,8 @@
 """
-Lädt Chart.js-Vendor-Dateien herunter und speichert sie in
-freischaltung/report/assets/vendor/.
+Downloads Chart.js vendor files and saves them to
+pfreporting/report/assets/vendor/.
 
-Ausführen:
+Run:
     uv run python scripts/download_assets.py
 """
 import ssl
@@ -19,7 +19,7 @@ except ImportError:
     _ssl_ctx.check_hostname = False
     _ssl_ctx.verify_mode = ssl.CERT_NONE
 
-VENDOR_DIR = Path(__file__).parent.parent / "freischaltung" / "report" / "assets" / "vendor"
+VENDOR_DIR = Path(__file__).parent.parent / "pfreporting" / "report" / "assets" / "vendor"
 
 ASSETS = [
     (
@@ -40,7 +40,7 @@ ASSETS = [
 def download(filename: str, url: str) -> None:
     dest = VENDOR_DIR / filename
     if dest.exists():
-        print(f"  [SKIP] {filename} – bereits vorhanden")
+        print(f"  [SKIP] {filename} – already present")
         return
     print(f"  [DOWN] {filename} …", end=" ", flush=True)
     try:
@@ -49,16 +49,16 @@ def download(filename: str, url: str) -> None:
         size_kb = dest.stat().st_size // 1024
         print(f"OK ({size_kb} KB)")
     except Exception as exc:
-        print(f"FEHLER: {exc}", file=sys.stderr)
+        print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
 
 
 def main() -> None:
     VENDOR_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Zielverzeichnis: {VENDOR_DIR}\n")
+    print(f"Target directory: {VENDOR_DIR}\n")
     for filename, url in ASSETS:
         download(filename, url)
-    print("\nAlle Vendor-Assets verfügbar.")
+    print("\nAll vendor assets available.")
 
 
 if __name__ == "__main__":

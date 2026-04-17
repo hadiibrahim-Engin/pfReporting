@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import pytest
 
-from freischaltung.config import FreischaltungConfig, VizRequest
-from freischaltung.db_reader import PFTableReader
-from freischaltung.db_writer import (
+from pfreporting.config import PFReportConfig, VizRequest
+from pfreporting.db_reader import PFTableReader
+from pfreporting.db_writer import (
     PFTableWriter,
     _SUFFIX_DESC,
     _SUFFIX_SHORT_DESC,
@@ -13,7 +13,7 @@ from freischaltung.db_writer import (
     meta_table_name,
     table_name,
 )
-from freischaltung.models import TimeSeriesData
+from pfreporting.models import TimeSeriesData
 
 
 # ── Reuse mocks from test_db_writer ──────────────────────────────────────────
@@ -37,8 +37,8 @@ class MockElmRes:
     def __init__(self) -> None:
         self._objs = [
             None,
-            MockElmObj("ElmLne", "Leitung_A"),
-            MockElmObj("ElmLne", "Leitung_B"),
+            MockElmObj("ElmLne", "Line_A"),
+            MockElmObj("ElmLne", "Line_B"),
         ]
         self._vars = ["t", "c:loading", "c:loading"]
         self._data = [
@@ -120,13 +120,13 @@ class MockReport:
 # ── Fixtures ───────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def config() -> FreischaltungConfig:
-    return FreischaltungConfig(
+def config() -> PFReportConfig:
+    return PFReportConfig(
         visualizations=[
             VizRequest(
                 element_class="ElmLne",
                 variable="c:loading",
-                label="Leitungen – Auslastung",
+                label="Lines – Loading",
                 unit="%",
                 warn_hi=80.0,
                 violation_hi=100.0,
@@ -171,10 +171,10 @@ def test_read_all_series_values_match_written(config, populated_report):
     vr = config.visualizations[0]
     section = ts_data.sections[vr.chart_id]
 
-    assert "Leitung_A" in section
-    assert "Leitung_B" in section
-    assert section["Leitung_A"].values == pytest.approx([55.0, 60.0, 65.0])
-    assert section["Leitung_B"].values == pytest.approx([85.0, 92.0, 105.0])
+    assert "Line_A" in section
+    assert "Line_B" in section
+    assert section["Line_A"].values == pytest.approx([55.0, 60.0, 65.0])
+    assert section["Line_B"].values == pytest.approx([85.0, 92.0, 105.0])
 
 
 def test_read_all_unit_from_meta(config, populated_report):
@@ -182,7 +182,6 @@ def test_read_all_unit_from_meta(config, populated_report):
     ts_data = reader.read_all(populated_report)
     vr = config.visualizations[0]
     section = ts_data.sections[vr.chart_id]
-    # Unit comes from meta table; MockElmObj.GetUnit() returns "%"
     for ts in section.values():
         assert ts.unit != ""
 
@@ -236,14 +235,12 @@ def test_read_without_get_field_names(config, populated_report):
         def GetFieldNames(self, table: str) -> list[str]:
             raise AttributeError("GetFieldNames not available")
 
-    # Rebuild populated report as ReportNoFieldNames type
     report = ReportNoFieldNames()
     writer = PFTableWriter(MockApp(), config)
     writer.write_all(report, MockElmRes(), clear_existing=True)
 
     reader = PFTableReader(MockApp(), config)
     ts_data = reader.read_all(report)
-    # Without GetFieldNames, section should be absent or empty
     vr = config.visualizations[0]
     section = ts_data.sections.get(vr.chart_id, {})
     assert isinstance(section, dict)

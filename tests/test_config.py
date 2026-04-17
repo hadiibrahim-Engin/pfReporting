@@ -1,11 +1,11 @@
-"""Tests für die Konfigurationsmodelle."""
+"""Tests for configuration models."""
 import json
 
 import pytest
 from pydantic import ValidationError
 
-from freischaltung.config import (
-    FreischaltungConfig,
+from pfreporting.config import (
+    PFReportConfig,
     ThermalConfig,
     VizRequest,
     VoltageConfig,
@@ -55,17 +55,17 @@ class TestVizRequest:
             VizRequest(element_class="ElmLne", variable="c:loading", label="X", unit="%", max_elements=2001)
 
 
-class TestFreischaltungConfig:
+class TestPFReportConfig:
     def test_default_visualizations(self):
-        cfg = FreischaltungConfig()
+        cfg = PFReportConfig()
         assert len(cfg.visualizations) >= 1
         loading_vr = [v for v in cfg.visualizations if v.variable == "c:loading"]
         assert len(loading_vr) >= 1
 
     def test_json_round_trip(self):
-        cfg = FreischaltungConfig()
+        cfg = PFReportConfig()
         serialized = cfg.model_dump_json()
-        restored = FreischaltungConfig.model_validate_json(serialized)
+        restored = PFReportConfig.model_validate_json(serialized)
         assert restored.voltage.lower_violation == cfg.voltage.lower_violation
         assert len(restored.visualizations) == len(cfg.visualizations)
 
@@ -74,6 +74,6 @@ class TestFreischaltungConfig:
             "voltage": {"lower_warning": 0.93, "lower_violation": 0.88, "upper_warning": 1.07, "upper_violation": 1.12},
             "thermal": {"warning_pct": 75.0, "violation_pct": 95.0},
         }
-        cfg = FreischaltungConfig.model_validate(data)
+        cfg = PFReportConfig.model_validate(data)
         assert cfg.voltage.lower_warning == 0.93
         assert cfg.thermal.warning_pct == 75.0

@@ -1,9 +1,9 @@
 """
-CLI-Einstiegspunkt – freischaltung-report
+CLI entry point – pfreporting
 
-Befehle:
-    generate   Erzeugt einen Report (mit echten PF-Daten oder Mock-Daten)
-    download-assets   Lädt Vendor-JS-Dateien herunter
+Commands:
+    generate         Generate a report (with real PF data or mock data)
+    download-assets  Download vendor JS files
 """
 from __future__ import annotations
 
@@ -16,8 +16,8 @@ from rich.console import Console
 from rich.panel import Panel
 
 app = typer.Typer(
-    name="freischaltung-report",
-    help="Automatische Freischaltungsbewertung – HTML-Report-Generator",
+    name="pfreporting",
+    help="Automated De-Energization Assessment – HTML Report Generator",
     add_completion=False,
 )
 console = Console()
@@ -29,7 +29,7 @@ def generate(
         None,
         "--config",
         "-c",
-        help="Pfad zu einer JSON-Konfigurationsdatei (FreischaltungConfig).",
+        help="Path to a JSON configuration file (PFReportConfig).",
         exists=True,
         file_okay=True,
         dir_okay=False,
@@ -38,28 +38,27 @@ def generate(
         None,
         "--output-dir",
         "-o",
-        help="Ausgabeverzeichnis (überschreibt ReportConfig.output_dir).",
+        help="Output directory (overrides ReportConfig.output_dir).",
     ),
     mock: bool = typer.Option(
         False,
         "--mock",
-        help="Verwendet eingebettete Demo-Daten (kein PowerFactory erforderlich).",
+        help="Use embedded demo data (no PowerFactory required).",
     ),
     pdf: bool = typer.Option(
         False,
         "--pdf",
-        help="Erzeugt zusätzlich eine PDF-Datei (benötigt: pip install freischaltung[pdf]).",
+        help="Also generate a PDF file (requires: pip install pfreporting[pdf]).",
     ),
 ) -> None:
-    """Erzeugt einen Freischaltungsbewertungs-Report."""
-    from freischaltung.config import FreischaltungConfig
-    from freischaltung.report.generator import HTMLReportGenerator
+    """Generate a De-Energization Assessment report."""
+    from pfreporting.config import PFReportConfig
+    from pfreporting.report.generator import HTMLReportGenerator
 
-    # Konfiguration laden
-    cfg = FreischaltungConfig()
+    cfg = PFReportConfig()
     if config:
-        cfg = FreischaltungConfig.model_validate_json(config.read_text(encoding="utf-8"))
-        console.print(f"[green]Konfiguration geladen:[/] {config}")
+        cfg = PFReportConfig.model_validate_json(config.read_text(encoding="utf-8"))
+        console.print(f"[green]Configuration loaded:[/] {config}")
 
     if output_dir:
         cfg.report.output_dir = str(output_dir)
@@ -71,14 +70,14 @@ def generate(
 
 
 def _run_mock(cfg, pdf: bool) -> None:
-    """Generiert einen Report mit eingebetteten Demo-Daten."""
-    from freischaltung.report.builder import ReportData
-    from freischaltung.report.generator import HTMLReportGenerator
-    from freischaltung._mock_data import build_mock_data
+    """Generate a report using embedded demo data."""
+    from pfreporting.report.builder import ReportData
+    from pfreporting.report.generator import HTMLReportGenerator
+    from pfreporting._mock_data import build_mock_data
     import datetime
     from pathlib import Path
 
-    console.print(Panel("[bold]Demo-Report (Mock-Daten)[/]", style="blue"))
+    console.print(Panel("[bold]Demo Report (Mock Data)[/]", style="blue"))
 
     data: ReportData = build_mock_data()
     generator = HTMLReportGenerator(cfg)
@@ -87,31 +86,31 @@ def _run_mock(cfg, pdf: bool) -> None:
     out_dir = Path(cfg.report.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    dest = out_dir / f"Freischaltungsbewertung_DEMO_{ts}.html"
+    dest = out_dir / f"DeEnergizationAssessment_DEMO_{ts}.html"
     dest.write_text(html, encoding="utf-8")
 
-    console.print(f"[green]Report gespeichert:[/] {dest}")
+    console.print(f"[green]Report saved:[/] {dest}")
 
     if pdf:
         _export_pdf(dest)
 
 
 def _run_powerfactory(cfg, pdf: bool) -> None:
-    """Startet die echte PowerFactory-Auswertung."""
+    """Run the real PowerFactory assessment."""
     try:
         import powerfactory  # type: ignore
     except ImportError:
         console.print(
-            "[red]PowerFactory-Python-API nicht gefunden.[/]\n"
-            "Verwende [bold]--mock[/] für Demo-Daten ohne PowerFactory."
+            "[red]PowerFactory Python API not found.[/]\n"
+            "Use [bold]--mock[/] for demo data without PowerFactory."
         )
         raise typer.Exit(1)
 
-    from freischaltung import run_report
+    from pfreporting import run_report
 
     app_pf = powerfactory.GetApplication()
     dest = run_report(app_pf, cfg)
-    console.print(f"[green]Report gespeichert:[/] {dest}")
+    console.print(f"[green]Report saved:[/] {dest}")
 
     if pdf:
         _export_pdf(dest)
@@ -122,18 +121,18 @@ def _export_pdf(html_path: Path) -> None:
         from weasyprint import HTML  # type: ignore
     except ImportError:
         console.print(
-            "[yellow]PDF-Export nicht verfügbar.[/] "
-            "Installiere: [bold]pip install freischaltung[pdf][/]"
+            "[yellow]PDF export not available.[/] "
+            "Install: [bold]pip install pfreporting[pdf][/]"
         )
         return
     pdf_path = html_path.with_suffix(".pdf")
     HTML(filename=str(html_path)).write_pdf(str(pdf_path))
-    console.print(f"[green]PDF gespeichert:[/] {pdf_path}")
+    console.print(f"[green]PDF saved:[/] {pdf_path}")
 
 
 @app.command()
 def download_assets() -> None:
-    """Lädt Chart.js-Vendor-Dateien herunter (für Offline-Betrieb)."""
+    """Download Chart.js vendor files (for offline use)."""
     import subprocess
 
     script = Path(__file__).parent / "scripts" / "download_assets.py"
