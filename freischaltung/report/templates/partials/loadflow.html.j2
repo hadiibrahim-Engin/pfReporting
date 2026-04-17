@@ -1,8 +1,9 @@
+{% from 'partials/_macros.html.j2' import badge %}
 <section>
     <h2>Lastflussergebnisse</h2>
     <div class="lf-grid">
         <div class="lf-item">
-            <div class="lf-label">Status</div>
+            <div class="lf-label">Status (Normalbetrieb)</div>
             <div class="lf-wert">
                 <span class="{{ 'badge-ok' if lf.converged else 'badge-verletzung' }}">
                     {{ lf.status_text }}
@@ -25,5 +26,54 @@
             <div class="lf-label">Verluste</div>
             <div class="lf-wert">{{ "%.2f"|format(lf.losses_mw) }} MW</div>
         </div>
+        {% if lf.qds_steps %}
+        {% set n_ok    = lf.qds_steps | selectattr('converged', 'eq', true)  | list | length %}
+        {% set n_fail  = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+        <div class="lf-item">
+            <div class="lf-label">QDS Zeitschritte</div>
+            <div class="lf-wert">{{ lf.qds_steps | length }}</div>
+        </div>
+        <div class="lf-item {% if n_fail > 0 %}lf-item-warn{% endif %}">
+            <div class="lf-label">Nicht konvergiert</div>
+            <div class="lf-wert" style="color:{% if n_fail > 0 %}var(--verl){% else %}var(--ok){% endif %}">
+                {{ n_fail }}
+            </div>
+        </div>
+        {% endif %}
     </div>
+
+    {% if lf.qds_steps %}
+    {% set n_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+    <details class="qds-steps-details">
+        <summary>
+            QDS-Konvergenz pro Zeitschritt
+            ({{ lf.qds_steps | length }} Schritte{% if n_fail > 0 %},
+            <span style="color:var(--verl);">{{ n_fail }} nicht konvergiert</span>{% endif %})
+        </summary>
+        <div class="qds-steps-table-wrap">
+            <table class="qds-steps-table">
+                <thead>
+                    <tr>
+                        <th>Zeit [h]</th>
+                        <th>Lastfluss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in lf.qds_steps %}
+                    <tr class="{{ '' if step.converged else 'step-nonconv' }}">
+                        <td>{{ "%.2f"|format(step.time_h) }}</td>
+                        <td>
+                            {% if step.converged %}
+                            <span class="badge-ok">Konvergiert</span>
+                            {% else %}
+                            <span class="badge-verletzung">Nicht konvergiert</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </details>
+    {% endif %}
 </section>

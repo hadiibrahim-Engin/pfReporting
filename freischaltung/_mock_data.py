@@ -9,6 +9,8 @@ from freischaltung.models import (
     N1Result,
     OverallStatus,
     ProjectInfo,
+    QDSInfo,
+    QDSStep,
     StatusCounts,
     SwitchedElement,
     TimeSeries,
@@ -16,6 +18,9 @@ from freischaltung.models import (
     VoltageResult,
 )
 from freischaltung.report.builder import ReportData
+
+_STEPS = 25
+_TIME  = [float(i) for i in range(_STEPS)]
 
 
 def build_mock_data() -> ReportData:
@@ -29,11 +34,23 @@ def build_mock_data() -> ReportData:
         author="Hadi Ibrahim",
     )
 
+    qds_info = QDSInfo(
+        t_start_h=0.0,
+        t_end_h=24.0,
+        dt_h=1.0,
+        n_steps=_STEPS,
+        result_file="Quasi-Dynamic Simulation AC.ElmRes",
+        scenario="Winterlast_2026",
+        study_time_start="01.01.2026 00:00",
+    )
+
     switched = [
         SwitchedElement(name="Leitung_110kV_Nord", type="Leitung"),
-        SwitchedElement(name="Trafo_UW_Mitte_T2", type="Transformator (2W)"),
+        SwitchedElement(name="Trafo_UW_Mitte_T2",  type="Transformator (2W)"),
     ]
 
+    # Steps 8 and 16 simulate non-convergence (all NaN in real PF – here None)
+    non_conv = {8, 16}
     lf = LoadFlowResult(
         converged=True,
         status_text="Konvergiert",
@@ -41,21 +58,25 @@ def build_mock_data() -> ReportData:
         total_load_mw=245.80,
         total_gen_mw=252.30,
         losses_mw=6.50,
+        qds_steps=[
+            QDSStep(time_h=float(i), converged=(i not in non_conv))
+            for i in range(_STEPS)
+        ],
     )
 
     voltage = [
-        VoltageResult(node="SS_Wohngebiet_20kV",  u_nenn_kv=20.0, u_kv=17.80, u_pu=0.8900, deviation_pct=-11.00, status="violation"),
-        VoltageResult(node="SS_West_110kV",        u_nenn_kv=110.0, u_kv=103.40, u_pu=0.9400, deviation_pct=-6.00, status="warning"),
-        VoltageResult(node="SS_Krankenhaus_20kV",  u_nenn_kv=20.0, u_kv=19.20, u_pu=0.9600, deviation_pct=-4.00, status="ok"),
-        VoltageResult(node="SS_Industrie_20kV",    u_nenn_kv=20.0, u_kv=19.40, u_pu=0.9700, deviation_pct=-3.00, status="ok"),
-        VoltageResult(node="SS_Süd_110kV",         u_nenn_kv=110.0, u_kv=107.80, u_pu=0.9800, deviation_pct=-2.00, status="ok"),
-        VoltageResult(node="SS_Bahnhof_20kV",      u_nenn_kv=20.0, u_kv=19.80, u_pu=0.9900, deviation_pct=-1.00, status="ok"),
-        VoltageResult(node="SS_Ost_110kV",         u_nenn_kv=110.0, u_kv=111.10, u_pu=1.0100, deviation_pct=+1.00, status="ok"),
-        VoltageResult(node="SS_Schule_20kV",       u_nenn_kv=20.0, u_kv=20.20, u_pu=1.0100, deviation_pct=+1.00, status="ok"),
-        VoltageResult(node="SS_Nord_110kV",        u_nenn_kv=110.0, u_kv=112.20, u_pu=1.0200, deviation_pct=+2.00, status="ok"),
-        VoltageResult(node="SS_Mitte_110kV",       u_nenn_kv=110.0, u_kv=113.30, u_pu=1.0300, deviation_pct=+3.00, status="ok"),
-        VoltageResult(node="SS_Hafen_20kV",        u_nenn_kv=20.0, u_kv=20.80, u_pu=1.0400, deviation_pct=+4.00, status="ok"),
-        VoltageResult(node="SS_Gewerbe_20kV",      u_nenn_kv=20.0, u_kv=21.20, u_pu=1.0600, deviation_pct=+6.00, status="warning"),
+        VoltageResult(node="SS_Wohngebiet_20kV",  u_nenn_kv=20.0,  u_kv=17.80,  u_pu=0.8900, deviation_pct=-11.00, status="violation"),
+        VoltageResult(node="SS_West_110kV",        u_nenn_kv=110.0, u_kv=103.40, u_pu=0.9400, deviation_pct=-6.00,  status="warning"),
+        VoltageResult(node="SS_Krankenhaus_20kV",  u_nenn_kv=20.0,  u_kv=19.20,  u_pu=0.9600, deviation_pct=-4.00,  status="ok"),
+        VoltageResult(node="SS_Industrie_20kV",    u_nenn_kv=20.0,  u_kv=19.40,  u_pu=0.9700, deviation_pct=-3.00,  status="ok"),
+        VoltageResult(node="SS_Süd_110kV",         u_nenn_kv=110.0, u_kv=107.80, u_pu=0.9800, deviation_pct=-2.00,  status="ok"),
+        VoltageResult(node="SS_Bahnhof_20kV",      u_nenn_kv=20.0,  u_kv=19.80,  u_pu=0.9900, deviation_pct=-1.00,  status="ok"),
+        VoltageResult(node="SS_Ost_110kV",         u_nenn_kv=110.0, u_kv=111.10, u_pu=1.0100, deviation_pct=+1.00,  status="ok"),
+        VoltageResult(node="SS_Schule_20kV",       u_nenn_kv=20.0,  u_kv=20.20,  u_pu=1.0100, deviation_pct=+1.00,  status="ok"),
+        VoltageResult(node="SS_Nord_110kV",        u_nenn_kv=110.0, u_kv=112.20, u_pu=1.0200, deviation_pct=+2.00,  status="ok"),
+        VoltageResult(node="SS_Mitte_110kV",       u_nenn_kv=110.0, u_kv=113.30, u_pu=1.0300, deviation_pct=+3.00,  status="ok"),
+        VoltageResult(node="SS_Hafen_20kV",        u_nenn_kv=20.0,  u_kv=20.80,  u_pu=1.0400, deviation_pct=+4.00,  status="ok"),
+        VoltageResult(node="SS_Gewerbe_20kV",      u_nenn_kv=20.0,  u_kv=21.20,  u_pu=1.0600, deviation_pct=+6.00,  status="warning"),
     ]
 
     loading = [
@@ -143,17 +164,17 @@ def build_mock_data() -> ReportData:
         summary_text=(
             "Die Freischaltung ist <strong>NICHT zulässig</strong>. "
             "Es liegen Verletzungen der Systemsicherheit vor.<br>"
-            " - 1 Spannungsbandverletzung(en)<br>"
-            " - 1 thermische Überlastung(en)<br>"
-            " - 2 (n-1)-Sicherheitsverletzung(en)"
+            " – 1 Spannungsbandverletzung(en)<br>"
+            " – 1 thermische Überlastung(en)<br>"
+            " – 2 (N-1)-Sicherheitsverletzung(en)"
         ),
     )
 
-    # ── Synthetische Zeitreihen ───────────────────────────────────────────
     ts_data = _build_mock_timeseries()
 
     return ReportData(
         info=info,
+        qds_info=qds_info,
         switched=switched,
         lf=lf,
         voltage=voltage,
@@ -164,94 +185,114 @@ def build_mock_data() -> ReportData:
     )
 
 
+def _sine(base: float, amp: float, phase: float = 0.0) -> list[float]:
+    return [
+        round(base + amp * math.sin(2 * math.pi * i / 24 + phase), 4)
+        for i in range(_STEPS)
+    ]
+
+
 def _build_mock_timeseries() -> TimeSeriesData:
     """Erzeugt realistische Sinuskurven als Demo-Zeitreihen (24 h, 1 h-Schritte)."""
-    steps = 25
-    time = [float(i) for i in range(steps)]
+    sections: dict = {}
 
-    def sine_loading(base: float, amplitude: float, phase: float) -> list[float]:
-        return [
-            round(base + amplitude * math.sin(2 * math.pi * i / 24 + phase), 2)
-            for i in range(steps)
-        ]
-
-    # c:loading für ElmLne (chart_id = "ElmLne_c_loading")
-    lne_loading_cid = "ElmLne_c_loading"
-    lne_loading_section: dict[str, TimeSeries] = {
+    # ── ElmLne / c:loading ──────────────────────────────────────────────────
+    sections["ElmLne_c_loading"] = {
         "Leitung_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="c:loading",
             label="Leitungen – Auslastung", unit="%",
-            values=sine_loading(95.0, 15.0, 0.0),
+            values=_sine(95.0, 15.0, 0.0),
         ),
         "Leitung_110kV_Ost": TimeSeries(
             element_class="ElmLne", variable="c:loading",
             label="Leitungen – Auslastung", unit="%",
-            values=sine_loading(75.0, 12.0, 0.5),
+            values=_sine(75.0, 12.0, 0.5),
         ),
         "Leitung_110kV_Süd": TimeSeries(
             element_class="ElmLne", variable="c:loading",
             label="Leitungen – Auslastung", unit="%",
-            values=sine_loading(60.0, 8.0, 1.0),
+            values=_sine(60.0, 8.0, 1.0),
         ),
     }
 
-    # c:loading für ElmTr2 (chart_id = "ElmTr2_c_loading")
-    tr2_loading_cid = "ElmTr2_c_loading"
-    tr2_loading_section: dict[str, TimeSeries] = {
+    # ── ElmTr2 / c:loading ──────────────────────────────────────────────────
+    sections["ElmTr2_c_loading"] = {
         "Trafo_UW_Mitte_T1": TimeSeries(
             element_class="ElmTr2", variable="c:loading",
             label="Transformatoren – Auslastung", unit="%",
-            values=sine_loading(85.0, 10.0, 0.3),
+            values=_sine(85.0, 10.0, 0.3),
         ),
     }
 
-    # m:i1:bus1 für ElmLne (chart_id = "ElmLne_m_i1_bus1")
-    current_cid = "ElmLne_m_i1_bus1"
-    current_section: dict[str, TimeSeries] = {
+    # ── ElmLne / m:i1:bus1 ──────────────────────────────────────────────────
+    sections["ElmLne_m_i1_bus1"] = {
         "Leitung_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:i1:bus1",
             label="Leitungen – Strom", unit="kA",
-            values=[round(0.48 + 0.12 * math.sin(2 * math.pi * i / 24), 3) for i in range(steps)],
+            values=_sine(0.48, 0.12, 0.0),
         ),
         "Leitung_110kV_Ost": TimeSeries(
             element_class="ElmLne", variable="m:i1:bus1",
             label="Leitungen – Strom", unit="kA",
-            values=[round(0.40 + 0.08 * math.sin(2 * math.pi * i / 24 + 0.5), 3) for i in range(steps)],
+            values=_sine(0.40, 0.08, 0.5),
         ),
     }
 
-    # m:P:bus1 für ElmLne (chart_id = "ElmLne_m_P_bus1")
-    p_cid = "ElmLne_m_P_bus1"
-    p_section: dict[str, TimeSeries] = {
+    # ── ElmLne / m:P:bus1 ───────────────────────────────────────────────────
+    sections["ElmLne_m_P_bus1"] = {
         "Leitung_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:P:bus1",
             label="Leitungen – Wirkleistung", unit="MW",
-            values=[round(85.0 + 20.0 * math.sin(2 * math.pi * i / 24), 2) for i in range(steps)],
+            values=_sine(85.0, 20.0, 0.0),
         ),
         "Leitung_110kV_Ost": TimeSeries(
             element_class="ElmLne", variable="m:P:bus1",
             label="Leitungen – Wirkleistung", unit="MW",
-            values=[round(65.0 + 15.0 * math.sin(2 * math.pi * i / 24 + 0.5), 2) for i in range(steps)],
+            values=_sine(65.0, 15.0, 0.5),
         ),
     }
 
-    # m:Q:bus1 für ElmLne (chart_id = "ElmLne_m_Q_bus1")
-    q_cid = "ElmLne_m_Q_bus1"
-    q_section: dict[str, TimeSeries] = {
+    # ── ElmLne / m:Q:bus1 ───────────────────────────────────────────────────
+    sections["ElmLne_m_Q_bus1"] = {
         "Leitung_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:Q:bus1",
             label="Leitungen – Blindleistung", unit="Mvar",
-            values=[round(18.0 + 6.0 * math.sin(2 * math.pi * i / 24 + 1.0), 2) for i in range(steps)],
+            values=_sine(18.0, 6.0, 1.0),
         ),
     }
 
-    return TimeSeriesData(
-        time=time,
-        sections={
-            lne_loading_cid:  lne_loading_section,
-            tr2_loading_cid:  tr2_loading_section,
-            current_cid:      current_section,
-            p_cid:            p_section,
-            q_cid:            q_section,
-        },
-    )
+    # ── ElmTerm / m:u  (für Spannungs-Heatmap) ──────────────────────────────
+    sections["ElmTerm_m_u"] = {
+        "SS_Wohngebiet_20kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(0.890, 0.030, 0.0),
+        ),
+        "SS_West_110kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(0.940, 0.020, 0.5),
+        ),
+        "SS_Süd_110kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(0.980, 0.010, 1.0),
+        ),
+        "SS_Nord_110kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(1.020, 0.020, 0.3),
+        ),
+        "SS_Gewerbe_20kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(1.060, 0.010, 0.8),
+        ),
+        "SS_Mitte_110kV": TimeSeries(
+            element_class="ElmTerm", variable="m:u",
+            label="Knoten – Spannung", unit="p.u.",
+            values=_sine(1.030, 0.015, 0.2),
+        ),
+    }
+
+    return TimeSeriesData(time=_TIME, sections=sections)

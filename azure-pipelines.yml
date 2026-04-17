@@ -1,0 +1,246 @@
+# =============================================================================
+# Azure DevOps Pipeline – freischaltung Package
+# =============================================================================
+#
+# Was dieser Pipeline macht:
+#   Stage 1 – CI       : Lint (ruff) + pytest mit Test- und Coverage-Report
+#   Stage 2 – Build    : wheel + sdist bauen, twine check, als Artifact hochladen
+#   Stage 3 – Publish  : Wheel in Azure Artifacts PyPI-Feed veröffentlichen
+#                        (nur auf main-Branch oder v*-Tags)
+#
+# Einmalige Vorbereitung in Azure DevOps:
+#   1. Artifacts-Feed erstellen:
+#      Artifacts → Create Feed → Name: "freischaltung-feed"
+#      (oder ARTIFACT_FEED Variable unten anpassen)
+#   2. Environment anlegen (für Approval-Gate bei Publish):
+#      Pipelines → Environments → New → Name: "package-release"
+#      (oder PUBLISH_ENV unten anpassen / leer lassen für kein Gate)
+#   3. Pipeline-Variable setzen (optional):
+#      ARTIFACT_FEED = freischaltung-feed
+#
+# Installation in einer venv nach der Veröffentlichung:
+#   pip install freischaltung \
+#     --index-url https://pkgs.dev.azure.com/<ORG>/<PROJECT>/_packaging/freischaltung-feed/pypi/simple/ \
+#     --extra-index-url https://pypi.org/simple/
+# =============================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - 'release/*'
+  tags:
+    include:
+      - 'v*'
+
+pr:
+  branches:
+    include:
+      - main
+
+# ---------------------------------------------------------------------------
+variables:
+  PYTHON_VERSION: '3.11'
+  ARTIFACT_FEED: 'freischaltung-feed'   # ← Azure Artifacts Feed-Name anpassen
+  PUBLISH_ENV:   'package-release'       # ← Environment-Name in Azure DevOps
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# ===========================================================================
+stages:
+
+# ---------------------------------------------------------------------------
+# Stage 1 – Lint & Test
+# ---------------------------------------------------------------------------
+- stage: CI
+  displayName: '① Lint & Test'
+  jobs:
+
+  - job: Test
+    displayName: 'Lint + pytest'
+    steps:
+
+    - task: UsePythonVersion@0
+      displayName: 'Python $(PYTHON_VERSION) einrichten'
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+        addToPath: true
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install hatchling build
+        pip install -e ".[dev]"
+      displayName: 'Abhängigkeiten installieren'
+
+    - script: |
+        python scripts/download_assets.py
+      displayName: 'Vendor-JS laden (Chart.js, hammer, zoom)'
+
+    - script: |
+        ruff check freischaltung/ cli.py
+      displayName: 'Lint – ruff'
+
+    - script: |
+        pytest tests/ -v --tb=short \
+          --junitxml=$(Build.StagingDirectory)/test-results.xml \
+          --cov=freischaltung \
+          --cov-report=xml:$(Build.StagingDirectory)/coverage.xml \
+          --cov-report=term-missing
+      displayName: 'pytest'
+
+    - task: PublishTestResults@2
+      displayName: 'Testergebnisse veröffentlichen'
+      condition: always()
+      inputs:
+        testResultsFormat: JUnit
+        testResultsFiles: '$(Build.StagingDirectory)/test-results.xml'
+        testRunTitle: 'freischaltung – pytest'
+        failTaskOnFailedTests: true
+
+    - task: PublishCodeCoverageResults@2
+      displayName: 'Coverage-Report veröffentlichen'
+      condition: always()
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: '$(Build.StagingDirectory)/coverage.xml'
+
+# ---------------------------------------------------------------------------
+# Stage 2 – Build
+# ---------------------------------------------------------------------------
+- stage: Build
+  displayName: '② Build Package'
+  dependsOn: CI
+
+  jobs:
+
+  - job: BuildPackage
+    displayName: 'wheel + sdist bauen'
+    steps:
+
+    - task: UsePythonVersion@0
+      displayName: 'Python $(PYTHON_VERSION) einrichten'
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+        addToPath: true
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install hatchling build twine
+      displayName: 'Build-Tools installieren'
+
+    # Vendor-JS muss vor dem Build im Paketverzeichnis liegen,
+    # damit sie im Wheel landen.
+    - script: |
+        python scripts/download_assets.py
+      displayName: 'Vendor-JS laden (wird in Wheel eingebettet)'
+
+    - script: |
+        python -m build --outdir dist/
+      displayName: 'Wheel + sdist bauen  →  dist/'
+
+    - script: |
+        twine check dist/*
+        echo ""
+        echo "--- Gebaute Pakete ---"
+        ls -lh dist/
+      displayName: 'Package-Metadaten prüfen (twine check)'
+
+    # Build-Name auf Paketversion setzen, z.B. "freischaltung-0.1.0-42"
+    - script: |
+        python - <<'EOF'
+        import re, pathlib, os
+        content = pathlib.Path('pyproject.toml').read_text()
+        version = re.search(r'^version\s*=\s*"([^"]+)"', content, re.M).group(1)
+        build_id = os.environ.get('BUILD_BUILDID', '0')
+        new_name = f'freischaltung-{version}-{build_id}'
+        print(f'##vso[build.updatebuildnumber]{new_name}')
+        print(f'Paketversion: {version}')
+        EOF
+      displayName: 'Build-Name auf Paketversion setzen'
+
+    # dist/ als Pipeline-Artifact hochladen
+    # → in Azure DevOps unter Pipelines → Run → Artifacts → freischaltung-dist
+    - task: PublishBuildArtifacts@1
+      displayName: 'dist/ als Artifact hochladen'
+      inputs:
+        pathToPublish: 'dist'
+        artifactName: 'freischaltung-dist'
+        publishLocation: Container
+
+# ---------------------------------------------------------------------------
+# Stage 3 – Publish to Azure Artifacts
+# ---------------------------------------------------------------------------
+- stage: Publish
+  displayName: '③ Publish → Azure Artifacts'
+  dependsOn: Build
+
+  # Nur auf main-Branch oder v*-Tags veröffentlichen
+  condition: |
+    and(
+      succeeded(),
+      or(
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
+        eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      )
+    )
+
+  jobs:
+
+  - deployment: PublishToFeed
+    displayName: 'In PyPI-Feed veröffentlichen'
+    environment: '$(PUBLISH_ENV)'       # ← Approval-Gate möglich
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: UsePythonVersion@0
+            displayName: 'Python $(PYTHON_VERSION) einrichten'
+            inputs:
+              versionSpec: '$(PYTHON_VERSION)'
+              addToPath: true
+
+          # Artifact aus Stage 2 herunterladen
+          - download: current
+            artifact: freischaltung-dist
+            displayName: 'dist-Artifact herunterladen'
+
+          - script: pip install twine
+            displayName: 'twine installieren'
+
+          # TwineAuthenticate schreibt eine .pypirc-Datei und setzt PYPIRC_PATH.
+          # artifactFeed: "<Projekt>/<Feed>" für projekt-scoped Feed
+          #               "<Feed>"           für org-scoped Feed
+          - task: TwineAuthenticate@1
+            displayName: 'Azure Artifacts Feed authentifizieren'
+            inputs:
+              artifactFeed: '$(System.TeamProject)/$(ARTIFACT_FEED)'
+
+          # --skip-existing: verhindert Fehler wenn Version schon im Feed liegt
+          - script: |
+              twine upload \
+                --repository "$(ARTIFACT_FEED)" \
+                --config-file "$(PYPIRC_PATH)" \
+                --skip-existing \
+                "$(Pipeline.Workspace)/freischaltung-dist/"*.whl \
+                "$(Pipeline.Workspace)/freischaltung-dist/"*.tar.gz
+            displayName: 'Paket in Azure Artifacts PyPI-Feed hochladen'
+
+          - script: |
+              python - <<'EOF'
+              import os
+              org  = os.environ.get('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI', '<ORG>').rstrip('/')
+              proj = os.environ.get('SYSTEM_TEAMPROJECT', '<PROJECT>')
+              feed = os.environ.get('ARTIFACT_FEED', 'freischaltung-feed')
+              base = f"{org}/{proj}/_packaging/{feed}/pypi/simple/"
+              print()
+              print("=" * 70)
+              print("Paket veröffentlicht! Installation in einer venv:")
+              print()
+              print(f"  pip install freischaltung \\")
+              print(f"    --index-url {base} \\")
+              print(f"    --extra-index-url https://pypi.org/simple/")
+              print("=" * 70)
+              EOF
+            displayName: 'Installations-URL ausgeben'

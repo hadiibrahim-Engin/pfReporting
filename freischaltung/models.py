@@ -21,6 +21,24 @@ class ProjectInfo(BaseModel):
     author: str
 
 
+# ─── Quasi-Dynamische Simulation ────────────────────────────────────────────
+
+
+class QDSInfo(BaseModel):
+    t_start_h: float = 0.0
+    t_end_h: float = 24.0
+    dt_h: float = 1.0
+    n_steps: int = 0
+    result_file: str = ""
+    scenario: str = ""
+    study_time_start: str = ""
+
+
+class QDSStep(BaseModel):
+    time_h: float
+    converged: bool
+
+
 # ─── Freigeschaltete Betriebsmittel ─────────────────────────────────────────
 
 
@@ -41,6 +59,7 @@ class LoadFlowResult(BaseModel):
     total_load_mw: float
     total_gen_mw: float
     losses_mw: float
+    qds_steps: list[QDSStep] = Field(default_factory=list)
 
 
 # ─── Spannungsband ───────────────────────────────────────────────────────────

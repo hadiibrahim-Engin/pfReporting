@@ -34,4 +34,26 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if voltage_hm_data %}
+    <div class="hm-toggle-row">
+        <button class="hm-toggle-btn"
+                data-target="hm-voltage"
+                data-label-open="Spannungs-Heatmap anzeigen"
+                data-label-close="Spannungs-Heatmap ausblenden">
+            Spannungs-Heatmap anzeigen
+        </button>
+    </div>
+    <div id="hm-voltage" class="hm-panel" style="display:none;"
+         data-hm="{{ voltage_hm_data | tojson | e }}">
+        <div class="hm-controls-bar">
+            <button class="hm-select-btn" data-mode="critical">Nur auffällige</button>
+            <button class="hm-select-btn" data-mode="all">Alle</button>
+            <button class="hm-select-btn" data-mode="none">Keine</button>
+            <span class="hm-info"></span>
+        </div>
+        <div class="hm-elem-selector"></div>
+        <div class="hm-render-area"></div>
+    </div>
+    {% endif %}
 </section>

@@ -49,9 +49,13 @@ class HTMLReportGenerator:
         chart_data = self._build_chart_data(data)
         heatmap_data = self._build_heatmap_data(data)
 
+        thermal_hm = self._build_thermal_hm_data(data)
+        voltage_hm = self._build_voltage_hm_data(data)
+
         try:
             html = template.render(
                 info=data.info,
+                qds_info=data.qds_info,
                 overall=data.overall,
                 switched=data.switched,
                 lf=data.lf,
@@ -61,6 +65,8 @@ class HTMLReportGenerator:
                 ts_data=data.ts_data,
                 viz_requests=self.config.visualizations,
                 heatmap_data=heatmap_data,
+                thermal_hm_data=thermal_hm,
+                voltage_hm_data=voltage_hm,
                 vcfg=self.config.voltage,
                 tcfg=self.config.thermal,
                 n1cfg=self.config.n1,
@@ -150,6 +156,62 @@ class HTMLReportGenerator:
             }
 
         return result
+
+    def _build_thermal_hm_data(self, data: ReportData) -> dict | None:
+        """Heatmap-Daten für thermische Auslastung (alle c:loading-Serien)."""
+        if data.ts_data.is_empty():
+            return None
+        status_map = {r.name: r.status for r in data.loading}
+        time = [round(t, 3) for t in data.ts_data.time]
+        seen: set[str] = set()
+        rows: list[dict] = []
+        for section in data.ts_data.sections.values():
+            for name, ts in section.items():
+                if ts.variable == "c:loading" and name not in seen:
+                    seen.add(name)
+                    rows.append({
+                        "name":   name,
+                        "values": [round(v, 2) if v is not None else None for v in ts.values],
+                        "status": status_map.get(name, "ok"),
+                    })
+        if not rows:
+            return None
+        return {
+            "time":         time,
+            "rows":         rows,
+            "unit":         "%",
+            "warn_hi":      self.config.thermal.warning_pct,
+            "violation_hi": self.config.thermal.violation_pct,
+        }
+
+    def _build_voltage_hm_data(self, data: ReportData) -> dict | None:
+        """Heatmap-Daten für Spannungen (alle ElmTerm-Serien)."""
+        if data.ts_data.is_empty():
+            return None
+        status_map = {r.node: r.status for r in data.voltage}
+        time = [round(t, 3) for t in data.ts_data.time]
+        seen: set[str] = set()
+        rows: list[dict] = []
+        for section in data.ts_data.sections.values():
+            for name, ts in section.items():
+                if ts.element_class == "ElmTerm" and name not in seen:
+                    seen.add(name)
+                    rows.append({
+                        "name":   name,
+                        "values": [round(v, 4) if v is not None else None for v in ts.values],
+                        "status": status_map.get(name, "ok"),
+                    })
+        if not rows:
+            return None
+        return {
+            "time":         time,
+            "rows":         rows,
+            "unit":         "p.u.",
+            "warn_lo":      self.config.voltage.lower_warning,
+            "violation_lo": self.config.voltage.lower_violation,
+            "warn_hi":      self.config.voltage.upper_warning,
+            "violation_hi": self.config.voltage.upper_violation,
+        }
 
     # ── Hilfsmethoden ─────────────────────────────────────────────────────
 

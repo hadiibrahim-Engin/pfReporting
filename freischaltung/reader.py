@@ -17,6 +17,7 @@ from freischaltung.models import (
     LoadingResult,
     N1Result,
     ProjectInfo,
+    QDSInfo,
     SwitchedElement,
     TimeSeries,
     TimeSeriesData,
@@ -50,6 +51,50 @@ class PowerFactoryReader:
             company=self._cfg.report.company,
             author=self._safe_getuser(),
         )
+
+    # ── QDS-Simulationseinstellungen ──────────────────────────────────────
+
+    def get_qds_info(self) -> QDSInfo:
+        """Liest ComStatsim-Einstellungen für den QDS-Info-Block."""
+        try:
+            qds = self._app.GetFromStudyCase("ComStatsim")
+            if qds is None:
+                return QDSInfo()
+            t_start = float(getattr(qds, "Tstart", 0) or 0)
+            t_end   = float(getattr(qds, "Tshow",  24) or 24)
+            dt      = float(getattr(qds, "dt",      1) or 1)
+            n_steps = max(0, round((t_end - t_start) / dt)) if dt > 0 else 0
+
+            # Szenario-Name über aktives Szenario-Objekt
+            scenario = ""
+            try:
+                scen = self._app.GetActiveScenario()
+                scenario = self._loc_name(scen, "")
+            except Exception:
+                pass
+
+            # Studienzeit-Start (optional, PF-version-abhängig)
+            study_time_start = ""
+            try:
+                sc = self._app.GetActiveStudyCase()
+                st = getattr(sc, "iStudyTime", None)
+                if st:
+                    study_time_start = str(st)
+            except Exception:
+                pass
+
+            return QDSInfo(
+                t_start_h=t_start,
+                t_end_h=t_end,
+                dt_h=dt,
+                n_steps=n_steps,
+                result_file=self._cfg.report.quasi_dynamic_result_file,
+                scenario=scenario,
+                study_time_start=study_time_start,
+            )
+        except Exception as exc:
+            log.warning("QDS-Einstellungen nicht lesbar: %s", exc)
+            return QDSInfo()
 
     # ── Freigeschaltete Betriebsmittel ────────────────────────────────────
 

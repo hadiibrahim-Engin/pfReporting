@@ -558,3 +558,215 @@ footer {
 
     .search-bar { padding: 10px 20px; }
 }
+
+/* ====== AMPEL PLATZHALTER ====== */
+.ampel-placeholder {
+    background: var(--grau-100);
+    color: var(--grau-600);
+    border-bottom: 3px solid var(--grau-300);
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ampel-placeholder .ampel-icon { font-size: 26px; color: var(--grau-600); }
+
+.ampel-subtext {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--grau-600);
+    letter-spacing: 0;
+}
+
+/* ====== QDS INFO SEKTION ====== */
+.qds-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.qds-info-item {
+    background: var(--grau-50);
+    border: 1px solid var(--grau-200);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+}
+
+.qds-info-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--grau-600);
+}
+
+.qds-info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--grau-900);
+    margin-top: 2px;
+    word-break: break-all;
+}
+
+/* ====== QDS KONVERGENZ TABELLE ====== */
+details.qds-steps-details {
+    margin-top: 20px;
+    border: 1px solid var(--grau-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+details.qds-steps-details > summary {
+    padding: 10px 16px;
+    background: var(--grau-50);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--grau-800);
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+details.qds-steps-details > summary::before {
+    content: '▶';
+    font-size: 10px;
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+
+details[open].qds-steps-details > summary::before { transform: rotate(90deg); }
+
+.qds-steps-table-wrap {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.qds-steps-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.qds-steps-table th {
+    padding: 7px 12px;
+    font-size: 11px;
+}
+
+.qds-steps-table td {
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--grau-100);
+}
+
+.qds-steps-table tr.step-nonconv td {
+    background: var(--verl-bg);
+}
+
+/* ====== HEATMAP PANEL (interaktiv) ====== */
+.hm-toggle-row { margin-top: 16px; }
+
+.hm-toggle-btn {
+    font-size: 12px;
+    padding: 5px 14px;
+    border: 1px solid var(--blau);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    color: var(--blau);
+    font-weight: 600;
+    transition: all .15s;
+}
+
+.hm-toggle-btn:hover,
+.hm-toggle-btn.active { background: var(--blau); color: white; }
+
+.hm-panel {
+    margin-top: 12px;
+    border: 1px solid var(--grau-200);
+    border-radius: var(--radius);
+    padding: 16px;
+    background: var(--grau-50);
+}
+
+.hm-controls-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.hm-select-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid var(--grau-300);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    color: var(--grau-600);
+    transition: all .12s;
+}
+
+.hm-select-btn:hover { border-color: var(--blau); color: var(--blau); }
+
+.hm-info { font-size: 11px; color: var(--grau-600); margin-left: auto; }
+
+.hm-elem-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.hm-cb-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    background: white;
+    border: 1px solid var(--grau-200);
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .12s;
+}
+
+.hm-cb-item:hover { border-color: var(--blau); }
+
+.hm-cb-item input[type=checkbox] { margin: 0; cursor: pointer; }
+
+.hm-cb-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.hm-cb-dot-ok        { background: var(--ok); }
+.hm-cb-dot-warning   { background: var(--warn); }
+.hm-cb-dot-violation { background: var(--verl); }
+
+.hm-render-area { overflow-x: auto; }
+
+/* ====== CHART KONTROLL-LEISTE ====== */
+.chart-ctrl-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+
+.chart-ctrl-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid var(--grau-300);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    color: var(--grau-600);
+    transition: all .12s;
+}
+
+.chart-ctrl-btn:hover { border-color: var(--blau); color: var(--blau); }

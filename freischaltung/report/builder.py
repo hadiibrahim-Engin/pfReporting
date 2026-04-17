@@ -10,6 +10,7 @@ from freischaltung.models import (
     N1Result,
     OverallStatus,
     ProjectInfo,
+    QDSInfo,
     SwitchedElement,
     TimeSeriesData,
     VoltageResult,
@@ -33,6 +34,7 @@ class ReportData:
     n1: list[N1Result]
     overall: OverallStatus
     ts_data: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
+    qds_info: QDSInfo | None = None
 
     # ── Factory ───────────────────────────────────────────────────────────
 
@@ -50,6 +52,7 @@ class ReportData:
 
         log.info("Lese Projektinformationen …")
         info = reader.get_project_info()
+        qds_info = reader.get_qds_info()
 
         log.info("Lese freigeschaltete Betriebsmittel …")
         switched = reader.get_switched_elements()
@@ -81,6 +84,7 @@ class ReportData:
 
         return cls(
             info=info,
+            qds_info=qds_info,
             switched=switched,
             lf=lf,
             voltage=voltage,

@@ -22,6 +22,7 @@ from freischaltung.__version__ import __version__
 from freischaltung.analysis import AnalysisEngine
 from freischaltung.config import FreischaltungConfig
 from freischaltung.logger import get_logger
+from freischaltung.models import QDSStep, TimeSeriesData
 from freischaltung.reader import PowerFactoryReader
 from freischaltung.report.builder import ReportData
 from freischaltung.report.generator import HTMLReportGenerator
@@ -110,6 +111,7 @@ def run_full_workflow(
     # ── Schritt 2: Statische Ergebnisse ──────────────────────────────────
     log.info("[Schritt 2] Statische Ergebnisse lesen & analysieren …")
     info     = reader.get_project_info()
+    qds_info = reader.get_qds_info()
     switched = reader.get_switched_elements()
     lf       = reader.get_loadflow_results()
     voltage  = engine.analyze_voltages(reader.get_voltage_results())
@@ -133,14 +135,17 @@ def run_full_workflow(
             elmres.Release()
         except Exception as exc:
             log.warning("[Schritt 2] Zeitreihen nicht verfügbar: %s", exc)
-            from freischaltung.models import TimeSeriesData
             ts_data = TimeSeriesData(time=[])
+
+    # Konvergenz pro QDS-Zeitschritt aus Zeitreihen ableiten
+    if not ts_data.is_empty():
+        lf.qds_steps = _derive_qds_steps(ts_data)
 
     # ── Schritt 3: HTML-Report ────────────────────────────────────────────
     log.info("[Schritt 3] HTML-Report wird erzeugt …")
-    from freischaltung.models import ProjectInfo
     data = ReportData(
         info=info,
+        qds_info=qds_info,
         switched=switched,
         lf=lf,
         voltage=voltage,
@@ -218,3 +223,16 @@ def _default_filename(data: ReportData) -> str:
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_name = data.info.project.replace(" ", "_")[:40]
     return f"Freischaltungsbewertung_{safe_name}_{ts}.html"
+
+
+def _derive_qds_steps(ts_data: TimeSeriesData) -> list[QDSStep]:
+    """Konvergenz pro QDS-Zeitschritt: nicht konvergiert wenn alle Werte None."""
+    all_series = [ts for sec in ts_data.sections.values() for ts in sec.values()]
+    steps: list[QDSStep] = []
+    for i, t in enumerate(ts_data.time):
+        converged = any(
+            i < len(s.values) and s.values[i] is not None
+            for s in all_series
+        ) if all_series else True
+        steps.append(QDSStep(time_h=t, converged=converged))
+    return steps
