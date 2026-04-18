@@ -67,6 +67,8 @@
             var tbody   = section.querySelector('table tbody');
             if (!tbody) return;
 
+            var labelDefault = btn.dataset.labelDefault || 'Only anomalies';
+            var labelActive = btn.dataset.labelActive || 'Show all';
             var active = btn.classList.toggle('active');
             tbody.querySelectorAll('tr').forEach(function (row) {
                 if (active) {
@@ -76,7 +78,7 @@
                     row.dataset.filterHidden = '0';
                 }
             });
-            btn.textContent = active ? 'Show all' : 'Only anomalies';
+            btn.textContent = active ? labelActive : labelDefault;
             applyVisibility(tbody);
         });
     });

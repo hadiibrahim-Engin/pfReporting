@@ -1,0 +1,72 @@
+{% set voltage_total = voltage | length %}
+{% set thermal_total = loading | length %}
+{% set v_viol = voltage | selectattr('status', 'eq', 'violation') | list | length %}
+{% set v_warn = voltage | selectattr('status', 'eq', 'warning') | list | length %}
+{% set t_viol = loading | selectattr('status', 'eq', 'violation') | list | length %}
+{% set t_warn = loading | selectattr('status', 'eq', 'warning') | list | length %}
+
+{% set v_viol_pct = (v_viol / voltage_total * 100) if voltage_total > 0 else 0 %}
+{% set v_warn_pct = (v_warn / voltage_total * 100) if voltage_total > 0 else 0 %}
+{% set t_viol_pct = (t_viol / thermal_total * 100) if thermal_total > 0 else 0 %}
+{% set t_warn_pct = (t_warn / thermal_total * 100) if thermal_total > 0 else 0 %}
+
+{% set v_viol_pct_c = 100 if v_viol_pct > 100 else v_viol_pct %}
+{% set v_warn_pct_c = 100 if v_warn_pct > 100 else v_warn_pct %}
+{% set t_viol_pct_c = 100 if t_viol_pct > 100 else t_viol_pct %}
+{% set t_warn_pct_c = 100 if t_warn_pct > 100 else t_warn_pct %}
+
+<section class="exec-summary" id="sec-exec-summary">
+    <div class="exec-grid">
+        <div class="exec-card exec-card-violation">
+            <div class="exec-title">Spannungsverletzungen</div>
+            <div class="exec-value-row">
+                <span class="exec-value">{{ v_viol }}</span>
+                <span class="exec-percent">{{ "%.1f"|format(v_viol_pct) }}%</span>
+            </div>
+            <div class="bar-container exec-bar">
+                <div class="bar bar-violation" style="width:{{ v_viol_pct_c | round(2) }}%"></div>
+                <span class="bar-label">{{ "%.1f"|format(v_viol_pct) }}%</span>
+            </div>
+            <div class="exec-trend exec-trend-up">↑ 0.0% vs. letzter Lauf</div>
+        </div>
+
+        <div class="exec-card exec-card-warning">
+            <div class="exec-title">Spannungswarnungen</div>
+            <div class="exec-value-row">
+                <span class="exec-value">{{ v_warn }}</span>
+                <span class="exec-percent">{{ "%.1f"|format(v_warn_pct) }}%</span>
+            </div>
+            <div class="bar-container exec-bar">
+                <div class="bar bar-warning" style="width:{{ v_warn_pct_c | round(2) }}%"></div>
+                <span class="bar-label">{{ "%.1f"|format(v_warn_pct) }}%</span>
+            </div>
+            <div class="exec-trend exec-trend-down">↓ 0.0% vs. letzter Lauf</div>
+        </div>
+
+        <div class="exec-card exec-card-violation">
+            <div class="exec-title">Thermische Verletzungen</div>
+            <div class="exec-value-row">
+                <span class="exec-value">{{ t_viol }}</span>
+                <span class="exec-percent">{{ "%.1f"|format(t_viol_pct) }}%</span>
+            </div>
+            <div class="bar-container exec-bar">
+                <div class="bar bar-violation" style="width:{{ t_viol_pct_c | round(2) }}%"></div>
+                <span class="bar-label">{{ "%.1f"|format(t_viol_pct) }}%</span>
+            </div>
+            <div class="exec-trend exec-trend-up">↑ 0.0% vs. letzter Lauf</div>
+        </div>
+
+        <div class="exec-card exec-card-warning">
+            <div class="exec-title">Thermische Warnungen</div>
+            <div class="exec-value-row">
+                <span class="exec-value">{{ t_warn }}</span>
+                <span class="exec-percent">{{ "%.1f"|format(t_warn_pct) }}%</span>
+            </div>
+            <div class="bar-container exec-bar">
+                <div class="bar bar-warning" style="width:{{ t_warn_pct_c | round(2) }}%"></div>
+                <span class="bar-label">{{ "%.1f"|format(t_warn_pct) }}%</span>
+            </div>
+            <div class="exec-trend exec-trend-down">↓ 0.0% vs. letzter Lauf</div>
+        </div>
+    </div>
+</section>

@@ -4,19 +4,25 @@
     <div class="section-header">
         <h2>Voltage Band Check</h2>
         <div class="section-toolbar-right">
-            <input type="text" class="section-search" data-section="sec-voltage"
-                   placeholder="Search …" autocomplete="off">
             <button class="section-toggle" data-target="sec-voltage" title="Collapse / Expand">▾</button>
         </div>
     </div>
     <div class="section-body">
         <div class="section-toolbar">
-            <span class="limit-info">
-                Limits: {{ vcfg.lower_violation }}-{{ vcfg.lower_warning }} /
-                {{ vcfg.upper_warning }}-{{ vcfg.upper_violation }} p.u.
-            </span>
+            <div class="toolbar-left">
+                <span class="limit-info">
+                    Limits: {{ vcfg.lower_violation }}-{{ vcfg.lower_warning }} /
+                    {{ vcfg.upper_warning }}-{{ vcfg.upper_violation }} p.u.
+                </span>
+                <input type="text" class="section-search" data-section="sec-voltage"
+                       placeholder="Suchen …" autocomplete="off">
+            </div>
             <div class="toolbar-right">
-                <button class="filter-btn">Only anomalies</button>
+                <button class="filter-btn"
+                        data-label-default="Nur Verletzungen / Warnungen anzeigen"
+                        data-label-active="Alle anzeigen">
+                    Nur Verletzungen / Warnungen anzeigen
+                </button>
             </div>
         </div>
         <table>

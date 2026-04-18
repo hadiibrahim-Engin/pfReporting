@@ -4,19 +4,25 @@
     <div class="section-header">
         <h2>Thermal Loading</h2>
         <div class="section-toolbar-right">
-            <input type="text" class="section-search" data-section="sec-thermal"
-                   placeholder="Search …" autocomplete="off">
             <button class="section-toggle" data-target="sec-thermal" title="Collapse / Expand">▾</button>
         </div>
     </div>
     <div class="section-body">
         <div class="section-toolbar">
-            <span class="limit-info">
-                Warning from {{ tcfg.warning_pct }}% /
-                Critical from {{ tcfg.violation_pct }}%
-            </span>
+            <div class="toolbar-left">
+                <span class="limit-info">
+                    Warning from {{ tcfg.warning_pct }}% /
+                    Critical from {{ tcfg.violation_pct }}%
+                </span>
+                <input type="text" class="section-search" data-section="sec-thermal"
+                       placeholder="Suchen …" autocomplete="off">
+            </div>
             <div class="toolbar-right">
-                <button class="filter-btn">Only anomalies</button>
+                <button class="filter-btn"
+                        data-label-default="Nur Verletzungen / Warnungen anzeigen"
+                        data-label-active="Alle anzeigen">
+                    Nur Verletzungen / Warnungen anzeigen
+                </button>
             </div>
         </div>
         <table>

@@ -186,6 +186,79 @@ h2 {
     margin: 6px 0 0 16px;
 }
 
+/* ====== EXECUTIVE SUMMARY ====== */
+.exec-summary {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 24px 40px;
+}
+
+.exec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.exec-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.exec-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--gray-600);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.exec-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.exec-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.exec-percent {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.exec-card-violation .exec-percent {
+    color: var(--viol);
+}
+
+.exec-card-warning .exec-percent {
+    color: var(--warn);
+}
+
+.exec-bar .bar {
+    height: 6px;
+}
+
+.exec-bar .bar-label {
+    font-size: 11px;
+}
+
+.exec-trend {
+    font-size: 11px;
+    color: var(--gray-600);
+    margin-top: 6px;
+}
+
+.exec-trend-up { color: var(--warn); }
+.exec-trend-down { color: var(--gray-600); }
+
 .kpi-row {
     display: flex;
     gap: 16px;
@@ -260,6 +333,13 @@ h2 {
     margin-bottom: 12px;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .limit-info {
@@ -557,6 +637,8 @@ footer {
         gap: 12px;
         padding: 20px;
     }
+
+    .exec-summary { padding: 20px; }
 
     section { padding: 20px; }
     .kpi-row, .lf-grid { flex-direction: column; }

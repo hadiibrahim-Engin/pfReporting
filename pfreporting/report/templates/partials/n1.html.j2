@@ -4,19 +4,25 @@
     <div class="section-header">
         <h2>(N-1) Contingency Analysis</h2>
         <div class="section-toolbar-right">
-            <input type="text" class="section-search" data-section="sec-n1"
-                   placeholder="Search …" autocomplete="off">
             <button class="section-toggle" data-target="sec-n1" title="Collapse / Expand">▾</button>
         </div>
     </div>
     <div class="section-body">
         <div class="section-toolbar">
-            <span class="limit-info">
-                Max. loading: {{ n1cfg.max_loading_pct }}% /
-                Voltage: {{ n1cfg.min_voltage_pu }}-{{ n1cfg.max_voltage_pu }} p.u.
-            </span>
+            <div class="toolbar-left">
+                <span class="limit-info">
+                    Max. loading: {{ n1cfg.max_loading_pct }}% /
+                    Voltage: {{ n1cfg.min_voltage_pu }}-{{ n1cfg.max_voltage_pu }} p.u.
+                </span>
+                <input type="text" class="section-search" data-section="sec-n1"
+                       placeholder="Suchen …" autocomplete="off">
+            </div>
             <div class="toolbar-right">
-                <button class="filter-btn">Only anomalies</button>
+                <button class="filter-btn"
+                        data-label-default="Nur Verletzungen / Warnungen anzeigen"
+                        data-label-active="Alle anzeigen">
+                    Nur Verletzungen / Warnungen anzeigen
+                </button>
             </div>
         </div>
         <div class="table-scroll">
