@@ -31,10 +31,11 @@ from typing import Any
 
 from pfreporting.config import PFReportConfig, VizRequest
 from pfreporting.exceptions import ReaderError
+from pfreporting.logger import get_logger
 from pfreporting.models import TimeSeries, TimeSeriesData
 from pfreporting.utils import sanitize_name
 
-log = logging.getLogger("pfreporting")
+log = get_logger()
 
 # IntReport field types (PowerFactory constants)
 _STRING  = 0
@@ -473,7 +474,7 @@ class PFTimeSeriesWriter:
         self._app = app
         self._report = report_obj
         self._cfg = config
-        self._log = logging.getLogger("pfreporting")
+        self._log = get_logger()
 
     def write_all(self, elmres_name: str) -> None:
         """Load named ElmRes and persist all configured time-series sections.

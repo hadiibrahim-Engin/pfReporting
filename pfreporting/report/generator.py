@@ -11,9 +11,10 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 from pfreporting.config import PFReportConfig
 from pfreporting.exceptions import ReportError
+from pfreporting.logger import get_logger
 from pfreporting.report.builder import ReportData
 
-log = logging.getLogger("pfreporting")
+log = get_logger()
 
 # Assets directory of this file
 _ASSETS_DIR = Path(__file__).parent / "assets"

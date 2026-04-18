@@ -21,6 +21,9 @@ _DATE_FORMAT = "%H:%M:%S"
 def get_logger(name: str = "pfreporting") -> logging.Logger:
     """Return configured package logger instance.
 
+    Subsequent calls with the same name return the same logger instance,
+    preventing duplicate handler registration.
+
     Args:
         name: Logger name.
 
@@ -74,7 +77,7 @@ def log_step_header(
           Step 1/3  -  QDS Simulation & Database Write
         ============================================================
     """
-    logger = logging.getLogger("pfreporting")
+    logger = get_logger()
     sep = "=" * 60
     if step is not None and total is not None:
         label = f"  Step {step}/{total}  \u2013  {title}"
@@ -87,37 +90,64 @@ def log_step_header(
 
 
 class PowerFactoryLogHandler(logging.Handler):
-    """Forwards log messages to app.PrintPlain (for PowerFactory)."""
+    """Forwards log messages to PowerFactory output window with appropriate formatting.
+    
+    Uses different print methods based on log level:
+    - ERROR/CRITICAL: app.PrintError() (displayed as red/error)
+    - WARNING: app.PrintWarn() (displayed as yellow/warning)
+    - INFO: app.PrintInfo() (displayed as blue/info)
+    - DEBUG: app.PrintPlain() (normal text)
+    """
 
-    def __init__(self, pf_print_fn) -> None:
-        """Initialize handler with PowerFactory print callback.
+    def __init__(self, app) -> None:
+        """Initialize handler with PowerFactory app object.
 
         Args:
-            pf_print_fn: Callable compatible with ``app.PrintPlain``.
+            app: PowerFactory Application object with PrintError, PrintWarn, PrintInfo, PrintPlain methods.
         """
         super().__init__()
-        self._print = pf_print_fn
+        self._app = app
 
     def emit(self, record: logging.LogRecord) -> None:
-        """Forward formatted log record to PowerFactory output.
+        """Forward formatted log record to PowerFactory output with appropriate method.
 
         Args:
             record: Standard logging record instance.
         """
         try:
             msg = self.format(record)
-            self._print(msg)
+            
+            # Route to appropriate PowerFactory output method based on level
+            if record.levelno >= logging.ERROR:
+                self._app.PrintError(msg)
+            elif record.levelno >= logging.WARNING:
+                self._app.PrintWarn(msg)
+            elif record.levelno >= logging.INFO:
+                self._app.PrintInfo(msg)
+            else:  # DEBUG
+                self._app.PrintPlain(msg)
         except Exception:
             self.handleError(record)
 
 
-def attach_powerfactory_handler(pf_print_fn) -> None:
-    """Attach PF output forwarding handler to package logger.
+def attach_powerfactory_handler(app) -> None:
+    """Attach PowerFactory output handler to package logger.
+
+    Uses app.PrintError/PrintWarn/PrintInfo/PrintPlain based on log level.
+    Removes any existing PowerFactoryLogHandler instances to prevent
+    duplicate log messages when called multiple times.
 
     Args:
-        pf_print_fn: Callable compatible with ``app.PrintPlain``.
+        app: PowerFactory Application object.
     """
     logger = get_logger()
-    pf_handler = PowerFactoryLogHandler(pf_print_fn)
+    
+    # Remove any existing PowerFactoryLogHandler instances
+    for handler in logger.handlers[:]:  # Copy list to avoid mutation issues
+        if isinstance(handler, PowerFactoryLogHandler):
+            logger.removeHandler(handler)
+    
+    # Add the new handler
+    pf_handler = PowerFactoryLogHandler(app)
     pf_handler.setLevel(logging.INFO)
     logger.addHandler(pf_handler)

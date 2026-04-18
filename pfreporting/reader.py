@@ -13,6 +13,7 @@ from typing import Any
 
 from pfreporting.config import PFReportConfig, VizRequest
 from pfreporting.exceptions import ReaderError
+from pfreporting.logger import get_logger
 from pfreporting.models import (
     LoadFlowResult,
     LoadingResult,
@@ -26,7 +27,7 @@ from pfreporting.models import (
 )
 from pfreporting.utils import sanitize_name
 
-log = logging.getLogger("pfreporting")
+log = get_logger()
 
 
 class PowerFactoryReader:

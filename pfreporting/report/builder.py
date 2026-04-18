@@ -64,9 +64,9 @@ class ReportData:
         Time-series loading is best-effort; failures are logged and replaced
         by empty ``TimeSeriesData`` instances so report generation can continue.
         """
-        import logging
+        from pfreporting.logger import get_logger
 
-        log = logging.getLogger("pfreporting")
+        log = get_logger()
 
         log.info("Reading project information …")
         info = reader.get_project_info()

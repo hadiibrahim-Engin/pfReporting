@@ -16,9 +16,10 @@ from typing import Any
 
 from pfreporting.config import PFReportConfig, VizRequest
 from pfreporting.db_writer import _SUFFIX_UNIT, meta_table_name, table_name
+from pfreporting.logger import get_logger
 from pfreporting.models import TimeSeries, TimeSeriesData
 
-log = logging.getLogger("pfreporting")
+log = get_logger()
 
 
 class PFTableReader:
