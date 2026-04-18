@@ -1,4 +1,4 @@
-"""Output data models (Pydantic v2) – no PowerFactory imports."""
+"""Output data models (Pydantic v2) - no PowerFactory imports."""
 from __future__ import annotations
 
 from typing import Literal
@@ -8,10 +8,12 @@ from pydantic import BaseModel, Field
 Status = Literal["ok", "warning", "violation"]
 
 
-# ─── Project metadata ─────────────────────────────────────────────────────────
+# --- Project metadata ---------------------------------------------------------
 
 
 class ProjectInfo(BaseModel):
+    """Metadata describing the executed assessment context."""
+
     project: str
     study_case: str
     date: str
@@ -21,10 +23,12 @@ class ProjectInfo(BaseModel):
     author: str
 
 
-# ─── Quasi-dynamic simulation ─────────────────────────────────────────────────
+# --- Quasi-dynamic simulation -------------------------------------------------
 
 
 class QDSInfo(BaseModel):
+    """Configuration summary of the quasi-dynamic simulation run."""
+
     t_start_h: float = 0.0
     t_end_h: float = 24.0
     dt_h: float = 1.0
@@ -35,24 +39,30 @@ class QDSInfo(BaseModel):
 
 
 class QDSStep(BaseModel):
+    """Convergence state for a single quasi-dynamic simulation time step."""
+
     time_h: float
     converged: bool
 
 
-# ─── De-energized equipment ───────────────────────────────────────────────────
+# --- De-energized equipment ---------------------------------------------------
 
 
 class SwitchedElement(BaseModel):
+    """Element intentionally switched out of service before assessment."""
+
     name: str
     type: str
     status_before: str = "In Service"
     status_assessment: str = "De-energized"
 
 
-# ─── Load flow results ────────────────────────────────────────────────────────
+# --- Load flow results --------------------------------------------------------
 
 
 class LoadFlowResult(BaseModel):
+    """Aggregated static load-flow metrics for the active study case."""
+
     converged: bool
     status_text: str
     iterations: int
@@ -68,10 +78,12 @@ class LoadFlowResult(BaseModel):
     qds_steps: list[QDSStep] = Field(default_factory=list)
 
 
-# ─── Voltage band ─────────────────────────────────────────────────────────────
+# --- Voltage band -------------------------------------------------------------
 
 
 class VoltageResult(BaseModel):
+    """Voltage operating point and threshold status for one busbar/node."""
+
     node: str
     u_nenn_kv: float
     u_kv: float
@@ -81,10 +93,12 @@ class VoltageResult(BaseModel):
     time_series: list[float | None] = Field(default_factory=list)
 
 
-# ─── Thermal loading ──────────────────────────────────────────────────────────
+# --- Thermal loading ----------------------------------------------------------
 
 
 class LoadingResult(BaseModel):
+    """Thermal loading metrics and status for one branch element."""
+
     name: str
     type: str
     loading_pct: float
@@ -94,10 +108,12 @@ class LoadingResult(BaseModel):
     time_series: list[float | None] = Field(default_factory=list)
 
 
-# ─── N-1 contingency ─────────────────────────────────────────────────────────
+# --- N-1 contingency ---------------------------------------------------------
 
 
 class N1Result(BaseModel):
+    """Post-contingency summary for a single N-1 outage scenario."""
+
     outage_element: str
     type: str
     converged: bool
@@ -111,7 +127,7 @@ class N1Result(BaseModel):
     status: Status = "ok"
 
 
-# ─── Time series ──────────────────────────────────────────────────────────────
+# --- Time series --------------------------------------------------------------
 
 
 class TimeSeries(BaseModel):
@@ -132,19 +148,28 @@ class TimeSeriesData(BaseModel):
     sections: dict[str, dict[str, TimeSeries]] = Field(default_factory=dict)
 
     def is_empty(self) -> bool:
+        """Check whether time-series payload contains usable data.
+
+        Returns:
+            ``True`` when either time axis or section mapping is empty.
+        """
         return not self.time or not self.sections
 
 
-# ─── Overall status ───────────────────────────────────────────────────────────
+# --- Overall status -----------------------------------------------------------
 
 
 class StatusCounts(BaseModel):
+    """Counters for status distribution within one analysis section."""
+
     ok: int = 0
     warning: int = 0
     violation: int = 0
 
 
 class OverallStatus(BaseModel):
+    """Consolidated assessment outcome across all analysis domains."""
+
     status: Status
     total_nodes: int
     total_elements: int

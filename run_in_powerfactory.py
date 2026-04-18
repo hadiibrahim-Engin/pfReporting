@@ -1,14 +1,14 @@
 """
 run_in_powerfactory.py
 ======================
-PowerFactory IntScript – main script for De-Energization Assessment.
+PowerFactory IntScript - main script for De-Energization Assessment.
 
 Execution:
     Create this script as an IntScript inside PowerFactory (e.g. in the
     Study Case or Network Data folder) and run it via "Execute Script".
-    The script no longer requires an IntReport parent – it can run standalone.
+    The script no longer requires an IntReport parent - it can run standalone.
 
-Prerequisites – making the package available (one of three options):
+Prerequisites - making the package available (one of three options):
     Option A  As an installed package in the PF venv:
               In the PF venv:  uv pip install -e <path>
     Option B  Set the path manually (PKG_PATH below):
@@ -29,7 +29,7 @@ Workflow:
 import sys
 import os
 
-# ── Option B: set package path manually (leave empty if installed) ────────────
+# -- Option B: set package path manually (leave empty if installed) ------------
 PKG_PATH = ""   # e.g. r"C:\PF_Tools\pfReporting"
 if PKG_PATH and PKG_PATH not in sys.path:
     sys.path.insert(0, PKG_PATH)
@@ -39,18 +39,18 @@ _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
-# ── PowerFactory API ──────────────────────────────────────────────────────────
+# -- PowerFactory API ----------------------------------------------------------
 import powerfactory  # type: ignore
 
 app    = powerfactory.GetApplication()
 script = app.GetCurrentScript()
 print  = app.PrintPlain   # shorthand like in reference scripts
 
-# ── Redirect logging → PF output ─────────────────────────────────────────────
+# -- Redirect logging → PF output ---------------------------------------------
 from pfreporting.logger import attach_powerfactory_handler
 attach_powerfactory_handler(print)
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# -- Configuration -------------------------------------------------------------
 from pfreporting.config import (
     CalculationOptions,
     N1Config,
@@ -63,7 +63,7 @@ from pfreporting.config import (
 )
 
 CONFIG = PFReportConfig(
-    # ── Which calculations to run ─────────────────────────────────────────────
+    # -- Which calculations to run ---------------------------------------------
     # Set any flag to False to skip that calculation and hide it from the report.
     calc=CalculationOptions(
         run_qds=True,       # Quasi-dynamic simulation + time series charts
@@ -73,17 +73,17 @@ CONFIG = PFReportConfig(
         run_n1=True,        # N-1 contingency analysis (outage loop)
     ),
 
-    # ── QDS time range (optional overrides) ───────────────────────────────────
+    # -- QDS time range (optional overrides) -----------------------------------
     # Leave as None to use whatever is configured inside PowerFactory.
     # Set values to override the ComStatsim settings before execution.
     # Note: PF attribute names (Tstart, Tshow, dt) may differ by PF version.
     qds=QDSConfig(
-        t_start=None,   # e.g. 0.0    – simulation start time [h]
-        t_end=None,     # e.g. 24.0   – simulation end time [h]
-        dt=None,        # e.g. 1.0    – time step [h]
+        t_start=None,   # e.g. 0.0    - simulation start time [h]
+        t_end=None,     # e.g. 24.0   - simulation end time [h]
+        dt=None,        # e.g. 1.0    - time step [h]
     ),
 
-    # ── Voltage band limits ───────────────────────────────────────────────────
+    # -- Voltage band limits ---------------------------------------------------
     voltage=VoltageConfig(
         lower_warning=0.95,    # undervoltage warning zone [p.u.]
         lower_violation=0.90,  # undervoltage violation zone [p.u.]
@@ -91,20 +91,20 @@ CONFIG = PFReportConfig(
         upper_violation=1.10,  # overvoltage violation zone [p.u.]
     ),
 
-    # ── Thermal loading limits ────────────────────────────────────────────────
+    # -- Thermal loading limits ------------------------------------------------
     thermal=ThermalConfig(
         warning_pct=80.0,      # warning threshold [%]
         violation_pct=100.0,   # violation threshold [%]
     ),
 
-    # ── N-1 analysis limits ───────────────────────────────────────────────────
+    # -- N-1 analysis limits ---------------------------------------------------
     n1=N1Config(
         max_loading_pct=100.0, # max. loading N-1 [%]
         min_voltage_pu=0.90,   # min. voltage N-1 [p.u.]
         max_voltage_pu=1.10,   # max. voltage N-1 [p.u.]
     ),
 
-    # ── Report output ─────────────────────────────────────────────────────────
+    # -- Report output ---------------------------------------------------------
     report=ReportConfig(
         output_dir=r"C:\PF_Reports",
         company="Amprion GmbH",
@@ -112,7 +112,7 @@ CONFIG = PFReportConfig(
         quasi_dynamic_result_file="Quasi-Dynamic Simulation AC.ElmRes",
     ),
 
-    # ── Quasi-dynamic visualizations ──────────────────────────────────────────
+    # -- Quasi-dynamic visualizations ------------------------------------------
     # Each entry = one chart section in the report.
     # element_class: PowerFactory class name  (e.g. ElmLne, ElmTr2, ElmTerm)
     # variable:      PF result variable       (e.g. c:loading, m:u, m:i1:bus1)
@@ -123,7 +123,7 @@ CONFIG = PFReportConfig(
         VizRequest(
             element_class="ElmLne",
             variable="c:loading",
-            label="Lines – Loading",
+            label="Lines - Loading",
             unit="%",
             warn_hi=80.0,
             violation_hi=100.0,
@@ -133,7 +133,7 @@ CONFIG = PFReportConfig(
         VizRequest(
             element_class="ElmTr2",
             variable="c:loading",
-            label="Transformers – Loading",
+            label="Transformers - Loading",
             unit="%",
             warn_hi=80.0,
             violation_hi=100.0,
@@ -143,7 +143,7 @@ CONFIG = PFReportConfig(
         VizRequest(
             element_class="ElmTerm",
             variable="m:u",
-            label="Nodes – Voltage",
+            label="Nodes - Voltage",
             unit="p.u.",
             warn_lo=0.95,
             violation_lo=0.90,
@@ -155,28 +155,28 @@ CONFIG = PFReportConfig(
         VizRequest(
             element_class="ElmLne",
             variable="m:i1:bus1",
-            label="Lines – Current",
+            label="Lines - Current",
             unit="kA",
             max_elements=200,
         ),
         VizRequest(
             element_class="ElmLne",
             variable="m:P:bus1",
-            label="Lines – Active Power",
+            label="Lines - Active Power",
             unit="MW",
             max_elements=200,
         ),
         VizRequest(
             element_class="ElmLne",
             variable="m:Q:bus1",
-            label="Lines – Reactive Power",
+            label="Lines - Reactive Power",
             unit="Mvar",
             max_elements=200,
         ),
     ],
 )
 
-# ── Optional JSON config override ─────────────────────────────────────────────
+# -- Optional JSON config override ---------------------------------------------
 # Path to a JSON file (PFReportConfig.model_dump_json()):
 CONFIG_JSON_PATH = ""  # e.g. r"C:\PF_Tools\my_config.json"
 if CONFIG_JSON_PATH:
@@ -186,16 +186,16 @@ if CONFIG_JSON_PATH:
     )
     print(f"Configuration loaded: {CONFIG_JSON_PATH}")
 
-# ── Start workflow ────────────────────────────────────────────────────────────
+# -- Start workflow ------------------------------------------------------------
 from pfreporting import run_full_workflow
 
 dest = run_full_workflow(
     app=app,
     config=CONFIG,
-    pf_report=None,   # No IntReport required – reads time series from ElmRes
+    pf_report=None,   # No IntReport required - reads time series from ElmRes
 )
 
-# ── Print clickable link in PF output window ──────────────────────────────────
+# -- Print clickable link in PF output window ----------------------------------
 file_url = "file:///" + str(dest).replace("\\", "/")
 try:
     # PrintHtml is available in PowerFactory 2022 and later

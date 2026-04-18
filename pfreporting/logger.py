@@ -19,7 +19,14 @@ _DATE_FORMAT = "%H:%M:%S"
 
 
 def get_logger(name: str = "pfreporting") -> logging.Logger:
-    """Return the configured package logger."""
+    """Return configured package logger instance.
+
+    Args:
+        name: Logger name.
+
+    Returns:
+        Configured ``logging.Logger`` instance.
+    """
     logger = logging.getLogger(name)
     if not logger.handlers:
         _configure(logger)
@@ -27,6 +34,11 @@ def get_logger(name: str = "pfreporting") -> logging.Logger:
 
 
 def _configure(logger: logging.Logger) -> None:
+    """Apply package logging defaults and attach stream/rich handlers.
+
+    Args:
+        logger: Logger instance to configure.
+    """
     logger.setLevel(logging.DEBUG)
     if _RICH_AVAILABLE:
         handler: logging.Handler = RichHandler(
@@ -50,11 +62,16 @@ def log_step_header(
 ) -> None:
     """Print a clearly visible step header to the package logger.
 
+    Args:
+        title: Step title text.
+        step: Optional current step number.
+        total: Optional total number of steps.
+
     Appears as a bordered block in the PowerFactory output window when
     the PowerFactoryLogHandler is attached, e.g.:
 
         ============================================================
-          Step 1/3  –  QDS Simulation & Database Write
+          Step 1/3  -  QDS Simulation & Database Write
         ============================================================
     """
     logger = logging.getLogger("pfreporting")
@@ -73,10 +90,20 @@ class PowerFactoryLogHandler(logging.Handler):
     """Forwards log messages to app.PrintPlain (for PowerFactory)."""
 
     def __init__(self, pf_print_fn) -> None:
+        """Initialize handler with PowerFactory print callback.
+
+        Args:
+            pf_print_fn: Callable compatible with ``app.PrintPlain``.
+        """
         super().__init__()
         self._print = pf_print_fn
 
     def emit(self, record: logging.LogRecord) -> None:
+        """Forward formatted log record to PowerFactory output.
+
+        Args:
+            record: Standard logging record instance.
+        """
         try:
             msg = self.format(record)
             self._print(msg)
@@ -85,7 +112,11 @@ class PowerFactoryLogHandler(logging.Handler):
 
 
 def attach_powerfactory_handler(pf_print_fn) -> None:
-    """Attach a PowerFactory output handler to the package logger."""
+    """Attach PF output forwarding handler to package logger.
+
+    Args:
+        pf_print_fn: Callable compatible with ``app.PrintPlain``.
+    """
     logger = get_logger()
     pf_handler = PowerFactoryLogHandler(pf_print_fn)
     pf_handler.setLevel(logging.INFO)

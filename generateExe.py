@@ -1,13 +1,13 @@
 """
-generateExe.py – General-purpose PowerFactory bootstrapper.
+generateExe.py - General-purpose PowerFactory bootstrapper.
 
 Edit the PROJECT CONFIG section for your environment.
 The rest (Python discovery, venv management, INI writing, PF launch) is
 reusable machinery that works unchanged across projects.
 
 Usage:
-  As .py     – python generateExe.py  (IDE run button, terminal)
-  As EXE     – compile once with Nuitka (see buildExe.ps1), distribute the EXE
+  As .py     - python generateExe.py  (IDE run button, terminal)
+  As EXE     - compile once with Nuitka (see buildExe.ps1), distribute the EXE
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ BASE_DIR = Path(os.getenv("LOCALAPPDATA", r"C:\LocalData")) / "pf_report"
 VENV_DIR = BASE_DIR / "venv"
 INI_PATH = BASE_DIR / "pf_bootstrap.ini"
 
-# ── Package source (first match wins) ────────────────────────────────────────
+# -- Package source (first match wins) ----------------------------------------
 # Option A: editable local install — used in dev mode when the directory exists
 LOCAL_PACKAGE: Optional[Path] = Path(__file__).parent / "pfreporting"
 
@@ -41,13 +41,13 @@ AZURE_FEED_URL: Optional[str] = None
 # Example: "https://pkgs.dev.azure.com/<ORG>/<PROJECT>/_packaging/pfreporting-feed/pypi/simple/"
 PACKAGE_NAME: str = "pfreporting"
 
-# ── Python interpreter for venv creation ─────────────────────────────────────
+# -- Python interpreter for venv creation -------------------------------------
 # None = auto-discover (checks sys.executable, py launcher, registry, common paths).
 # Set explicitly if auto-discovery is unreliable in your environment, e.g.:
 #   BASE_PYTHON = Path(r"C:\Python311\python.exe")
 BASE_PYTHON: Optional[Path] = None
 
-# ── INI value overrides ───────────────────────────────────────────────────────
+# -- INI value overrides -------------------------------------------------------
 # Any key here replaces the same key in _INI_DEFAULTS below.
 INI_OVERRIDES: Dict[str, str] = {
     # "db_service":            "MY_SERVICE",
@@ -181,6 +181,7 @@ def find_python() -> Path:
 
 
 def _install_package() -> None:
+    """Install the project package into the created virtual environment."""
     pip = VENV_DIR / "Scripts" / "pip.exe"
     if not pip.exists():
         raise RuntimeError(f"pip.exe not found after venv creation: {pip}")
@@ -290,6 +291,7 @@ def _show_error(message: str) -> None:
 
 
 def main() -> None:
+    """Create runtime prerequisites and launch PowerFactory with configured Python."""
     try:
         ensure_venv()
         py_exe   = venv_python()

@@ -1,4 +1,4 @@
-"""Tests for AnalysisEngine – threshold logic."""
+"""Tests for AnalysisEngine - threshold logic."""
 import pytest
 
 from pfreporting.analysis import AnalysisEngine

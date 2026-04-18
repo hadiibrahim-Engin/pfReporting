@@ -20,18 +20,18 @@ $DigiCertUtil = "C:\Program Files\DigiCertUtility\DigiCertUtil.exe"
 # Set to $false to build a console EXE (useful for debugging)
 $UseWindowed  = $true
 
-# ── Shared PowerShell modules (pythonAutomation) ──────────────────────────────
+# -- Shared PowerShell modules (pythonAutomation) ------------------------------
 #
 # PowerShell modules are shared the same way as Python packages — three options:
 #
-#   Option 1 – Sibling directory (default, works when repos are co-located):
+#   Option 1 - Sibling directory (default, works when repos are co-located):
 #     $SharedModules = Join-Path $PSScriptRoot "..\pythonAutomation\scripts\SetupCore\modules"
 #
-#   Option 2 – Git submodule (version-pinned, works in CI without extra setup):
+#   Option 2 - Git submodule (version-pinned, works in CI without extra setup):
 #     git submodule add ../pythonAutomation shared/ps-utils
 #     $SharedModules = Join-Path $PSScriptRoot "shared\ps-utils\scripts\SetupCore\modules"
 #
-#   Option 3 – Azure Artifacts NuGet feed (exact analog of pip + Azure Artifacts PyPI):
+#   Option 3 - Azure Artifacts NuGet feed (exact analog of pip + Azure Artifacts PyPI):
 #     Register-PSRepository -Name "MyFeed" `
 #         -SourceLocation "https://pkgs.dev.azure.com/<ORG>/_packaging/<FEED>/nuget/v2" `
 #         -InstallationPolicy Trusted
@@ -107,7 +107,7 @@ if (-not (Test-Path $Script)) {
     throw "Entry-point script not found: $Script"
 }
 
-# ── 1. Discover Python ────────────────────────────────────────────────────────
+# -- 1. Discover Python --------------------------------------------------------
 Write-Banner "Searching for Python interpreter…" -Type INFO
 
 $pythons = Find-AllPythonInterpreters
@@ -120,7 +120,7 @@ if (-not $pythons -or $pythons.Count -eq 0) {
 $PythonExe = $pythons[0].Exe          # sorted descending → index 0 = newest
 Write-Banner "Python: $PythonExe  (v$($pythons[0].Version))" -Type SUCCESS
 
-# ── 2. Create isolated build venv ─────────────────────────────────────────────
+# -- 2. Create isolated build venv ---------------------------------------------
 Write-Banner "Creating build venv…" -Type INFO
 
 $BuildVenv   = Join-Path $env:TEMP "pf_nuitka_build"
@@ -140,7 +140,7 @@ Write-Banner "Installing Nuitka + zstandard…" -Type INFO
 if ($LASTEXITCODE -ne 0) { throw "pip install failed." }
 Write-Banner "Packages installed." -Type SUCCESS
 
-# ── 3. Sign build venv executables ───────────────────────────────────────────
+# -- 3. Sign build venv executables -------------------------------------------
 if (Test-Path $DigiCertUtil) {
     Write-Banner "Signing build venv (Scripts\*.exe)…" -Type INFO
     $venvSig = Sign-VenvScripts `
@@ -152,13 +152,13 @@ if (Test-Path $DigiCertUtil) {
     Write-Banner "DigiCertUtil not found — signing skipped." -Type WARN
 }
 
-# ── 4. Clean previous build artifacts ────────────────────────────────────────
+# -- 4. Clean previous build artifacts ----------------------------------------
 Write-Banner "Cleaning old artifacts…" -Type INFO
 Remove-Item -Recurse -Force ".\Release" -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force ".\build"   -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force ".\dist"    -ErrorAction SilentlyContinue
 
-# ── 5. Build with Nuitka ──────────────────────────────────────────────────────
+# -- 5. Build with Nuitka ------------------------------------------------------
 Write-Banner "Building EXE with Nuitka…" -Type INFO
 
 $consoleMode = if ($UseWindowed) { "disable" } else { "force" }
@@ -178,7 +178,7 @@ if (-not (Test-Path $DistExe)) {
 }
 Write-Banner "Nuitka build complete: $DistExe" -Type SUCCESS
 
-# ── 6. Sign the distributable EXE ────────────────────────────────────────────
+# -- 6. Sign the distributable EXE --------------------------------------------
 if (Test-Path $DigiCertUtil) {
     Write-Banner "Signing EXE (KernelDriverSigning)…" -Type INFO
     $exeSig = Sign-Files `
@@ -193,7 +193,7 @@ if (Test-Path $DigiCertUtil) {
     Write-Banner "DigiCertUtil not found — EXE signing skipped." -Type WARN
 }
 
-# ── 7. Move to Release\ ───────────────────────────────────────────────────────
+# -- 7. Move to Release\ -------------------------------------------------------
 Write-Banner "Moving EXE to Release\…" -Type INFO
 
 if (-not (Test-Path $ReleaseDir)) {
@@ -208,13 +208,13 @@ if (Test-Path $TargetExe) {
 }
 Move-Item -Force $DistExe $TargetExe
 
-# ── 8. Clean build artifacts and temp venv ───────────────────────────────────
+# -- 8. Clean build artifacts and temp venv -----------------------------------
 Write-Banner "Cleaning up…" -Type INFO
 Remove-Item -Recurse -Force ".\build"  -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force ".\dist"   -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force $BuildVenv -ErrorAction SilentlyContinue
 
-# ── 9. Summary ────────────────────────────────────────────────────────────────
+# -- 9. Summary ----------------------------------------------------------------
 $hash    = (Get-FileHash $TargetExe -Algorithm SHA256).Hash
 $exeSize = [math]::Round((Get-Item $TargetExe).Length / 1KB, 1)
 

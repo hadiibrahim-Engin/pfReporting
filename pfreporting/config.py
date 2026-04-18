@@ -1,10 +1,10 @@
-"""Configuration hierarchy – all parameters as Pydantic v2 models."""
+"""Configuration hierarchy - all parameters as Pydantic v2 models."""
 from __future__ import annotations
 
 from pydantic import BaseModel, Field, field_validator
 
 
-# ─── Thresholds ───────────────────────────────────────────────────────────────
+# --- Thresholds ---------------------------------------------------------------
 
 
 class VoltageConfig(BaseModel):
@@ -16,6 +16,15 @@ class VoltageConfig(BaseModel):
     @field_validator("lower_violation")
     @classmethod
     def _lo_order(cls, v: float, info) -> float:
+        """Ensure lower violation threshold is strictly below warning threshold.
+
+        Args:
+            v: Proposed ``lower_violation`` value.
+            info: Pydantic validation context with sibling field values.
+
+        Returns:
+            Validated ``lower_violation`` value.
+        """
         lo_w = info.data.get("lower_warning", 0.95)
         if v >= lo_w:
             raise ValueError("lower_violation must be < lower_warning")
@@ -24,6 +33,15 @@ class VoltageConfig(BaseModel):
     @field_validator("upper_violation")
     @classmethod
     def _hi_order(cls, v: float, info) -> float:
+        """Ensure upper violation threshold is strictly above warning threshold.
+
+        Args:
+            v: Proposed ``upper_violation`` value.
+            info: Pydantic validation context with sibling field values.
+
+        Returns:
+            Validated ``upper_violation`` value.
+        """
         hi_w = info.data.get("upper_warning", 1.05)
         if v <= hi_w:
             raise ValueError("upper_violation must be > upper_warning")
@@ -37,6 +55,15 @@ class ThermalConfig(BaseModel):
     @field_validator("violation_pct")
     @classmethod
     def _order(cls, v: float, info) -> float:
+        """Ensure thermal violation threshold is strictly above warning level.
+
+        Args:
+            v: Proposed ``violation_pct`` value.
+            info: Pydantic validation context with sibling field values.
+
+        Returns:
+            Validated ``violation_pct`` value.
+        """
         warn = info.data.get("warning_pct", 80.0)
         if v <= warn:
             raise ValueError("violation_pct must be > warning_pct")
@@ -49,7 +76,7 @@ class N1Config(BaseModel):
     max_voltage_pu: float = Field(1.10, ge=1)
 
 
-# ─── Calculation options ──────────────────────────────────────────────────────
+# --- Calculation options ------------------------------------------------------
 
 
 class CalculationOptions(BaseModel):
@@ -62,7 +89,7 @@ class CalculationOptions(BaseModel):
     run_n1: bool = True        # N-1 contingency analysis
 
 
-# ─── QDS time range override ──────────────────────────────────────────────────
+# --- QDS time range override --------------------------------------------------
 
 
 class QDSConfig(BaseModel):
@@ -78,7 +105,7 @@ class QDSConfig(BaseModel):
     dt: float | None = None        # Time step [h]
 
 
-# ─── Visualization ────────────────────────────────────────────────────────────
+# --- Visualization ------------------------------------------------------------
 
 
 class VizRequest(BaseModel):
@@ -98,18 +125,27 @@ class VizRequest(BaseModel):
 
     @property
     def chart_id(self) -> str:
-        """Unique ID for the chart canvas element."""
+        """Build deterministic chart identifier.
+
+        Returns:
+            Sanitized id composed from ``element_class`` and ``variable``.
+        """
         from pfreporting.utils import sanitize_name
 
         return sanitize_name(f"{self.element_class}_{self.variable}")
 
 
 def _default_visualizations() -> list[VizRequest]:
+    """Return built-in visualization defaults for report sections.
+
+    Returns:
+        Ordered list of default ``VizRequest`` definitions.
+    """
     return [
         VizRequest(
             element_class="ElmLne",
             variable="c:loading",
-            label="Lines – Loading",
+            label="Lines - Loading",
             unit="%",
             warn_hi=80.0,
             violation_hi=100.0,
@@ -119,7 +155,7 @@ def _default_visualizations() -> list[VizRequest]:
         VizRequest(
             element_class="ElmTr2",
             variable="c:loading",
-            label="Transformers – Loading",
+            label="Transformers - Loading",
             unit="%",
             warn_hi=80.0,
             violation_hi=100.0,
@@ -129,7 +165,7 @@ def _default_visualizations() -> list[VizRequest]:
         VizRequest(
             element_class="ElmTerm",
             variable="m:u",
-            label="Nodes – Voltage",
+            label="Nodes - Voltage",
             unit="p.u.",
             warn_lo=0.95,
             violation_lo=0.90,
@@ -141,28 +177,28 @@ def _default_visualizations() -> list[VizRequest]:
         VizRequest(
             element_class="ElmLne",
             variable="m:i1:bus1",
-            label="Lines – Current",
+            label="Lines - Current",
             unit="kA",
             max_elements=200,
         ),
         VizRequest(
             element_class="ElmLne",
             variable="m:P:bus1",
-            label="Lines – Active Power",
+            label="Lines - Active Power",
             unit="MW",
             max_elements=200,
         ),
         VizRequest(
             element_class="ElmLne",
             variable="m:Q:bus1",
-            label="Lines – Reactive Power",
+            label="Lines - Reactive Power",
             unit="Mvar",
             max_elements=200,
         ),
     ]
 
 
-# ─── Report output ────────────────────────────────────────────────────────────
+# --- Report output ------------------------------------------------------------
 
 
 class ReportConfig(BaseModel):
@@ -172,7 +208,7 @@ class ReportConfig(BaseModel):
     quasi_dynamic_result_file: str = "Quasi-Dynamic Simulation AC.ElmRes"
 
 
-# ─── Main config ──────────────────────────────────────────────────────────────
+# --- Main config --------------------------------------------------------------
 
 
 class PFReportConfig(BaseModel):

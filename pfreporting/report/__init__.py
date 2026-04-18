@@ -1,4 +1,4 @@
-"""Report subpackage – HTML generation."""
+"""Report subpackage - HTML generation."""
 from pfreporting.report.builder import ReportData
 from pfreporting.report.generator import HTMLReportGenerator
 

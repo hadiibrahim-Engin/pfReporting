@@ -1,9 +1,9 @@
 """
-PFTableReader – Reads time series back from PowerFactory IntReport tables.
+PFTableReader - Reads time series back from PowerFactory IntReport tables.
 
 Reads exactly the table structure that PFTableWriter created:
-    {chart_id}_TS       – Main table
-    {chart_id}_TS_Meta  – Meta table
+    {chart_id}_TS       - Main table
+    {chart_id}_TS_Meta  - Meta table
 
 Usage:
     reader  = PFTableReader(app, config)
@@ -30,10 +30,16 @@ class PFTableReader:
     """
 
     def __init__(self, app: Any, config: PFReportConfig) -> None:
+        """Initialize IntReport reader dependencies.
+
+        Args:
+            app: PowerFactory application object.
+            config: Report configuration with visualization requests.
+        """
         self._app = app
         self._cfg = config
 
-    # ── Public API ────────────────────────────────────────────────────────
+    # -- Public API --------------------------------------------------------
 
     def read_all(self, report: Any) -> TimeSeriesData:
         """
@@ -45,7 +51,7 @@ class PFTableReader:
 
         Returns
         -------
-        TimeSeriesData  with one section per existing table
+        TimeSeriesData with one section per existing table
         """
         time_values: list[float] = []
         sections: dict[str, dict[str, TimeSeries]] = {}
@@ -66,12 +72,21 @@ class PFTableReader:
         )
         return TimeSeriesData(time=time_values, sections=sections)
 
-    # ── Per VizRequest ────────────────────────────────────────────────────
+    # -- Per VizRequest ----------------------------------------------------
 
     def _read_viz_request(
         self, report: Any, vr: VizRequest
     ) -> tuple[list[float], dict[str, TimeSeries]] | None:
-        """Read main and meta table for a VizRequest configuration."""
+        """Read one visualization section from IntReport tables.
+
+        Args:
+            report: IntReport object.
+            vr: Visualization request defining table names and metadata.
+
+        Returns:
+            ``(time_values, section_map)`` when table data is available,
+            otherwise ``None``.
+        """
         cid      = vr.chart_id
         tbl_main = table_name(cid)
         tbl_meta = meta_table_name(cid)
@@ -79,18 +94,18 @@ class PFTableReader:
         try:
             nrows = report.GetNumberOfRows(tbl_main)
         except Exception:
-            log.debug("Table not found: %s – skipped.", tbl_main)
+            log.debug("Table not found: %s - skipped.", tbl_main)
             return None
 
         if nrows == 0:
             return None
 
-        # ── Read field names ───────────────────────────────────────────
+        # -- Read field names -------------------------------------------
         col_names = self._get_field_names(report, tbl_main, nrows, vr)
         if not col_names:
             return None
 
-        # ── Units from meta table ──────────────────────────────────────
+        # -- Units from meta table --------------------------------------
         units: dict[str, str] = {}
         try:
             for cn in col_names:
@@ -98,13 +113,13 @@ class PFTableReader:
         except Exception:
             units = {cn: vr.unit for cn in col_names}
 
-        # ── Read time vector ───────────────────────────────────────────
+        # -- Read time vector -------------------------------------------
         time_values: list[float] = []
         for row in range(nrows):
             t = self._safe_get_val(report, tbl_main, "time", row)
             time_values.append(float(t) if t is not None else float(row))
 
-        # ── Read time series ───────────────────────────────────────────
+        # -- Read time series -------------------------------------------
         ts_map: dict[str, list[float | None]] = {cn: [] for cn in col_names}
         for row in range(nrows):
             for cn in col_names:
@@ -124,17 +139,28 @@ class PFTableReader:
         log.debug("Table read: %s (%d rows, %d series)", tbl_main, nrows, len(section))
         return time_values, section
 
-    # ── Determine field names ─────────────────────────────────────────────
+    # -- Determine field names ---------------------------------------------
 
     def _get_field_names(
         self, report: Any, tbl: str, nrows: int, vr: VizRequest
     ) -> list[str]:
         """
-        Try to read field names via the PF API.
-        Fallback: all fields except 'time' and 'time_string' as element names.
+        Read available field names for one IntReport time-series table.
+
+        Args:
+            report: IntReport object.
+            tbl: Main table name.
+            nrows: Number of rows in the table (reserved for compatibility).
+            vr: Visualization request (reserved for compatibility).
+
+        Returns:
+            Data-field names excluding ``time`` and ``time_string``.
+
+        PowerFactory versions that expose ``GetFieldNames`` return a full list
+        that is filtered to remove ``time`` and ``time_string``.
         """
         try:
-            # PowerFactory ≥ 2024 provides GetFieldNames
+            # PowerFactory >= 2024 provides GetFieldNames
             all_fields = report.GetFieldNames(tbl)
             return [f for f in all_fields if f not in ("time", "time_string")]
         except Exception:
@@ -144,21 +170,44 @@ class PFTableReader:
 
     def _probe_field_names(self, report: Any, tbl: str, nrows: int) -> list[str]:
         """
-        Not implementable without known field names → return empty list.
-        In practice GetFieldNames should always be available.
+        Fallback when PF does not expose ``GetFieldNames``.
+
+        Args:
+            report: IntReport object.
+            tbl: Main table name.
+            nrows: Number of rows (reserved for compatibility).
+
+        Returns:
+            Empty list, because reliable probing is not supported.
+
+        IntReport does not provide a reliable reverse lookup for unknown field
+        names in older APIs, so this fallback intentionally returns no columns.
+        Use the direct workflow (write and consume ``TimeSeriesData`` in one
+        session) when this warning occurs.
         """
         log.warning(
             "GetFieldNames not available for table '%s'. "
             "Time series cannot be read. "
-            "Use direct workflow (write_all → TimeSeriesData).",
+            "Use direct workflow (write_all -> TimeSeriesData).",
             tbl,
         )
         return []
 
-    # ── Helper methods ────────────────────────────────────────────────────
+    # -- Helper methods ----------------------------------------------------
 
     @staticmethod
     def _safe_get_val(report: Any, tbl: str, field: str, row: int) -> Any:
+        """Read one IntReport cell safely.
+
+        Args:
+            report: IntReport object.
+            tbl: Table name.
+            field: Field/column name.
+            row: Row index.
+
+        Returns:
+            Cell value or ``None`` when access fails.
+        """
         try:
             return report.GetValue(tbl, field, row)
         except Exception:

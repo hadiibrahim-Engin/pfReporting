@@ -1,4 +1,4 @@
-"""Demo data – matches the bundled report template."""
+"""Demo data - matches the bundled report template."""
 from __future__ import annotations
 
 import math
@@ -24,6 +24,11 @@ _TIME  = [float(i) for i in range(_STEPS)]
 
 
 def build_mock_data() -> ReportData:
+    """Build deterministic demo dataset covering all report sections.
+
+    Returns:
+        ``ReportData`` instance with mock project, analysis, and time-series data.
+    """
     info = ProjectInfo(
         project="DEMO",
         study_case="WinterLoad_2026",
@@ -49,7 +54,7 @@ def build_mock_data() -> ReportData:
         SwitchedElement(name="Trafo_SS_Central_T2", type="Transformer (2W)"),
     ]
 
-    # Steps 8 and 16 simulate non-convergence (all NaN in real PF – here None)
+    # Steps 8 and 16 simulate non-convergence (all NaN in real PF - here None)
     non_conv = {8, 16}
     lf = LoadFlowResult(
         converged=True,
@@ -169,9 +174,9 @@ def build_mock_data() -> ReportData:
         summary_text=(
             "De-energization is <strong>NOT permissible</strong>. "
             "System security violations are present.<br>"
-            " – 1 voltage band violation(s)<br>"
-            " – 1 thermal overload(s)<br>"
-            " – 2 (N-1) security violation(s)"
+            " - 1 voltage band violation(s)<br>"
+            " - 1 thermal overload(s)<br>"
+            " - 2 (N-1) security violation(s)"
         ),
     )
 
@@ -191,6 +196,16 @@ def build_mock_data() -> ReportData:
 
 
 def _sine(base: float, amp: float, phase: float = 0.0) -> list[float]:
+    """Generate rounded 24-hour sinusoidal profile.
+
+    Args:
+        base: Mean value around which the signal oscillates.
+        amp: Oscillation amplitude.
+        phase: Phase shift in radians.
+
+    Returns:
+        List of sampled values with ``_STEPS`` entries.
+    """
     return [
         round(base + amp * math.sin(2 * math.pi * i / 24 + phase), 4)
         for i in range(_STEPS)
@@ -198,104 +213,108 @@ def _sine(base: float, amp: float, phase: float = 0.0) -> list[float]:
 
 
 def _build_mock_timeseries() -> TimeSeriesData:
-    """Generate realistic sine curves as demo time series (24 h, 1 h steps)."""
+    """Build all mock time-series sections used by report charts.
+
+    Returns:
+        ``TimeSeriesData`` with synthetic hourly values over one day.
+    """
     sections: dict = {}
 
-    # ── ElmLne / c:loading ──────────────────────────────────────────────────
+    # -- ElmLne / c:loading --------------------------------------------------
     sections["ElmLne_c_loading"] = {
         "Line_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="c:loading",
-            label="Lines – Loading", unit="%",
+            label="Lines - Loading", unit="%",
             values=_sine(95.0, 15.0, 0.0),
         ),
         "Line_110kV_East": TimeSeries(
             element_class="ElmLne", variable="c:loading",
-            label="Lines – Loading", unit="%",
+            label="Lines - Loading", unit="%",
             values=_sine(75.0, 12.0, 0.5),
         ),
         "Line_110kV_South": TimeSeries(
             element_class="ElmLne", variable="c:loading",
-            label="Lines – Loading", unit="%",
+            label="Lines - Loading", unit="%",
             values=_sine(60.0, 8.0, 1.0),
         ),
     }
 
-    # ── ElmTr2 / c:loading ──────────────────────────────────────────────────
+    # -- ElmTr2 / c:loading --------------------------------------------------
     sections["ElmTr2_c_loading"] = {
         "Trafo_SS_Central_T1": TimeSeries(
             element_class="ElmTr2", variable="c:loading",
-            label="Transformers – Loading", unit="%",
+            label="Transformers - Loading", unit="%",
             values=_sine(85.0, 10.0, 0.3),
         ),
     }
 
-    # ── ElmLne / m:i1:bus1 ──────────────────────────────────────────────────
+    # -- ElmLne / m:i1:bus1 --------------------------------------------------
     sections["ElmLne_m_i1_bus1"] = {
         "Line_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:i1:bus1",
-            label="Lines – Current", unit="kA",
+            label="Lines - Current", unit="kA",
             values=_sine(0.48, 0.12, 0.0),
         ),
         "Line_110kV_East": TimeSeries(
             element_class="ElmLne", variable="m:i1:bus1",
-            label="Lines – Current", unit="kA",
+            label="Lines - Current", unit="kA",
             values=_sine(0.40, 0.08, 0.5),
         ),
     }
 
-    # ── ElmLne / m:P:bus1 ───────────────────────────────────────────────────
+    # -- ElmLne / m:P:bus1 ---------------------------------------------------
     sections["ElmLne_m_P_bus1"] = {
         "Line_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:P:bus1",
-            label="Lines – Active Power", unit="MW",
+            label="Lines - Active Power", unit="MW",
             values=_sine(85.0, 20.0, 0.0),
         ),
         "Line_110kV_East": TimeSeries(
             element_class="ElmLne", variable="m:P:bus1",
-            label="Lines – Active Power", unit="MW",
+            label="Lines - Active Power", unit="MW",
             values=_sine(65.0, 15.0, 0.5),
         ),
     }
 
-    # ── ElmLne / m:Q:bus1 ───────────────────────────────────────────────────
+    # -- ElmLne / m:Q:bus1 ---------------------------------------------------
     sections["ElmLne_m_Q_bus1"] = {
         "Line_110kV_Ring": TimeSeries(
             element_class="ElmLne", variable="m:Q:bus1",
-            label="Lines – Reactive Power", unit="Mvar",
+            label="Lines - Reactive Power", unit="Mvar",
             values=_sine(18.0, 6.0, 1.0),
         ),
     }
 
-    # ── ElmTerm / m:u  (for voltage heatmap) ────────────────────────────────
+    # -- ElmTerm / m:u  (for voltage heatmap) --------------------------------
     sections["ElmTerm_m_u"] = {
         "SS_Residential_20kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(0.890, 0.030, 0.0),
         ),
         "SS_West_110kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(0.940, 0.020, 0.5),
         ),
         "SS_South_110kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(0.980, 0.010, 1.0),
         ),
         "SS_North_110kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(1.020, 0.020, 0.3),
         ),
         "SS_Commercial_20kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(1.060, 0.010, 0.8),
         ),
         "SS_Central_110kV": TimeSeries(
             element_class="ElmTerm", variable="m:u",
-            label="Nodes – Voltage", unit="p.u.",
+            label="Nodes - Voltage", unit="p.u.",
             values=_sine(1.030, 0.015, 0.2),
         ),
     }

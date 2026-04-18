@@ -8,7 +8,7 @@
 [project]
 name            = "pfreporting"
 version         = "0.1.0"
-description     = "Automated De-Energization Assessment with PowerFactory – HTML Report Generator."
+description     = "Automated De-Energization Assessment with PowerFactory - HTML Report Generator."
 requires-python = ">=3.11"
 readme          = "README.md"
 
@@ -32,7 +32,7 @@ pdf = [
 [project.scripts]
 pfreporting = "cli:app"
 
-# ── uv ────────────────────────────────────────────────────────────────────────
+# -- uv ------------------------------------------------------------------------
 [tool.uv]
 package = true
 
@@ -43,7 +43,7 @@ dev = [
     "ruff>=0.4",
 ]
 
-# ── ruff ──────────────────────────────────────────────────────────────────────
+# -- ruff ----------------------------------------------------------------------
 [tool.ruff]
 line-length = 100
 target-version = "py311"
@@ -51,12 +51,12 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
 
-# ── pytest ────────────────────────────────────────────────────────────────────
+# -- pytest --------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts   = "-v --tb=short"
 
-# ── build ─────────────────────────────────────────────────────────────────────
+# -- build ---------------------------------------------------------------------
 [build-system]
 requires      = ["hatchling"]
 build-backend = "hatchling.build"

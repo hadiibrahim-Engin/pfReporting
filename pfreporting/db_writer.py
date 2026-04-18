@@ -1,21 +1,21 @@
 """
-PFTableWriter – Writes ElmRes time series into PowerFactory IntReport tables.
+PFTableWriter - Writes ElmRes time series into PowerFactory IntReport tables.
 
 Table naming convention (per VizRequest):
     Main table:  {chart_id}_TS
     Meta table:  {chart_id}_TS_Meta
 
 Main table structure:
-    time          [double]  – Time [h]
-    time_string   [string]  – Time as formatted string
-    {elem_1}      [double]  – Time series element 1
-    {elem_2}      [double]  – Time series element 2   (up to max_elements)
+    time          [double]  - Time [h]
+    time_string   [string]  - Time as formatted string
+    {elem_1}      [double]  - Time series element 1
+    {elem_2}      [double]  - Time series element 2   (up to max_elements)
     …
 
 Meta table structure (always row 0):
-    {elem_1}_desc        [string]  – Description (long)
-    {elem_1}_short_desc  [string]  – Description (short)
-    {elem_1}_unit        [string]  – Unit
+    {elem_1}_desc        [string]  - Description (long)
+    {elem_1}_short_desc  [string]  - Description (short)
+    {elem_1}_unit        [string]  - Unit
     …
 
 Usage:
@@ -49,12 +49,26 @@ _SUFFIX_UNIT       = "_unit"
 
 
 def table_name(chart_id: str) -> str:
-    """Main table name for a VizRequest."""
+    """Return IntReport main table name for one chart section.
+
+    Args:
+        chart_id: Visualization chart id.
+
+    Returns:
+        Main table name with ``_TS`` suffix.
+    """
     return f"{chart_id}_TS"
 
 
 def meta_table_name(chart_id: str) -> str:
-    """Meta table name for a VizRequest."""
+    """Return IntReport metadata table name for one chart section.
+
+    Args:
+        chart_id: Visualization chart id.
+
+    Returns:
+        Metadata table name with ``_TS_Meta`` suffix.
+    """
     return f"{chart_id}_TS_Meta"
 
 
@@ -67,20 +81,33 @@ class PFTableWriter:
     """
 
     def __init__(self, app: Any, config: PFReportConfig) -> None:
+        """Initialize IntReport writer dependencies.
+
+        Args:
+            app: PowerFactory application object.
+            config: Report configuration with visualization requests.
+        """
         self._app = app
         self._cfg = config
 
-    # ── Public API ────────────────────────────────────────────────────────
+    # -- Public API --------------------------------------------------------
 
     def run_qds(self):
         """
-        Execute the QDS calculation (ComStatsim) and return the loaded
-        ElmRes object. Raises ReaderError if no ElmRes is found.
+        Execute ``ComStatsim`` and return the loaded ElmRes object.
 
-        If config.qds.t_start / t_end / dt are set, they are applied to
-        the ComStatsim object before execution.
-        Note: PF attribute names (Tstart, Tshow, dt) may differ across
-        PowerFactory versions – verify against your PF API documentation.
+        If ``config.qds.t_start``, ``t_end`` or ``dt`` are set, those values
+        are applied to the PF command object before execution.
+
+        Returns:
+            Loaded ElmRes object produced by the QDS run.
+
+        Raises:
+            ReaderError: If no suitable ElmRes object can be found afterward.
+
+        Notes:
+            PF attribute names (``Tstart``, ``Tshow``, ``dt``) may differ across
+            PowerFactory versions.
         """
         app = self._app
         qds_cfg = self._cfg.qds
@@ -116,7 +143,7 @@ class PFTableWriter:
         clear_existing: bool = True,
     ) -> TimeSeriesData:
         """
-        Write all configured VizRequests into IntReport tables.
+        Write all configured visualization requests into IntReport tables.
 
         Parameters
         ----------
@@ -127,7 +154,12 @@ class PFTableWriter:
 
         Returns
         -------
-        TimeSeriesData  – Directly usable by the HTML generator (no re-read needed)
+        TimeSeriesData that mirrors what was written to IntReport tables and
+        can be passed directly to the HTML generator.
+
+        Notes:
+            With ``clear_existing=True``, ``report.Reset()`` removes all tables
+            currently stored in the target IntReport.
         """
         if clear_existing:
             report.Reset()
@@ -154,7 +186,7 @@ class PFTableWriter:
 
             if not cols:
                 log.debug(
-                    "No columns for %s / %s – skipped.", vr.element_class, vr.variable
+                    "No columns for %s / %s - skipped.", vr.element_class, vr.variable
                 )
                 continue
 
@@ -168,7 +200,7 @@ class PFTableWriter:
 
         return TimeSeriesData(time=time_values, sections=all_sections)
 
-    # ── Per VizRequest ────────────────────────────────────────────────────
+    # -- Per VizRequest ----------------------------------------------------
 
     def _write_viz_request(
         self,
@@ -179,19 +211,40 @@ class PFTableWriter:
         time_values: list[float],
         nrows: int,
     ) -> dict[str, TimeSeries]:
-        """Write main + meta table for a VizRequest configuration."""
+        """Write one visualization section into main and metadata tables.
+
+        Args:
+            report: IntReport object to write into.
+            elmres: Loaded ElmRes object.
+            vr: Visualization request for section metadata and limits.
+            columns: Selected columns as ``(name, index, object)`` tuples.
+            time_values: Time axis values for all rows.
+            nrows: Number of time steps to write.
+
+        Returns:
+            ``dict[element_name, TimeSeries]`` for the written section.
+
+        Main table schema:
+            - ``time``: numeric simulation time value
+            - ``time_string``: formatted time string
+            - one numeric field per selected element series
+
+        Meta table schema (row 0):
+            - ``<field>_desc`` and ``<field>_short_desc``
+            - ``<field>_unit``
+        """
         cid      = vr.chart_id
         tbl_main = table_name(cid)
         tbl_meta = meta_table_name(cid)
 
-        # ── Create main table ──────────────────────────────────────────
+        # -- Create main table ------------------------------------------
         report.CreateTable(tbl_main)
         report.CreateField(tbl_main, "time",        _DOUBLE)
         report.CreateField(tbl_main, "time_string", _STRING)
         for col_name, _, _ in columns:
             report.CreateField(tbl_main, col_name, _DOUBLE)
 
-        # ── Create meta table ──────────────────────────────────────────
+        # -- Create meta table ------------------------------------------
         report.CreateTable(tbl_meta)
         meta_records: dict[str, dict] = {}
         for col_name, col_idx, _ in columns:
@@ -205,7 +258,7 @@ class PFTableWriter:
 
             meta_records[col_name] = {"desc": desc_l, "short_desc": desc_s, "unit": unit}
 
-        # ── Populate main table ────────────────────────────────────────
+        # -- Populate main table ----------------------------------------
         ts_map: dict[str, list[float | None]] = {cn: [] for cn, _, _ in columns}
 
         for row in range(nrows):
@@ -219,14 +272,14 @@ class PFTableWriter:
                     report.SetValue(tbl_main, col_name, row, float(val))
                 ts_map[col_name].append(val)
 
-        # ── Populate meta table (row 0) ────────────────────────────────
+        # -- Populate meta table (row 0) --------------------------------
         for col_name, _, _ in columns:
             m = meta_records[col_name]
             report.SetValue(tbl_meta, col_name + _SUFFIX_DESC,       0, m["desc"])
             report.SetValue(tbl_meta, col_name + _SUFFIX_SHORT_DESC, 0, m["short_desc"])
             report.SetValue(tbl_meta, col_name + _SUFFIX_UNIT,       0, m["unit"])
 
-        # ── Return TimeSeriesData section ──────────────────────────────
+        # -- Return TimeSeriesData section ------------------------------
         unit_first = next(
             (meta_records[cn]["unit"] for cn, _, _ in columns if cn in meta_records),
             vr.unit,
@@ -242,9 +295,17 @@ class PFTableWriter:
             for col_name, _, _ in columns
         }
 
-    # ── ElmRes access ─────────────────────────────────────────────────────
+    # -- ElmRes access -----------------------------------------------------
 
     def _load_elmres(self):
+        """Load configured ElmRes object from active study case.
+
+        Returns:
+            Loaded ElmRes object.
+
+        Raises:
+            ReaderError: If no study case or matching result file is available.
+        """
         sc = self._app.GetActiveStudyCase()
         if not sc:
             raise ReaderError("No active study case found.")
@@ -252,7 +313,7 @@ class PFTableWriter:
         res_list = sc.GetContents(res_name) or sc.GetContents("*.ElmRes")
         if not res_list:
             raise ReaderError(
-                "No ElmRes object found – run simulation first."
+                "No ElmRes object found - run simulation first."
             )
         elmres = res_list[0]
         elmres.Load()
@@ -260,6 +321,19 @@ class PFTableWriter:
         return elmres
 
     def _read_time_vector(self, elmres: Any, nrows: int, time_col: int) -> list[float]:
+        """Read the simulation time column with row-index fallback.
+
+        Args:
+            elmres: Loaded ElmRes object.
+            nrows: Number of rows to read.
+            time_col: Resolved time column index.
+
+        Returns:
+            Time vector with ``nrows`` entries.
+
+        If a time value cannot be read for a row, that row index is used as a
+        stable monotonic substitute.
+        """
         values: list[float] = []
         for row in range(nrows):
             val = self._get_val(elmres, row, time_col)
@@ -270,8 +344,19 @@ class PFTableWriter:
         self, elmres: Any, ncols: int
     ) -> dict[tuple[str, str], list[tuple[str, int, Any]]]:
         """
-        Return a dict: (element_class, variable) → [(col_name, col_idx, obj), …].
-        Names are sanitized and made unique.
+        Build an ElmRes column index grouped by ``(element_class, variable)``.
+
+        Args:
+            elmres: Loaded ElmRes object.
+            ncols: Number of ElmRes columns.
+
+        Returns:
+            Mapping of ``(class_name, variable)`` to tuples of
+            ``(column_name, column_index, pf_object)``.
+
+        Notes:
+            Column names are sanitized and deduplicated per key by appending
+            ``_2``, ``_3``, ... as required.
         """
         index: dict[tuple[str, str], list] = {}
         seen: dict[tuple[str, str], set[str]] = {}
@@ -310,6 +395,16 @@ class PFTableWriter:
 
     @staticmethod
     def _find_time_col(elmres: Any) -> int:
+        """Locate a time column by common field names.
+
+        Args:
+            elmres: Loaded ElmRes object.
+
+        Returns:
+            Column index for time values.
+
+        Returns column index 0 when no known time variable is found.
+        """
         for cand in ("t", "time", "Time", "TIME"):
             try:
                 idx = elmres.FindColumn(cand)
@@ -320,6 +415,16 @@ class PFTableWriter:
         return 0
 
     def _get_val(self, elmres: Any, row: int, col: int) -> float | None:
+        """Read one scalar ElmRes value safely.
+
+        Args:
+            elmres: Loaded ElmRes object.
+            row: Row index.
+            col: Column index.
+
+        Returns:
+            Float value or ``None`` for NaN/missing/error.
+        """
         try:
             _, val = elmres.GetValue(row, col)
             if val is not None and self._app.IsNAN(val):
@@ -330,6 +435,16 @@ class PFTableWriter:
 
     @staticmethod
     def _safe_get(obj: Any, method_name: str, *args) -> str:
+        """Call PF accessor and stringify result safely.
+
+        Args:
+            obj: Object exposing the method.
+            method_name: Accessor method name.
+            *args: Positional arguments forwarded to the accessor.
+
+        Returns:
+            String result, or an empty string on error.
+        """
         try:
             return str(getattr(obj, method_name)(*args) or "")
         except Exception:
@@ -348,13 +463,24 @@ class PFTimeSeriesWriter:
     """
 
     def __init__(self, app: Any, report_obj: Any, config: PFReportConfig) -> None:
+        """Initialize high-level writer wrapper dependencies.
+
+        Args:
+            app: PowerFactory application object.
+            report_obj: IntReport object receiving output tables.
+            config: Report configuration.
+        """
         self._app = app
         self._report = report_obj
         self._cfg = config
         self._log = logging.getLogger("pfreporting")
 
     def write_all(self, elmres_name: str) -> None:
-        """Load the named ElmRes and write all configured VizRequests to IntReport tables."""
+        """Load named ElmRes and persist all configured time-series sections.
+
+        Args:
+            elmres_name: Preferred ElmRes object name in active study case.
+        """
         sc = self._app.GetActiveStudyCase()
         if not sc:
             self._log.warning("PFTimeSeriesWriter: no active study case — skipping.")

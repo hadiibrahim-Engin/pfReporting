@@ -16,7 +16,7 @@ from pfreporting.db_writer import (
 from pfreporting.models import TimeSeriesData
 
 
-# ── Reuse mocks from test_db_writer ──────────────────────────────────────────
+# -- Reuse mocks from test_db_writer ------------------------------------------
 
 class MockElmObj:
     def __init__(self, cls_name: str, loc_name: str) -> None:
@@ -117,7 +117,7 @@ class MockReport:
         return self.tables[table]["fields"]
 
 
-# ── Fixtures ───────────────────────────────────────────────────────────────────
+# -- Fixtures -------------------------------------------------------------------
 
 @pytest.fixture
 def config() -> PFReportConfig:
@@ -126,7 +126,7 @@ def config() -> PFReportConfig:
             VizRequest(
                 element_class="ElmLne",
                 variable="c:loading",
-                label="Lines – Loading",
+                label="Lines - Loading",
                 unit="%",
                 warn_hi=80.0,
                 violation_hi=100.0,
@@ -144,7 +144,7 @@ def populated_report(config) -> MockReport:
     return report
 
 
-# ── Basic read_all ─────────────────────────────────────────────────────────────
+# -- Basic read_all -------------------------------------------------------------
 
 def test_read_all_returns_timeseries_data(config, populated_report):
     reader = PFTableReader(MockApp(), config)
@@ -186,7 +186,7 @@ def test_read_all_unit_from_meta(config, populated_report):
         assert ts.unit != ""
 
 
-# ── Round-trip: write then read ───────────────────────────────────────────────
+# -- Round-trip: write then read -----------------------------------------------
 
 def test_roundtrip_values_identical(config):
     report = MockReport()
@@ -218,7 +218,7 @@ def test_roundtrip_time_identical(config):
     assert read.time == pytest.approx(written.time)
 
 
-# ── Missing table handling ─────────────────────────────────────────────────────
+# -- Missing table handling -----------------------------------------------------
 
 def test_read_missing_table_returns_empty(config):
     reader = PFTableReader(MockApp(), config)
@@ -227,7 +227,7 @@ def test_read_missing_table_returns_empty(config):
     assert ts_data.is_empty() or len(ts_data.sections) == 0
 
 
-# ── GetFieldNames fallback ─────────────────────────────────────────────────────
+# -- GetFieldNames fallback -----------------------------------------------------
 
 def test_read_without_get_field_names(config, populated_report):
     """When GetFieldNames raises, reader should warn and return empty section."""
@@ -246,7 +246,7 @@ def test_read_without_get_field_names(config, populated_report):
     assert isinstance(section, dict)
 
 
-# ── Label and element_class metadata preserved ────────────────────────────────
+# -- Label and element_class metadata preserved --------------------------------
 
 def test_series_metadata_preserved(config, populated_report):
     reader = PFTableReader(MockApp(), config)

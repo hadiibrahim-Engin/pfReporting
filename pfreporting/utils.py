@@ -5,7 +5,19 @@ import re
 
 
 def sanitize_name(name: str | None, max_len: int = 120) -> str:
-    """Convert an arbitrary name into a safe identifier."""
+    """Normalize an arbitrary label to a safe identifier-like string.
+
+    Args:
+        name: Source label that may include spaces or special characters.
+        max_len: Maximum output length.
+
+    Returns:
+        Sanitized identifier string.
+
+    Replaces non-word characters with ``_``, enforces a non-empty fallback
+    (``"col"``), prefixes leading digits with ``_``, and truncates to
+    ``max_len`` characters.
+    """
     s = re.sub(r"[^\w\-]", "_", name or "")
     if not s:
         s = "col"
@@ -15,28 +27,60 @@ def sanitize_name(name: str | None, max_len: int = 120) -> str:
 
 
 def format_pu(value: float) -> str:
-    """Format a p.u. value with 4 decimal places."""
+    """Format a p.u. value with four decimals.
+
+    Args:
+        value: Per-unit value.
+
+    Returns:
+        Formatted numeric string.
+    """
     return f"{value:.4f}"
 
 
 def format_pct(value: float, decimals: int = 1) -> str:
-    """Format a percentage value."""
+    """Format a signed percentage-like value.
+
+    Args:
+        value: Numeric value to render.
+        decimals: Number of digits after decimal point.
+
+    Returns:
+        Signed formatted string.
+    """
     sign = "+" if value > 0 else ""
     return f"{sign}{value:.{decimals}f}"
 
 
 def bar_width(loading_pct: float, scale: float = 0.66) -> str:
     """
-    Return the CSS width for the loading bar.
-    scale=0.66 → 100% loading corresponds to 66% bar width
-    so the label text remains visible.
+    Return CSS width string for the loading bar.
+
+    Args:
+        loading_pct: Loading percent value.
+        scale: Multiplicative factor converting percent to CSS width.
+
+    Returns:
+        CSS width string with percent suffix.
+
+    The formula is ``width = loading_pct * scale``. The default scale of 0.66
+    keeps labels readable when loading values approach or exceed 100%.
     """
     width = loading_pct * scale
     return f"{width:.3f}%"
 
 
 def status_class(status: str) -> str:
-    """Return the CSS class for a badge."""
+    """Map status string to badge CSS class.
+
+    Args:
+        status: Status key (``ok``, ``warning``, ``violation``).
+
+    Returns:
+        CSS class name for badge rendering.
+
+    Unknown statuses fall back to ``badge-ok``.
+    """
     mapping = {
         "ok": "badge-ok",
         "warning": "badge-warning",
@@ -46,7 +90,16 @@ def status_class(status: str) -> str:
 
 
 def bar_class(status: str) -> str:
-    """Return the CSS class for a bar."""
+    """Map status string to loading-bar CSS class.
+
+    Args:
+        status: Status key (``ok``, ``warning``, ``violation``).
+
+    Returns:
+        CSS class name for loading-bar rendering.
+
+    Unknown statuses fall back to ``bar-ok``.
+    """
     mapping = {
         "ok": "bar-ok",
         "warning": "bar-warning",
@@ -56,7 +109,16 @@ def bar_class(status: str) -> str:
 
 
 def badge_label(status: str) -> str:
-    """Return the display label for a status."""
+    """Map status string to an uppercase display label.
+
+    Args:
+        status: Status key (``ok``, ``warning``, ``violation``).
+
+    Returns:
+        Human-readable uppercase label.
+
+    Unknown statuses fall back to ``OK``.
+    """
     mapping = {
         "ok": "OK",
         "warning": "WARNING",

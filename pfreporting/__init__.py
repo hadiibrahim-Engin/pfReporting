@@ -1,14 +1,14 @@
 """
-pfreporting – Automatic De-energization Assessment with PowerFactory.
+pfreporting - Automatic De-energization Assessment with PowerFactory.
 
 Public API:
-    run_full_workflow(app, config, pf_report)  – Recommended entry point:
-        Step 1 – Run QDS simulation + write results to IntReport tables
-        Step 2 – Read static results, run N-1 analysis
-        Step 3 – Generate and save HTML report
+    run_full_workflow(app, config, pf_report)  - Recommended entry point:
+        Step 1 - Run QDS simulation + write results to IntReport tables
+        Step 2 - Read static results, run N-1 analysis
+        Step 3 - Generate and save HTML report
 
-    run_report(app, config)   – Short form without DB step (reads directly from PF)
-    PFReportConfig            – Configuration model
+    run_report(app, config)   - Short form without DB step (reads directly from PF)
+    PFReportConfig            - Configuration model
 """
 from __future__ import annotations
 
@@ -41,18 +41,18 @@ def run_full_workflow(
     """
     Complete two-phase workflow for the de-energization assessment.
 
-    Step 1 – QDS simulation (optional, if pf_report is provided)
+    Step 1 - QDS simulation (optional, if pf_report is provided)
         • Run QDS calculation (ComStatsim)
         • Read time series from ElmRes
         • Write results to PowerFactory IntReport tables
 
-    Step 2 – Static results & N-1 analysis
+    Step 2 - Static results & N-1 analysis
         • Load flow calculation (if calc.run_loadflow)
         • Voltage band check (if calc.run_voltage)
         • Thermal loading (if calc.run_thermal)
         • N-1 contingency analysis (if calc.run_n1)
 
-    Step 3 – HTML report
+    Step 3 - HTML report
         • Aggregate all results
         • Threshold analysis & status assessment
         • Generate portable HTML report with embedded charts
@@ -61,7 +61,7 @@ def run_full_workflow(
     ----------
     app:         PowerFactory application object (powerfactory.GetApplication())
     config:      Configuration; default values if None
-    pf_report:   IntReport object for DB integration (optional – pass None to skip)
+    pf_report:   IntReport object for DB integration (optional - pass None to skip)
     output_path: Optional output path; overrides ReportConfig.output_dir
     """
     if config is None:
@@ -93,7 +93,7 @@ def run_full_workflow(
     log.info("  De-Energization Assessment  v%s", __version__)
     log.info("=" * 60)
 
-    # ── Step 1: QDS → IntReport tables ───────────────────────────────────
+    # -- Step 1: QDS → IntReport tables -----------------------------------
     ts_raw: TimeSeriesData | None = None
     ts_data: TimeSeriesData | None = None
     if calc.run_qds and pf_report is not None:
@@ -104,7 +104,7 @@ def run_full_workflow(
             elmres.Release()
             ts_data = engine.filter_critical_series(ts_raw, config.visualizations)
             n_series = sum(len(s) for s in ts_data.sections.values())
-            log.info("QDS complete – %d series in %d chart sections.", n_series, len(ts_data.sections))
+            log.info("QDS complete - %d series in %d chart sections.", n_series, len(ts_data.sections))
         except Exception as exc:
             log.warning("QDS step failed: %s", exc)
             ts_raw = ts_data = None
@@ -113,7 +113,7 @@ def run_full_workflow(
     else:
         log.info("QDS step skipped (no IntReport provided; will read ElmRes directly).")
 
-    # ── Step 2: Static results ────────────────────────────────────────────
+    # -- Step 2: Static results --------------------------------------------
     next_step("Static Results & Analysis")
 
     info     = reader.get_project_info()
@@ -138,7 +138,7 @@ def run_full_workflow(
 
     overall = engine.get_overall_status(voltage, loading, n1)
     log.info(
-        "Analysis complete – Status: %s, Violations: %d",
+        "Analysis complete - Status: %s, Violations: %d",
         overall.status.upper(),
         overall.total_violations,
     )
@@ -161,7 +161,7 @@ def run_full_workflow(
     if not ts_data.is_empty():
         lf.qds_steps = _derive_qds_steps(ts_data)
 
-    # ── Step 3: HTML report ───────────────────────────────────────────────
+    # -- Step 3: HTML report -----------------------------------------------
     next_step("HTML Report Generation")
     data = ReportData(
         info=info,
@@ -232,6 +232,16 @@ def _resolve_output_path(
     config: PFReportConfig,
     override: str | Path | None,
 ) -> Path:
+    """Resolve final HTML file destination path.
+
+    Args:
+        data: Report dataset used for filename generation.
+        config: Report configuration containing output settings.
+        override: Optional explicit path or output directory.
+
+    Returns:
+        Final output path for the generated HTML report.
+    """
     if override:
         p = Path(override)
         return p if p.suffix == ".html" else p / _default_filename(data)
@@ -244,13 +254,29 @@ def _resolve_output_path(
 
 
 def _default_filename(data: ReportData) -> str:
+    """Build timestamped report filename.
+
+    Args:
+        data: Report dataset providing the project name component.
+
+    Returns:
+        Filename string with project and timestamp tokens.
+    """
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_name = data.info.project.replace(" ", "_")[:40]
     return f"DeEnergizationAssessment_{safe_name}_{ts}.html"
 
 
 def _derive_qds_steps(ts_data: TimeSeriesData) -> list[QDSStep]:
-    """Convergence per QDS time step: not converged when all values are None."""
+    """Derive per-step QDS convergence flags from time-series availability.
+
+    Args:
+        ts_data: Time-series dataset containing all extracted sections.
+
+    Returns:
+        List of ``QDSStep`` entries with ``converged`` set to ``False`` when
+        all series values are ``None`` for a given time step.
+    """
     all_series = [ts for sec in ts_data.sections.values() for ts in sec.values()]
     steps: list[QDSStep] = []
     for i, t in enumerate(ts_data.time):

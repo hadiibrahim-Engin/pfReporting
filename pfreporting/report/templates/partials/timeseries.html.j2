@@ -18,7 +18,7 @@
         <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--gray-900);">
             {{ viz.label }}
             <span style="font-size:12px;font-weight:400;color:var(--gray-600);">
-                [{{ viz.unit }}] – {{ ts_data.sections[cid] | length }} elements
+                [{{ viz.unit }}] - {{ ts_data.sections[cid] | length }} elements
             </span>
         </h3>
 
@@ -33,7 +33,7 @@
 
         {% if viz.heatmap and cid in heatmap_data %}
         <h4 style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--gray-800);">
-            Heatmap – {{ viz.label }}
+            Heatmap - {{ viz.label }}
         </h4>
         <div class="heatmap-wrapper">
             <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>

@@ -1,5 +1,5 @@
 /* =========================================================
-   De-energization Assessment – Interactive Report JavaScript
+   De-energization Assessment - Interactive Report JavaScript
    ========================================================= */
 
 (function () {
@@ -304,8 +304,8 @@
 
     /*
      * renderHeatmap(container, displayData, fullData)
-     *   displayData – rows actually rendered (may be filtered subset)
-     *   fullData    – used to compute global min/max so colour scale is stable
+     *   displayData - rows actually rendered (may be filtered subset)
+     *   fullData    - used to compute global min/max so colour scale is stable
      */
     function renderHeatmap(container, displayData, fullData) {
         var refData = fullData || displayData;
@@ -370,7 +370,7 @@
     }
 
     /* ----------------------------------------------------------
-       Chart.js – initialization from window.__chartData
+       Chart.js - initialization from window.__chartData
     ---------------------------------------------------------- */
     if (typeof Chart === 'undefined' || !window.__chartData) return;
 

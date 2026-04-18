@@ -1,4 +1,4 @@
-"""HTML report generator – converts ReportData into a portable HTML file."""
+"""HTML report generator - converts ReportData into a portable HTML file."""
 from __future__ import annotations
 
 import json
@@ -23,6 +23,11 @@ class HTMLReportGenerator:
     """Generate a fully portable (offline-capable) HTML report."""
 
     def __init__(self, config: PFReportConfig) -> None:
+        """Prepare template environment and inline assets.
+
+        Args:
+            config: Report configuration used for rendering and threshold lines.
+        """
         self.config = config
         self._env = Environment(
             loader=PackageLoader("pfreporting.report", "templates"),
@@ -38,10 +43,20 @@ class HTMLReportGenerator:
             "zoom":   self._read_asset("vendor/chartjs-plugin-zoom.min.js"),
         }
 
-    # ── Public API ────────────────────────────────────────────────────────
+    # -- Public API --------------------------------------------------------
 
     def generate(self, data: ReportData) -> str:
-        """Render the complete HTML report and return it as a string."""
+        """Render the complete HTML report.
+
+        Args:
+            data: Fully assembled report data model.
+
+        Returns:
+            HTML document as a string.
+
+        Raises:
+            ReportError: If template loading or rendering fails.
+        """
         try:
             template = self._env.get_template("report.html.j2")
         except Exception as exc:
@@ -108,10 +123,24 @@ class HTMLReportGenerator:
         log.info("HTML report generated (%d characters)", len(html))
         return html
 
-    # ── Chart data ────────────────────────────────────────────────────────
+    # -- Chart data --------------------------------------------------------
 
     def _build_chart_data(self, data: ReportData) -> list[dict]:
-        """Build the window.__chartData structure for scripts.js."""
+        """Build ``window.__chartData`` payload consumed by ``scripts.js``.
+
+        Args:
+            data: Report dataset with filtered time-series sections.
+
+        Returns:
+            List of chart configuration dictionaries.
+
+        Each returned item contains:
+            - ``id``: DOM chart container id
+            - ``label`` / ``unit``: display metadata
+            - threshold fields (``warn_*`` and ``violation_*``)
+            - ``time``: x-axis labels
+            - ``series``: list of ``{"name": str, "values": list}``
+        """
         if data.ts_data.is_empty():
             return []
 
@@ -153,7 +182,17 @@ class HTMLReportGenerator:
         return result
 
     def _build_heatmap_data(self, data: ReportData) -> dict[str, dict]:
-        """Build raw data for the CSS/canvas heatmaps in the time series section."""
+        """Build generic heatmap payloads keyed by visualization chart id.
+
+        Args:
+            data: Report dataset with raw and filtered time series.
+
+        Returns:
+            ``dict[chart_id, heatmap_payload]`` for enabled heatmap requests.
+
+        The method prefers unfiltered ``ts_raw`` so heatmaps can show complete
+        distributions even when chart series were reduced to critical subsets.
+        """
         result: dict[str, dict] = {}
         src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
         if src.is_empty():
@@ -187,7 +226,11 @@ class HTMLReportGenerator:
         return result
 
     def _get_loading_hm_vr(self) -> "VizRequest | None":
-        """Find the VizRequest for c:loading that has heatmap=True."""
+        """Return loading heatmap visualization request if configured.
+
+        Returns:
+            First matching ``VizRequest`` or ``None``.
+        """
         from pfreporting.config import VizRequest  # noqa: F401 (type hint only)
         return next(
             (vr for vr in self.config.visualizations if vr.variable == "c:loading" and vr.heatmap),
@@ -195,7 +238,11 @@ class HTMLReportGenerator:
         )
 
     def _get_voltage_hm_vr(self) -> "VizRequest | None":
-        """Find the VizRequest for ElmTerm/m:u that has heatmap=True."""
+        """Return voltage heatmap visualization request if configured.
+
+        Returns:
+            First matching ``VizRequest`` or ``None``.
+        """
         return next(
             (vr for vr in self.config.visualizations
              if vr.element_class == "ElmTerm" and vr.variable == "m:u" and vr.heatmap),
@@ -203,7 +250,19 @@ class HTMLReportGenerator:
         )
 
     def _build_thermal_hm_data(self, data: ReportData) -> dict | None:
-        """Heatmap data for thermal loading section (all c:loading series)."""
+        """Build thermal loading heatmap data for section-level rendering.
+
+        Args:
+            data: Report dataset with loading and time-series values.
+
+        Returns:
+            Heatmap payload for thermal section, or ``None`` if unavailable.
+
+        Selection rules:
+            - include only series where ``variable == 'c:loading'``
+            - keep at most one row per element name
+            - optionally apply ``heatmap_elements`` whitelist
+        """
         src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
         if src.is_empty():
             return None
@@ -237,7 +296,19 @@ class HTMLReportGenerator:
         }
 
     def _build_voltage_hm_data(self, data: ReportData) -> dict | None:
-        """Heatmap data for voltage section (all ElmTerm m:u series)."""
+        """Build bus-voltage heatmap data for section-level rendering.
+
+        Args:
+            data: Report dataset with voltage and time-series values.
+
+        Returns:
+            Heatmap payload for voltage section, or ``None`` if unavailable.
+
+        Selection rules:
+            - include only ``ElmTerm`` series
+            - deduplicate element names across sections
+            - optionally apply ``heatmap_elements`` whitelist
+        """
         src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
         if src.is_empty():
             return None
@@ -274,7 +345,17 @@ class HTMLReportGenerator:
 
     @staticmethod
     def _build_ampel(data: ReportData) -> dict:
-        """Determine assessment color (green/amber/red) and findings list."""
+        """Compute traffic-light verdict and summary findings.
+
+        Args:
+            data: Report dataset with analyzed status values.
+
+        Returns:
+            Dictionary with ``color``, ``verdict`` and ``findings`` keys.
+
+        Decision precedence is strict: red (any violation) > amber (warnings
+        without violations) > green (all clear).
+        """
         volt_viol = [r for r in data.voltage if r.status == "violation"]
         volt_warn = [r for r in data.voltage if r.status == "warning"]
         therm_viol = [r for r in data.loading if r.status == "violation"]
@@ -317,36 +398,48 @@ class HTMLReportGenerator:
 
     @staticmethod
     def _build_statistics(data: ReportData) -> dict:
-        """Compute distribution buckets and summary stats for the statistics section."""
+        """Compute distribution buckets and high-level report statistics.
+
+        Args:
+            data: Report dataset containing voltage/loading/n1 sections.
+
+        Returns:
+            Statistics dictionary used by the report statistics section.
+
+        Voltage buckets use p.u. ranges:
+            ``<0.90``, ``0.90-0.95``, ``0.95-1.05``, ``1.05-1.10``, ``>1.10``.
+        Loading buckets use percent ranges:
+            ``0-25%``, ``25-50%``, ``50-80%``, ``80-100%``, ``>100%``.
+        """
         volt_buckets: dict[str, int] = {
-            "<0.90": 0, "0.90–0.95": 0, "0.95–1.05": 0, "1.05–1.10": 0, ">1.10": 0,
+            "<0.90": 0, "0.90-0.95": 0, "0.95-1.05": 0, "1.05-1.10": 0, ">1.10": 0,
         }
         for r in data.voltage:
             v = r.u_pu
             if v < 0.90:
                 volt_buckets["<0.90"] += 1
             elif v < 0.95:
-                volt_buckets["0.90–0.95"] += 1
+                volt_buckets["0.90-0.95"] += 1
             elif v <= 1.05:
-                volt_buckets["0.95–1.05"] += 1
+                volt_buckets["0.95-1.05"] += 1
             elif v <= 1.10:
-                volt_buckets["1.05–1.10"] += 1
+                volt_buckets["1.05-1.10"] += 1
             else:
                 volt_buckets[">1.10"] += 1
 
         load_buckets: dict[str, int] = {
-            "0–25%": 0, "25–50%": 0, "50–80%": 0, "80–100%": 0, ">100%": 0,
+            "0-25%": 0, "25-50%": 0, "50-80%": 0, "80-100%": 0, ">100%": 0,
         }
         for r in data.loading:
             p = r.loading_pct
             if p < 25:
-                load_buckets["0–25%"] += 1
+                load_buckets["0-25%"] += 1
             elif p < 50:
-                load_buckets["25–50%"] += 1
+                load_buckets["25-50%"] += 1
             elif p < 80:
-                load_buckets["50–80%"] += 1
+                load_buckets["50-80%"] += 1
             elif p <= 100:
-                load_buckets["80–100%"] += 1
+                load_buckets["80-100%"] += 1
             else:
                 load_buckets[">100%"] += 1
 
@@ -371,10 +464,18 @@ class HTMLReportGenerator:
             },
         }
 
-    # ── Helper methods ────────────────────────────────────────────────────
+    # -- Helper methods ----------------------------------------------------
 
     @staticmethod
     def _read_asset(relative_path: str) -> str:
+        """Read one bundled text asset.
+
+        Args:
+            relative_path: Asset path under the report ``assets`` directory.
+
+        Returns:
+            Asset file content, or a CSS/JS comment stub when missing.
+        """
         path = _ASSETS_DIR / relative_path
         if not path.exists():
             log.warning("Asset not found: %s", path)

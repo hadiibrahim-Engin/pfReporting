@@ -1,6 +1,6 @@
 """PowerFactory data extraction.
 
-All public methods return pure Pydantic models –
+All public methods return pure Pydantic models -
 no PowerFactory object leaves this file.
 """
 from __future__ import annotations
@@ -33,12 +33,24 @@ class PowerFactoryReader:
     """Encapsulates all access to the PowerFactory Python API."""
 
     def __init__(self, app: Any, config: PFReportConfig) -> None:
+        """Bind PowerFactory API handles used by the reader.
+
+        Args:
+            app: PowerFactory application object.
+            config: Runtime report configuration.
+        """
         self._app = app
         self._cfg = config
 
-    # ── Project metadata ──────────────────────────────────────────────────
+    # -- Project metadata --------------------------------------------------
 
     def get_project_info(self) -> ProjectInfo:
+        """Collect project metadata and execution context values.
+
+        Returns:
+            ``ProjectInfo`` with active project name, study case name, timestamp,
+            and author/company values.
+        """
         app = self._app
         project = app.GetActiveProject()
         sc = app.GetActiveStudyCase()
@@ -53,13 +65,17 @@ class PowerFactoryReader:
             author=self._safe_getuser(),
         )
 
-    # ── QDS simulation settings ───────────────────────────────────────────
+    # -- QDS simulation settings -------------------------------------------
 
     def get_qds_info(self) -> QDSInfo:
         """Read ComStatsim settings for the QDS info block.
 
         Config overrides (config.qds.t_start/t_end/dt) take precedence over
         the values stored inside PowerFactory when they are set.
+
+        Returns:
+            ``QDSInfo`` populated from PF and config overrides; defaults are
+            returned if the command object is unavailable.
         """
         qds_cfg = self._cfg.qds
         try:
@@ -104,9 +120,15 @@ class PowerFactoryReader:
             log.warning("QDS settings not readable: %s", exc)
             return QDSInfo()
 
-    # ── De-energized equipment ────────────────────────────────────────────
+    # -- De-energized equipment --------------------------------------------
 
     def get_switched_elements(self) -> list[SwitchedElement]:
+        """List de-energized network elements.
+
+        Returns:
+            All line and transformer objects currently flagged with
+            ``outserv == 1``.
+        """
         results: list[SwitchedElement] = []
         type_map = {
             "ElmLne": "Line",
@@ -125,9 +147,15 @@ class PowerFactoryReader:
         log.info("De-energized equipment: %d", len(results))
         return results
 
-    # ── Load flow results ─────────────────────────────────────────────────
+    # -- Load flow results -------------------------------------------------
 
     def get_loadflow_results(self) -> LoadFlowResult:
+        """Execute load flow and aggregate system-level metrics.
+
+        Returns:
+            ``LoadFlowResult`` with convergence state, active/reactive balances,
+            losses, and power factor estimates.
+        """
         app = self._app
         try:
             ldf = app.GetFromStudyCase("ComLdf")
@@ -196,9 +224,14 @@ class PowerFactoryReader:
             gen_power_factor=gen_pf,
         )
 
-    # ── Voltage results ───────────────────────────────────────────────────
+    # -- Voltage results ---------------------------------------------------
 
     def get_voltage_results(self) -> list[VoltageResult]:
+        """Read voltage values for all calc-relevant terminals.
+
+        Returns:
+            One ``VoltageResult`` per terminal with p.u., kV and deviation data.
+        """
         results: list[VoltageResult] = []
         for bus in self._calc_objects("*.ElmTerm"):
             u_pu = getattr(bus, "m:u", None)
@@ -219,9 +252,14 @@ class PowerFactoryReader:
         log.info("Voltage results: %d nodes", len(results))
         return results
 
-    # ── Thermal loading ───────────────────────────────────────────────────
+    # -- Thermal loading ---------------------------------------------------
 
     def get_loading_results(self) -> list[LoadingResult]:
+        """Read thermal loading values for line and transformer elements.
+
+        Returns:
+            Loading rows sorted by descending loading percentage.
+        """
         results: list[LoadingResult] = []
         type_map = {
             "ElmLne": "Line",
@@ -252,10 +290,18 @@ class PowerFactoryReader:
         log.info("Thermal loading: %d elements", len(results))
         return results
 
-    # ── N-1 analysis ──────────────────────────────────────────────────────
+    # -- N-1 analysis ------------------------------------------------------
 
     def get_n1_results(self) -> list[N1Result]:
-        """Perform a manual N-1 analysis (ComSimoutage as fallback)."""
+        """Run N-1 analysis using native PF support when possible.
+
+        The reader first tries ``ComSimoutage`` for environments where PF
+        provides a compatible result interface. If that path yields no parsed
+        results, it falls back to a deterministic manual outage loop.
+
+        Returns:
+            Contingency result rows for all evaluated outage cases.
+        """
         results = self._try_simoutage()
         if not results:
             results = self._manual_n1()
@@ -263,6 +309,13 @@ class PowerFactoryReader:
         return results
 
     def _try_simoutage(self) -> list[N1Result]:
+        """Attempt ``ComSimoutage`` execution for PF versions that support it.
+
+        Returns:
+            A parsed list of ``N1Result`` entries. The current implementation
+            returns an empty list because output extraction is PF-version
+            dependent and intentionally delegated to the manual fallback.
+        """
         try:
             cmd = self._app.GetFromStudyCase("ComSimoutage")
             if cmd is None:
@@ -275,6 +328,18 @@ class PowerFactoryReader:
         return []  # Result extraction depends heavily on PF version → fallback
 
     def _manual_n1(self) -> list[N1Result]:
+        """Run a manual outage loop as a version-agnostic N-1 fallback.
+
+        For each candidate branch element, the method switches the element out
+        of service, runs load flow, captures post-contingency extrema, and then
+        restores the element before proceeding.
+
+        Returns:
+            One ``N1Result`` per tested outage candidate.
+
+        Raises:
+            ReaderError: If no ``ComLdf`` command is available in the study case.
+        """
         app = self._app
         ldf = app.GetFromStudyCase("ComLdf")
         if ldf is None:
@@ -328,6 +393,15 @@ class PowerFactoryReader:
         return results
 
     def _fill_n1_postcontingency(self, entry: N1Result) -> None:
+        """Fill one contingency entry using post-contingency PF states.
+
+        Args:
+            entry: Mutable N-1 entry to enrich with extrema and violations.
+
+        The method computes the global maximum loading across lines and two-
+        winding transformers, then evaluates minimum and maximum bus voltages.
+        Violations are appended according to ``config.n1`` thresholds.
+        """
         n1_cfg = self._cfg.n1
         max_load, max_load_elem = 0.0, "-"
         for cls in ("*.ElmLne", "*.ElmTr2"):
@@ -367,9 +441,20 @@ class PowerFactoryReader:
                 f"Overvoltage: {max_v_node} at {max_v:.4f} p.u."
             )
 
-    # ── Time series (quasi-dynamic) ───────────────────────────────────────
+    # -- Time series (quasi-dynamic) ---------------------------------------
 
     def load_elmres(self, name: str | None = None):
+        """Load an ElmRes result object from the active study case.
+
+        Args:
+            name: Optional explicit ElmRes object name.
+
+        Returns:
+            The loaded ElmRes object.
+
+        Raises:
+            ReaderError: If no study case or result object is available.
+        """
         sc = self._app.GetActiveStudyCase()
         if not sc:
             raise ReaderError("No active study case")
@@ -385,6 +470,21 @@ class PowerFactoryReader:
     def get_time_series(
         self, elmres: Any, viz_requests: list[VizRequest]
     ) -> TimeSeriesData:
+        """Extract configured time-series sections from an ElmRes object.
+
+        Args:
+            elmres: Loaded PowerFactory result object.
+            viz_requests: Requested element-class/variable pairs that define
+                output sections and per-section element caps.
+
+        Returns:
+            ``TimeSeriesData`` with ``time`` values and chart sections keyed by
+            ``VizRequest.chart_id``.
+
+        Notes:
+            Series names are sanitized and made unique per chart section by
+            appending ``_2``, ``_3``, ... when collisions occur.
+        """
         nrows: int = elmres.GetNumberOfRows()
         ncols: int = elmres.GetNumberOfColumns()
         time_col = self._find_time_col(elmres)
@@ -456,9 +556,20 @@ class PowerFactoryReader:
         )
         return TimeSeriesData(time=time_vals, sections=sections)
 
-    # ── Helper methods ────────────────────────────────────────────────────
+    # -- Helper methods ----------------------------------------------------
 
     def _calc_objects(self, pattern: str) -> list[Any]:
+        """Return calc-relevant PF objects for one wildcard pattern.
+
+        Args:
+            pattern: PowerFactory wildcard pattern like ``*.ElmTerm``.
+
+        Returns:
+            Matching objects, or an empty list on API failures.
+
+        Example patterns include ``*.ElmTerm`` and ``*.ElmLne``.
+        Any API error is converted into an empty list to keep workflows robust.
+        """
         try:
             return self._app.GetCalcRelevantObjects(pattern) or []
         except Exception:
@@ -466,12 +577,26 @@ class PowerFactoryReader:
 
     @staticmethod
     def _loc_name(obj: Any, fallback: str = "?") -> str:
+        """Return ``loc_name`` from a PF object with a fallback value.
+
+        Args:
+            obj: PF object that may carry a ``loc_name`` attribute.
+            fallback: Value used when no name can be resolved.
+
+        Returns:
+            Object display name or ``fallback``.
+        """
         if obj is None:
             return fallback
         return getattr(obj, "loc_name", None) or fallback
 
     @staticmethod
     def _safe_getuser() -> str:
+        """Return current OS username.
+
+        Returns:
+            Username string, or ``"Unknown"`` if lookup fails.
+        """
         try:
             return getpass.getuser()
         except Exception:
@@ -479,6 +604,14 @@ class PowerFactoryReader:
 
     @staticmethod
     def _find_time_col(elmres: Any) -> int:
+        """Locate time column index in an ElmRes object.
+
+        Args:
+            elmres: Loaded ElmRes object.
+
+        Returns:
+            Time column index, or ``0`` if none of the known aliases exists.
+        """
         for cand in ("t", "time", "Time", "TIME"):
             try:
                 idx = elmres.FindColumn(cand)
@@ -489,6 +622,16 @@ class PowerFactoryReader:
         return 0
 
     def _get_val(self, elmres: Any, row: int, col: int) -> float | None:
+        """Read one scalar value from an ElmRes cell.
+
+        Args:
+            elmres: Loaded ElmRes object.
+            row: Row index.
+            col: Column index.
+
+        Returns:
+            Float value or ``None`` when PF reports NaN/missing/error.
+        """
         try:
             _, val = elmres.GetValue(row, col)
             if val is not None and self._app.IsNAN(val):

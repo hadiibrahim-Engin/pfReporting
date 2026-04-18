@@ -16,7 +16,7 @@ from pfreporting.db_writer import (
 from pfreporting.models import TimeSeriesData
 
 
-# ── Mock PowerFactory objects ──────────────────────────────────────────────────
+# -- Mock PowerFactory objects --------------------------------------------------
 
 class MockElmObj:
     def __init__(self, cls_name: str, loc_name: str) -> None:
@@ -139,7 +139,7 @@ class MockApp:
         pass
 
 
-# ── Fixtures ───────────────────────────────────────────────────────────────────
+# -- Fixtures -------------------------------------------------------------------
 
 @pytest.fixture
 def minimal_config() -> PFReportConfig:
@@ -148,7 +148,7 @@ def minimal_config() -> PFReportConfig:
             VizRequest(
                 element_class="ElmLne",
                 variable="c:loading",
-                label="Lines – Loading",
+                label="Lines - Loading",
                 unit="%",
                 warn_hi=80.0,
                 violation_hi=100.0,
@@ -156,7 +156,7 @@ def minimal_config() -> PFReportConfig:
             VizRequest(
                 element_class="ElmTr2",
                 variable="c:loading",
-                label="Transformers – Loading",
+                label="Transformers - Loading",
                 unit="%",
             ),
         ]
@@ -178,7 +178,7 @@ def report() -> MockReport:
     return MockReport()
 
 
-# ── table_name / meta_table_name helpers ──────────────────────────────────────
+# -- table_name / meta_table_name helpers --------------------------------------
 
 def test_table_name():
     assert table_name("ElmLne_c_loading") == "ElmLne_c_loading_TS"
@@ -188,7 +188,7 @@ def test_meta_table_name():
     assert meta_table_name("ElmLne_c_loading") == "ElmLne_c_loading_TS_Meta"
 
 
-# ── write_all creates expected tables ─────────────────────────────────────────
+# -- write_all creates expected tables -----------------------------------------
 
 def test_write_all_creates_tables(writer, report, elmres):
     ts_data = writer.write_all(report, elmres, clear_existing=True)
@@ -249,7 +249,7 @@ def test_write_all_tr2_section(writer, report, elmres):
     assert section["Trafo_1"].values[2] == pytest.approx(40.0)
 
 
-# ── clear_existing=True resets report ─────────────────────────────────────────
+# -- clear_existing=True resets report -----------------------------------------
 
 def test_clear_existing_resets(writer, report, elmres):
     report.tables["stale_table"] = {}
@@ -263,7 +263,7 @@ def test_no_clear_existing_keeps_tables(writer, report, elmres):
     assert "old_table" in report.tables
 
 
-# ── TimeSeriesData returned directly ──────────────────────────────────────────
+# -- TimeSeriesData returned directly ------------------------------------------
 
 def test_returned_ts_data_time_vector(writer, report, elmres):
     ts_data = writer.write_all(report, elmres)
@@ -282,7 +282,7 @@ def test_returned_ts_data_not_empty(writer, report, elmres):
     assert not ts_data.is_empty()
 
 
-# ── max_elements cap ──────────────────────────────────────────────────────────
+# -- max_elements cap ----------------------------------------------------------
 
 def test_max_elements_cap():
     config = PFReportConfig(

@@ -40,7 +40,7 @@ ASSETS = [
 def download(filename: str, url: str) -> None:
     dest = VENDOR_DIR / filename
     if dest.exists():
-        print(f"  [SKIP] {filename} – already present")
+        print(f"  [SKIP] {filename} - already present")
         return
     print(f"  [DOWN] {filename} …", end=" ", flush=True)
     try:

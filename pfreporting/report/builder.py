@@ -1,4 +1,4 @@
-"""ReportData – aggregates all results from Reader + AnalysisEngine."""
+"""ReportData - aggregates all results from Reader + AnalysisEngine."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -37,7 +37,7 @@ class ReportData:
     ts_raw: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
     qds_info: QDSInfo | None = None
 
-    # ── Factory ───────────────────────────────────────────────────────────
+    # -- Factory -----------------------------------------------------------
 
     @classmethod
     def build(
@@ -46,7 +46,24 @@ class ReportData:
         engine: "AnalysisEngine",
         config: "PFReportConfig",
     ) -> "ReportData":
-        """Orchestrate all reader and analysis steps."""
+        """Build ``ReportData`` by executing the full read-and-analyze pipeline.
+
+        Args:
+            reader: PowerFactory reader instance for raw data access.
+            engine: Analysis engine for status assignment and aggregation.
+            config: Report configuration, including visualization requests.
+
+        Returns:
+            Fully populated ``ReportData`` instance.
+
+        Workflow order:
+            1) metadata and switched elements
+            2) load flow, voltage, thermal, and N-1 analyses
+            3) optional time-series extraction and critical filtering
+
+        Time-series loading is best-effort; failures are logged and replaced
+        by empty ``TimeSeriesData`` instances so report generation can continue.
+        """
         import logging
 
         log = logging.getLogger("pfreporting")
@@ -72,7 +89,7 @@ class ReportData:
 
         overall = engine.get_overall_status(voltage, loading, n1)
 
-        # Time series – optional
+        # Time series - optional
         ts_raw = TimeSeriesData(time=[])
         ts_data = TimeSeriesData(time=[])
         try:

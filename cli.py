@@ -1,5 +1,5 @@
 """
-CLI entry point – pfreporting
+CLI entry point - pfreporting
 
 Commands:
     generate         Generate a report (with real PF data or mock data)
@@ -17,7 +17,7 @@ from rich.panel import Panel
 
 app = typer.Typer(
     name="pfreporting",
-    help="Automated De-Energization Assessment – HTML Report Generator",
+    help="Automated De-Energization Assessment - HTML Report Generator",
     add_completion=False,
 )
 console = Console()
@@ -51,7 +51,14 @@ def generate(
         help="Also generate a PDF file (requires: pip install pfreporting[pdf]).",
     ),
 ) -> None:
-    """Generate a De-Energization Assessment report."""
+    """Generate a De-Energization Assessment report.
+
+    Args:
+        config: Optional JSON configuration file path.
+        output_dir: Optional output directory override.
+        mock: When ``True``, use embedded demo data.
+        pdf: When ``True``, also export PDF output.
+    """
     from pfreporting.config import PFReportConfig
     from pfreporting.report.generator import HTMLReportGenerator
 
@@ -70,7 +77,12 @@ def generate(
 
 
 def _run_mock(cfg, pdf: bool) -> None:
-    """Generate a report using embedded demo data."""
+    """Generate report output from packaged mock data.
+
+    Args:
+        cfg: Loaded report configuration.
+        pdf: Whether PDF export should be attempted.
+    """
     from pfreporting.report.builder import ReportData
     from pfreporting.report.generator import HTMLReportGenerator
     from pfreporting._mock_data import build_mock_data
@@ -96,7 +108,12 @@ def _run_mock(cfg, pdf: bool) -> None:
 
 
 def _run_powerfactory(cfg, pdf: bool) -> None:
-    """Run the real PowerFactory assessment."""
+    """Generate report output from live PowerFactory calculations.
+
+    Args:
+        cfg: Loaded report configuration.
+        pdf: Whether PDF export should be attempted.
+    """
     try:
         import powerfactory  # type: ignore
     except ImportError:
@@ -117,6 +134,7 @@ def _run_powerfactory(cfg, pdf: bool) -> None:
 
 
 def _export_pdf(html_path: Path) -> None:
+    """Export a generated HTML report to PDF when WeasyPrint is available."""
     try:
         from weasyprint import HTML  # type: ignore
     except ImportError:
@@ -132,7 +150,7 @@ def _export_pdf(html_path: Path) -> None:
 
 @app.command()
 def download_assets() -> None:
-    """Download Chart.js vendor files (for offline use)."""
+    """Download report vendor assets used for offline chart rendering."""
     import subprocess
 
     script = Path(__file__).parent / "scripts" / "download_assets.py"

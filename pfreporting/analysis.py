@@ -1,4 +1,4 @@
-"""Threshold analysis – assigns a status to all results."""
+"""Threshold analysis - assigns a status to all results."""
 from __future__ import annotations
 
 from pfreporting.config import PFReportConfig, VizRequest
@@ -16,11 +16,25 @@ from pfreporting.models import (
 
 class AnalysisEngine:
     def __init__(self, config: PFReportConfig) -> None:
+        """Initialize the analysis engine.
+
+        Args:
+            config: Threshold and visualization configuration used by all
+                analysis steps.
+        """
         self.cfg = config
 
-    # ── Voltage band ──────────────────────────────────────────────────────
+    # -- Voltage band ------------------------------------------------------
 
     def analyze_voltages(self, results: list[VoltageResult]) -> list[VoltageResult]:
+        """Apply configured voltage thresholds to bus voltage results.
+
+        Args:
+            results: Voltage entries to evaluate.
+
+        Returns:
+            The same list instance with ``status`` updated in-place.
+        """
         v = self.cfg.voltage
         for r in results:
             u = r.u_pu
@@ -32,9 +46,17 @@ class AnalysisEngine:
                 r.status = "ok"
         return results
 
-    # ── Thermal loading ───────────────────────────────────────────────────
+    # -- Thermal loading ---------------------------------------------------
 
     def analyze_thermal(self, results: list[LoadingResult]) -> list[LoadingResult]:
+        """Apply thermal loading thresholds to element loading results.
+
+        Args:
+            results: Loading entries to evaluate.
+
+        Returns:
+            The same list instance with ``status`` updated in-place.
+        """
         t = self.cfg.thermal
         for r in results:
             if r.loading_pct >= t.violation_pct:
@@ -45,9 +67,17 @@ class AnalysisEngine:
                 r.status = "ok"
         return results
 
-    # ── N-1 security ──────────────────────────────────────────────────────
+    # -- N-1 security ------------------------------------------------------
 
     def analyze_n1(self, results: list[N1Result]) -> list[N1Result]:
+        """Evaluate N-1 outcomes and assign case status values.
+
+        Args:
+            results: N-1 contingency results to classify.
+
+        Returns:
+            The same list instance with ``status`` updated in-place.
+        """
         for r in results:
             if not r.converged or r.violations:
                 r.status = "violation"
@@ -55,7 +85,7 @@ class AnalysisEngine:
                 r.status = "ok"
         return results
 
-    # ── Overall status ────────────────────────────────────────────────────
+    # -- Overall status ----------------------------------------------------
 
     def get_overall_status(
         self,
@@ -63,7 +93,26 @@ class AnalysisEngine:
         loading: list[LoadingResult],
         n1: list[N1Result],
     ) -> OverallStatus:
+        """Aggregate section-level results into one overall status object.
+
+        Args:
+            voltage: Voltage analysis results.
+            loading: Thermal loading analysis results.
+            n1: N-1 contingency analysis results.
+
+        Returns:
+            A populated ``OverallStatus`` instance including section counters
+            and report summary text.
+        """
         def counts(items) -> StatusCounts:
+            """Count status classes in one result collection.
+
+            Args:
+                items: Iterable of result objects exposing ``status``.
+
+            Returns:
+                ``StatusCounts`` with ``ok``, ``warning`` and ``violation`` totals.
+            """
             return StatusCounts(
                 ok=sum(1 for x in items if x.status == "ok"),
                 warning=sum(1 for x in items if x.status == "warning"),
@@ -104,9 +153,17 @@ class AnalysisEngine:
         status.summary_text = self.build_summary_text(status)
         return status
 
-    # ── Summary ───────────────────────────────────────────────────────────
+    # -- Summary -----------------------------------------------------------
 
     def build_summary_text(self, status: OverallStatus) -> str:
+        """Build the HTML summary sentence block for the report header.
+
+        Args:
+            status: Aggregated overall status instance.
+
+        Returns:
+            HTML-formatted summary text.
+        """
         if status.status == "ok":
             return (
                 "De-energization is <strong>permissible</strong>. "
@@ -125,18 +182,28 @@ class AnalysisEngine:
         )
         return base + "<br>" + "<br>".join(parts)
 
-    # ── Filter time series ────────────────────────────────────────────────
+    # -- Filter time series ------------------------------------------------
 
     def filter_critical_series(
         self,
         ts_raw: TimeSeriesData,
         viz_requests: list[VizRequest],
     ) -> TimeSeriesData:
-        """Keep series that exceed a warning threshold at least once.
+        """Filter each chart section down to threshold-relevant series.
 
-        For VizRequests with no threshold defined (warn_hi/warn_lo both None),
-        all series are kept. This ensures charts for current, power, etc. are
-        always shown even without a configured limit.
+        Args:
+            ts_raw: Raw time-series data read from ElmRes or IntReport tables.
+            viz_requests: Visualization definitions indexed by ``chart_id`` and
+                threshold fields.
+
+        Returns:
+            A new ``TimeSeriesData`` instance containing only series that are
+            considered critical for the corresponding visualization request.
+
+        Notes:
+            If a visualization has no warning thresholds configured
+            (``warn_hi`` and ``warn_lo`` are both ``None``), all series for that
+            section are retained.
         """
         viz_by_id = {vr.chart_id: vr for vr in viz_requests}
         filtered_sections: dict[str, dict[str, TimeSeries]] = {}
@@ -153,6 +220,18 @@ class AnalysisEngine:
         return TimeSeriesData(time=ts_raw.time, sections=filtered_sections)
 
     def _is_critical(self, values: list[float | None], vr: VizRequest) -> bool:
+        """Return whether one series crosses any warning threshold.
+
+        Args:
+            values: Time-series values for a single element.
+            vr: Visualization request containing threshold definitions.
+
+        Returns:
+            ``True`` if any value crosses ``warn_hi`` or ``warn_lo``.
+
+        ``None`` values are ignored so gaps in the simulation output do not mark
+        a series as critical.
+        """
         # No thresholds configured → always show (e.g. current, power charts)
         if vr.warn_hi is None and vr.warn_lo is None:
             return True
