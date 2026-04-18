@@ -44,11 +44,10 @@ import powerfactory  # type: ignore
 
 app    = powerfactory.GetApplication()
 script = app.GetCurrentScript()
-print  = app.PrintPlain   # shorthand like in reference scripts
 
 # -- Redirect logging → PF output ---------------------------------------------
 from pfreporting.logger import attach_powerfactory_handler
-attach_powerfactory_handler(print)
+attach_powerfactory_handler(app)
 
 # -- Configuration -------------------------------------------------------------
 from pfreporting.config import (
