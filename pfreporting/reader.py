@@ -25,7 +25,7 @@ from pfreporting.models import (
     TimeSeriesData,
     VoltageResult,
 )
-from pfreporting.utils import sanitize_name
+from pfreporting.utils import resolve_qds_datetime_hours, sanitize_name
 
 log = get_logger()
 
@@ -89,6 +89,21 @@ class PowerFactoryReader:
 
             t_start = qds_cfg.t_start if qds_cfg.t_start is not None else pf_t_start
             t_end   = qds_cfg.t_end   if qds_cfg.t_end   is not None else pf_t_end
+
+            sc = self._app.GetActiveStudyCase()
+            study_time_start_raw = getattr(sc, "iStudyTime", None) if sc else None
+            dt_start_h, dt_end_h, dt_notes = resolve_qds_datetime_hours(
+                qds_cfg.start_datetime,
+                qds_cfg.end_datetime,
+                study_time_start_raw,
+            )
+            for note in dt_notes:
+                log.warning("QDS datetime override: %s", note)
+            if dt_start_h is not None:
+                t_start = dt_start_h
+            if dt_end_h is not None:
+                t_end = dt_end_h
+
             dt      = qds_cfg.dt      if qds_cfg.dt      is not None else pf_dt
             n_steps = max(0, round((t_end - t_start) / dt)) if dt > 0 else 0
 

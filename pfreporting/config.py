@@ -100,9 +100,11 @@ class QDSConfig(BaseModel):
     keep whatever is configured inside PowerFactory.
     """
 
-    t_start: float | None = None   # Simulation start time [h]
-    t_end: float | None = None     # Simulation end time [h]
+    t_start: float | None = None   # Simulation start time [h] (legacy override)
+    t_end: float | None = None     # Simulation end time [h] (legacy override)
     dt: float | None = None        # Time step [h]
+    start_datetime: str | None = None  # Absolute start datetime, e.g. "2026-04-19 00:00"
+    end_datetime: str | None = None    # Absolute end datetime, e.g. "2026-04-20 00:00"
 
 
 # --- Visualization ------------------------------------------------------------

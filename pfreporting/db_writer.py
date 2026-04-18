@@ -33,7 +33,7 @@ from pfreporting.config import PFReportConfig, VizRequest
 from pfreporting.exceptions import ReaderError
 from pfreporting.logger import get_logger
 from pfreporting.models import TimeSeries, TimeSeriesData
-from pfreporting.utils import sanitize_name
+from pfreporting.utils import resolve_qds_datetime_hours, sanitize_name
 
 log = get_logger()
 
@@ -115,13 +115,45 @@ class PFTableWriter:
         try:
             qds = app.GetFromStudyCase("ComStatsim")
             if qds:
+                sc = app.GetActiveStudyCase()
+                study_time_start_raw = getattr(sc, "iStudyTime", None) if sc else None
+
+                dt_start_h, dt_end_h, dt_notes = resolve_qds_datetime_hours(
+                    qds_cfg.start_datetime,
+                    qds_cfg.end_datetime,
+                    study_time_start_raw,
+                )
+                for note in dt_notes:
+                    log.warning("QDS datetime override: %s", note)
+
+                eff_t_start = qds_cfg.t_start
+                eff_t_end = qds_cfg.t_end
+                if dt_start_h is not None:
+                    if qds_cfg.t_start is not None:
+                        log.info("QDS t_start ignored because start_datetime is set.")
+                    eff_t_start = dt_start_h
+                    log.info(
+                        "QDS start_datetime '%s' mapped to Tstart=%.6f h",
+                        qds_cfg.start_datetime,
+                        eff_t_start,
+                    )
+                if dt_end_h is not None:
+                    if qds_cfg.t_end is not None:
+                        log.info("QDS t_end ignored because end_datetime is set.")
+                    eff_t_end = dt_end_h
+                    log.info(
+                        "QDS end_datetime '%s' mapped to Tshow=%.6f h",
+                        qds_cfg.end_datetime,
+                        eff_t_end,
+                    )
+
                 # Apply time range overrides from config (if set)
-                if qds_cfg.t_start is not None:
-                    qds.Tstart = qds_cfg.t_start
-                    log.info("QDS t_start overridden to %.2f h", qds_cfg.t_start)
-                if qds_cfg.t_end is not None:
-                    qds.Tshow = qds_cfg.t_end
-                    log.info("QDS t_end overridden to %.2f h", qds_cfg.t_end)
+                if eff_t_start is not None:
+                    qds.Tstart = eff_t_start
+                    log.info("QDS t_start overridden to %.6f h", eff_t_start)
+                if eff_t_end is not None:
+                    qds.Tshow = eff_t_end
+                    log.info("QDS t_end overridden to %.6f h", eff_t_end)
                 if qds_cfg.dt is not None:
                     qds.dt = qds_cfg.dt
                     log.info("QDS dt overridden to %.4f h", qds_cfg.dt)

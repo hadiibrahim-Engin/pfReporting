@@ -118,12 +118,15 @@ CONFIG = PFReportConfig(
 
     # -- QDS time range (optional overrides) -----------------------------------
     # Leave as None to use whatever is configured inside PowerFactory.
-    # Set values to override the ComStatsim settings before execution.
-    # Note: PF attribute names (Tstart, Tshow, dt) may differ by PF version.
+    # Prefer full datetime overrides (start_datetime/end_datetime).
+    # Legacy hour-based overrides (t_start/t_end) are still supported.
+    # Note: PF attributes (Tstart, Tshow, dt) may differ by PF version.
     qds=QDSConfig(
-        t_start=None,   # e.g. 0.0    - simulation start time [h]
-        t_end=None,     # e.g. 24.0   - simulation end time [h]
-        dt=None,        # e.g. 1.0    - time step [h]
+        start_datetime=None,  # e.g. "2026-04-19 00:00"
+        end_datetime=None,    # e.g. "2026-04-20 00:00"
+        t_start=None,         # legacy: simulation start time [h]
+        t_end=None,           # legacy: simulation end time [h]
+        dt=None,              # e.g. 0.25 - time step [h]
     ),
 
     # -- Voltage band limits ---------------------------------------------------
