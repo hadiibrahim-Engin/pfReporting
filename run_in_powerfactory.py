@@ -45,6 +45,50 @@ import powerfactory  # type: ignore
 app    = powerfactory.GetApplication()
 script = app.GetCurrentScript()
 
+
+def _find_intreport_for_script(app, script, preferred_name=None):
+    """Resolve an IntReport object for table writing, if available.
+
+    Strategy:
+        1) if preferred_name is set, use matching IntReport in active study case
+        2) walk parent chain from current script and use first IntReport
+        3) fallback: first IntReport in active study case
+    """
+    reports = []
+    try:
+        sc = app.GetActiveStudyCase()
+        if sc:
+            reports = sc.GetContents("*.IntReport") or []
+    except Exception:
+        reports = []
+
+    if preferred_name:
+        for report in reports:
+            try:
+                if getattr(report, "loc_name", "") == preferred_name:
+                    return report
+            except Exception:
+                continue
+        app.PrintWarn(
+            f"Configured IntReport '{preferred_name}' not found in active study case."
+        )
+
+    try:
+        obj = script
+        for _ in range(20):  # prevent infinite loops on broken object graphs
+            if not obj:
+                break
+            if obj.GetClassName() == "IntReport":
+                return obj
+            obj = obj.GetParent()
+    except Exception:
+        pass
+
+    if reports:
+        return reports[0]
+
+    return None
+
 # -- Redirect logging → PF output ---------------------------------------------
 from pfreporting.logger import attach_powerfactory_handler
 attach_powerfactory_handler(app)
@@ -109,6 +153,7 @@ CONFIG = PFReportConfig(
         company="Amprion GmbH",
         use_timestamp_subdir=True,
         quasi_dynamic_result_file="Quasi-Dynamic Simulation AC.ElmRes",
+        intreport_name=None,  # e.g. "MyReport" to target a specific IntReport
     ),
 
     # -- Quasi-dynamic visualizations ------------------------------------------
@@ -183,19 +228,20 @@ if CONFIG_JSON_PATH:
     CONFIG = PFReportConfig.model_validate_json(
         Path(CONFIG_JSON_PATH).read_text(encoding="utf-8")
     )
-    print(f"Configuration loaded: {CONFIG_JSON_PATH}")
+    app.PrintInfo(f"Configuration loaded: {CONFIG_JSON_PATH}")
 
 # -- Start workflow ------------------------------------------------------------
 from pfreporting import run_full_workflow
 
-pf_report = None
-try:
-    parent = script.GetParent()
-    if parent and parent.GetClassName() == "IntReport":
-        pf_report = parent
-        app.PrintInfo("IntReport detected: QDS tables will be written to report database.")
-except Exception:
-    pf_report = None
+pf_report = _find_intreport_for_script(app, script, CONFIG.report.intreport_name)
+if pf_report is not None:
+    app.PrintInfo(
+        f"IntReport detected: {getattr(pf_report, 'loc_name', '?')} - QDS tables will be written."
+    )
+else:
+    app.PrintWarn(
+        "No IntReport found. QDS will run, but IntReport tables will not be written."
+    )
 
 dest = run_full_workflow(
     app=app,
@@ -212,8 +258,8 @@ try:
     )
 except Exception:
     # Fallback for older PowerFactory versions
-    print("")
-    print("====================================================")
-    print(f"Report saved: {dest}")
-    print(f"Open in browser: {file_url}")
-    print("====================================================")
+    app.PrintPlain("")
+    app.PrintPlain("====================================================")
+    app.PrintPlain(f"Report saved: {dest}")
+    app.PrintPlain(f"Open in browser: {file_url}")
+    app.PrintPlain("====================================================")

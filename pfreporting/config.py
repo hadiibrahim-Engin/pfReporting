@@ -206,6 +206,7 @@ class ReportConfig(BaseModel):
     company: str = "Amprion GmbH"
     use_timestamp_subdir: bool = True
     quasi_dynamic_result_file: str = "Quasi-Dynamic Simulation AC.ElmRes"
+    intreport_name: str | None = None
 
 
 # --- Main config --------------------------------------------------------------

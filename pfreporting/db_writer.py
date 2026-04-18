@@ -177,6 +177,8 @@ class PFTableWriter:
 
         # Index all columns by VizRequest
         col_index = self._index_columns(elmres, ncols)
+        self._log_elmres_index_summary(col_index)
+        self._log_vizrequest_validation(col_index)
 
         # Per VizRequest: write tables
         all_sections: dict[str, dict[str, TimeSeries]] = {}
@@ -186,8 +188,11 @@ class PFTableWriter:
             cols = col_index.get(key, [])[:vr.max_elements]
 
             if not cols:
-                log.debug(
-                    "No columns for %s / %s - skipped.", vr.element_class, vr.variable
+                log.warning(
+                    "No ElmRes columns for %s / %s (chart_id=%s) - section skipped.",
+                    vr.element_class,
+                    vr.variable,
+                    vr.chart_id,
                 )
                 continue
 
@@ -199,7 +204,62 @@ class PFTableWriter:
                 len(section),
             )
 
+        if not all_sections:
+            log.warning(
+                "No IntReport tables were created from configured VizRequests. "
+                "Check element_class/variable pairs against available ElmRes columns."
+            )
+
         return TimeSeriesData(time=time_values, sections=all_sections)
+
+    def _log_elmres_index_summary(
+        self, col_index: dict[tuple[str, str], list[tuple[str, int, Any]]]
+    ) -> None:
+        """Log compact summary of available ElmRes (class, variable) channels."""
+        keys = sorted(col_index.keys())
+        if not keys:
+            log.warning("ElmRes index is empty - no object/variable channels detected.")
+            return
+
+        preview_count = 10
+        preview = ", ".join(f"{cls}/{var}" for cls, var in keys[:preview_count])
+        suffix = " ..." if len(keys) > preview_count else ""
+        log.info(
+            "ElmRes channels available: %d (class/variable pairs): %s%s",
+            len(keys),
+            preview,
+            suffix,
+        )
+
+    def _log_vizrequest_validation(
+        self, col_index: dict[tuple[str, str], list[tuple[str, int, Any]]]
+    ) -> None:
+        """Validate configured VizRequests against indexed ElmRes channels."""
+        missing = [
+            vr
+            for vr in self._cfg.visualizations
+            if (vr.element_class, vr.variable) not in col_index
+        ]
+        if not missing:
+            log.info(
+                "VizRequest validation: all %d requests matched ElmRes.",
+                len(self._cfg.visualizations),
+            )
+            return
+
+        preview_count = 6
+        preview = ", ".join(
+            f"{vr.element_class}/{vr.variable}({vr.chart_id})"
+            for vr in missing[:preview_count]
+        )
+        suffix = " ..." if len(missing) > preview_count else ""
+        log.warning(
+            "VizRequest mismatches: %d/%d not found in ElmRes: %s%s",
+            len(missing),
+            len(self._cfg.visualizations),
+            preview,
+            suffix,
+        )
 
     # -- Per VizRequest ----------------------------------------------------
 
