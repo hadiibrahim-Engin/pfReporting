@@ -43,6 +43,32 @@ def _configure(logger: logging.Logger) -> None:
     logger.propagate = False
 
 
+def log_step_header(
+    title: str,
+    step: int | None = None,
+    total: int | None = None,
+) -> None:
+    """Print a clearly visible step header to the package logger.
+
+    Appears as a bordered block in the PowerFactory output window when
+    the PowerFactoryLogHandler is attached, e.g.:
+
+        ============================================================
+          Step 1/3  –  QDS Simulation & Database Write
+        ============================================================
+    """
+    logger = logging.getLogger("pfreporting")
+    sep = "=" * 60
+    if step is not None and total is not None:
+        label = f"  Step {step}/{total}  \u2013  {title}"
+    else:
+        label = f"  {title}"
+    logger.info("")
+    logger.info(sep)
+    logger.info(label)
+    logger.info(sep)
+
+
 class PowerFactoryLogHandler(logging.Handler):
     """Forwards log messages to app.PrintPlain (for PowerFactory)."""
 

@@ -59,6 +59,12 @@ class LoadFlowResult(BaseModel):
     total_load_mw: float
     total_gen_mw: float
     losses_mw: float
+    # Reactive power (populated when available)
+    total_load_mvar: float = 0.0
+    total_gen_mvar: float = 0.0
+    losses_mvar: float = 0.0
+    load_power_factor: float | None = None
+    gen_power_factor: float | None = None
     qds_steps: list[QDSStep] = Field(default_factory=list)
 
 

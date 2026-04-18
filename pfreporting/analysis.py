@@ -132,7 +132,12 @@ class AnalysisEngine:
         ts_raw: TimeSeriesData,
         viz_requests: list[VizRequest],
     ) -> TimeSeriesData:
-        """Keep only time series that exceed a warning threshold at least once."""
+        """Keep series that exceed a warning threshold at least once.
+
+        For VizRequests with no threshold defined (warn_hi/warn_lo both None),
+        all series are kept. This ensures charts for current, power, etc. are
+        always shown even without a configured limit.
+        """
         viz_by_id = {vr.chart_id: vr for vr in viz_requests}
         filtered_sections: dict[str, dict[str, TimeSeries]] = {}
 
@@ -148,6 +153,9 @@ class AnalysisEngine:
         return TimeSeriesData(time=ts_raw.time, sections=filtered_sections)
 
     def _is_critical(self, values: list[float | None], vr: VizRequest) -> bool:
+        # No thresholds configured → always show (e.g. current, power charts)
+        if vr.warn_hi is None and vr.warn_lo is None:
+            return True
         for v in values:
             if v is None:
                 continue

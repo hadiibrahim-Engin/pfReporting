@@ -34,6 +34,7 @@ class ReportData:
     n1: list[N1Result]
     overall: OverallStatus
     ts_data: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
+    ts_raw: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
     qds_info: QDSInfo | None = None
 
     # ── Factory ───────────────────────────────────────────────────────────
@@ -72,6 +73,7 @@ class ReportData:
         overall = engine.get_overall_status(voltage, loading, n1)
 
         # Time series – optional
+        ts_raw = TimeSeriesData(time=[])
         ts_data = TimeSeriesData(time=[])
         try:
             log.info("Loading quasi-dynamic time series …")
@@ -92,4 +94,5 @@ class ReportData:
             n1=n1,
             overall=overall,
             ts_data=ts_data,
+            ts_raw=ts_raw,
         )

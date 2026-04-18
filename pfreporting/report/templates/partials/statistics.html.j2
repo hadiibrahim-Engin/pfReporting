@@ -1,35 +1,146 @@
-<section>
-    <h2>Statistics Overview</h2>
-    <div class="stat-grid">
+<section id="sec-statistics">
+    <div class="section-header">
+        <h2>Statistics Overview</h2>
+        <button class="section-toggle" data-target="sec-statistics" title="Collapse / Expand">▾</button>
+    </div>
+    <div class="section-body">
 
-        {% macro stacked(title, counts) %}
-        {% set total = counts.ok + counts.warning + counts.violation %}
-        {% if total > 0 %}
-        <div class="stat-item">
-            <div class="stat-title">{{ title }}</div>
-            <div class="stacked-bar">
-                {% if counts.ok > 0 %}
-                <div class="sb-ok" style="width:{{ (counts.ok / total * 100) | round(2) }}%">{{ counts.ok }}</div>
-                {% endif %}
-                {% if counts.warning > 0 %}
-                <div class="sb-warn" style="width:{{ (counts.warning / total * 100) | round(2) }}%">{{ counts.warning }}</div>
-                {% endif %}
-                {% if counts.violation > 0 %}
-                <div class="sb-verl" style="width:{{ (counts.violation / total * 100) | round(2) }}%">{{ counts.violation }}</div>
+        <!-- Status summary bars -->
+        <div class="stat-grid">
+
+            {% macro stacked(title, counts) %}
+            {% set total = counts.ok + counts.warning + counts.violation %}
+            {% if total > 0 %}
+            <div class="stat-item">
+                <div class="stat-title">{{ title }}</div>
+                <div class="stacked-bar">
+                    {% if counts.ok > 0 %}
+                    <div class="sb-ok" style="width:{{ (counts.ok / total * 100) | round(2) }}%">{{ counts.ok }}</div>
+                    {% endif %}
+                    {% if counts.warning > 0 %}
+                    <div class="sb-warn" style="width:{{ (counts.warning / total * 100) | round(2) }}%">{{ counts.warning }}</div>
+                    {% endif %}
+                    {% if counts.violation > 0 %}
+                    <div class="sb-verl" style="width:{{ (counts.violation / total * 100) | round(2) }}%">{{ counts.violation }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% endmacro %}
+
+            {% if calc_options.run_voltage %}
+            {{ stacked('Voltage Band', overall.counts.voltage) }}
+            {% endif %}
+            {% if calc_options.run_thermal %}
+            {{ stacked('Thermal Loading', overall.counts.thermal) }}
+            {% endif %}
+            {% if calc_options.run_n1 %}
+            {{ stacked('(N-1) Security', overall.counts.n1) }}
+            {% endif %}
+
+        </div>
+        <div class="legend">
+            <span class="leg-ok">&#9632; OK</span>
+            <span class="leg-warn">&#9632; Warning</span>
+            <span class="leg-verl">&#9632; Violation</span>
+        </div>
+
+        <!-- Detailed distribution tables -->
+        <div class="stats-detail-grid">
+
+            {% if calc_options.run_voltage and stats.volt_buckets %}
+            <div class="stats-detail-card">
+                <div class="stats-detail-title">Voltage Distribution</div>
+                <table class="compact-table">
+                    <thead><tr><th>Range [p.u.]</th><th class="num">Buses</th><th class="num">Share</th></tr></thead>
+                    <tbody>
+                    {% set volt_total = stats.volt_buckets.values() | sum %}
+                    {% for label, count in stats.volt_buckets.items() %}
+                    <tr class="{% if label in ('<0.90', '>1.10') and count > 0 %}row-violation{% elif label in ('0.90–0.95', '1.05–1.10') and count > 0 %}row-warning{% endif %}">
+                        <td>{{ label }}</td>
+                        <td class="num">{{ count }}</td>
+                        <td class="num">{% if volt_total > 0 %}{{ "%.1f"|format(count / volt_total * 100) }}%{% else %}–{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if stats.volt_worst %}
+                <div class="stats-worst">Worst: <strong>{{ stats.volt_worst.node }}</strong> {{ "%.4f"|format(stats.volt_worst.u_pu) }} p.u.</div>
                 {% endif %}
             </div>
+            {% endif %}
+
+            {% if calc_options.run_thermal and stats.load_buckets %}
+            <div class="stats-detail-card">
+                <div class="stats-detail-title">Loading Distribution</div>
+                <table class="compact-table">
+                    <thead><tr><th>Range</th><th class="num">Elements</th><th class="num">Share</th></tr></thead>
+                    <tbody>
+                    {% set load_total = stats.load_buckets.values() | sum %}
+                    {% for label, count in stats.load_buckets.items() %}
+                    <tr class="{% if label == '>100%' and count > 0 %}row-violation{% elif label == '80–100%' and count > 0 %}row-warning{% endif %}">
+                        <td>{{ label }}</td>
+                        <td class="num">{{ count }}</td>
+                        <td class="num">{% if load_total > 0 %}{{ "%.1f"|format(count / load_total * 100) }}%{% else %}–{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if stats.load_worst %}
+                <div class="stats-worst">Worst: <strong>{{ stats.load_worst.name }}</strong> {{ "%.1f"|format(stats.load_worst.loading_pct) }}%</div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_n1 and stats.n1_total > 0 %}
+            <div class="stats-detail-card">
+                <div class="stats-detail-title">N-1 Summary</div>
+                <table class="compact-table">
+                    <thead><tr><th>Metric</th><th class="num">Value</th></tr></thead>
+                    <tbody>
+                    <tr><td>Contingencies checked</td><td class="num">{{ stats.n1_total }}</td></tr>
+                    <tr class="{% if stats.n1_violated > 0 %}row-violation{% endif %}">
+                        <td>Violations</td>
+                        <td class="num">{{ stats.n1_violated }}</td>
+                    </tr>
+                    {% if stats.worst_n1 %}
+                    <tr>
+                        <td>Worst outage</td>
+                        <td class="num" style="font-size:11px;">{{ stats.worst_n1.outage_element }}</td>
+                    </tr>
+                    <tr>
+                        <td>→ Max. loading</td>
+                        <td class="num">{{ "%.1f"|format(stats.worst_n1.max_loading_pct) }}%</td>
+                    </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_loadflow %}
+            <div class="stats-detail-card">
+                <div class="stats-detail-title">Power Balance</div>
+                <table class="compact-table">
+                    <thead><tr><th>Quantity</th><th class="num">MW</th><th class="num">Mvar</th></tr></thead>
+                    <tbody>
+                    <tr><td>Generation</td>
+                        <td class="num">{{ "%.2f"|format(stats.power_balance.gen_mw) }}</td>
+                        <td class="num">{{ "%.2f"|format(stats.power_balance.gen_mvar) }}</td>
+                    </tr>
+                    <tr><td>Load</td>
+                        <td class="num">{{ "%.2f"|format(stats.power_balance.load_mw) }}</td>
+                        <td class="num">{{ "%.2f"|format(stats.power_balance.load_mvar) }}</td>
+                    </tr>
+                    <tr><td>Losses</td>
+                        <td class="num">{{ "%.2f"|format(stats.power_balance.losses_mw) }}</td>
+                        <td class="num">–</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
         </div>
-        {% endif %}
-        {% endmacro %}
-
-        {{ stacked('Voltage Band', overall.counts.voltage) }}
-        {{ stacked('Thermal Loading', overall.counts.thermal) }}
-        {{ stacked('(N-1) Security', overall.counts.n1) }}
-
-    </div>
-    <div class="legend">
-        <span class="leg-ok">&#9632; OK</span>
-        <span class="leg-warn">&#9632; Warning</span>
-        <span class="leg-verl">&#9632; Violation</span>
     </div>
 </section>

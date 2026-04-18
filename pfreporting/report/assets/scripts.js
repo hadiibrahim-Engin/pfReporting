@@ -6,6 +6,29 @@
     'use strict';
 
     /* ----------------------------------------------------------
+       Section collapse / expand (persistent via localStorage)
+    ---------------------------------------------------------- */
+    document.querySelectorAll('.section-toggle').forEach(function (btn) {
+        var targetId = btn.dataset.target;
+        var section  = document.getElementById(targetId);
+        if (!section) return;
+        var body = section.querySelector('.section-body');
+        if (!body) return;
+
+        var key = 'pf-section-' + targetId;
+        if (localStorage.getItem(key) === 'collapsed') {
+            body.classList.add('collapsed');
+            btn.classList.add('collapsed');
+        }
+
+        btn.addEventListener('click', function () {
+            var isNowCollapsed = body.classList.toggle('collapsed');
+            btn.classList.toggle('collapsed', isNowCollapsed);
+            localStorage.setItem(key, isNowCollapsed ? 'collapsed' : 'expanded');
+        });
+    });
+
+    /* ----------------------------------------------------------
        Table sorting
     ---------------------------------------------------------- */
     document.querySelectorAll('th[data-sort]').forEach(function (th) {
@@ -102,10 +125,30 @@
             ? [singleRow]
             : (tbody ? Array.from(tbody.querySelectorAll('tr')) : []);
         rows.forEach(function (row) {
-            var hidden = row.dataset.filterHidden === '1' || row.dataset.searchHidden === '1';
+            var hidden = row.dataset.filterHidden === '1'
+                      || row.dataset.searchHidden === '1'
+                      || row.dataset.sectionSearchHidden === '1';
             row.style.display = hidden ? 'none' : '';
         });
     }
+
+    /* ----------------------------------------------------------
+       Per-section search
+    ---------------------------------------------------------- */
+    document.querySelectorAll('.section-search').forEach(function (input) {
+        var sectionId = input.dataset.section;
+        var section = document.getElementById(sectionId);
+        if (!section) return;
+
+        input.addEventListener('input', function () {
+            var q = input.value.trim().toLowerCase();
+            section.querySelectorAll('tbody tr').forEach(function (row) {
+                var text = row.textContent.toLowerCase();
+                row.dataset.sectionSearchHidden = (!q || text.includes(q)) ? '0' : '1';
+                applyVisibility(null, row);
+            });
+        });
+    });
 
     /* ----------------------------------------------------------
        Heatmap toggle (voltage and thermal heatmap)

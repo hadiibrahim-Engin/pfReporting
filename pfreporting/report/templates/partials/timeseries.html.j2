@@ -1,39 +1,47 @@
-<section>
-    <h2>Quasi-Dynamic Time Series</h2>
-    <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px;">
-        Only critical elements that exceed a warning threshold at least once are shown.
-        Zoom: mouse wheel · Pan: drag.
-    </p>
+{% if calc_options.run_qds %}
+<section id="sec-timeseries">
+    <div class="section-header">
+        <h2>Quasi-Dynamic Time Series</h2>
+        <button class="section-toggle" data-target="sec-timeseries" title="Collapse / Expand">▾</button>
+    </div>
+    <div class="section-body">
+        <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px;">
+            Elements without a configured threshold always appear.
+            Elements with thresholds are shown only when they exceed the warning level at least once.
+            Zoom: mouse wheel · Pan: drag.
+        </p>
 
-    {% for viz in viz_requests %}
-    {% set cid = viz.chart_id %}
-    {% if cid in ts_data.sections and ts_data.sections[cid] %}
+        {% for viz in viz_requests %}
+        {% set cid = viz.chart_id %}
+        {% if cid in ts_data.sections and ts_data.sections[cid] %}
 
-    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--gray-900);">
-        {{ viz.label }}
-        <span style="font-size:12px;font-weight:400;color:var(--gray-600);">
-            [{{ viz.unit }}] – {{ ts_data.sections[cid] | length }} elements
-        </span>
-    </h3>
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--gray-900);">
+            {{ viz.label }}
+            <span style="font-size:12px;font-weight:400;color:var(--gray-600);">
+                [{{ viz.unit }}] – {{ ts_data.sections[cid] | length }} elements
+            </span>
+        </h3>
 
-    <div class="chart-grid">
-        <div class="chart-card" style="grid-column: 1 / -1;">
-            <div class="chart-wrapper">
-                <canvas id="chart-{{ cid }}"></canvas>
+        <div class="chart-grid">
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-wrapper">
+                    <canvas id="chart-{{ cid }}"></canvas>
+                </div>
+                <div class="chart-hint">Mouse wheel: Zoom · Drag: Pan · Double-click: Reset</div>
             </div>
-            <div class="chart-hint">Mouse wheel: Zoom · Drag: Pan · Double-click: Reset</div>
         </div>
-    </div>
 
-    {% if viz.heatmap %}
-    <h4 style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--gray-800);">
-        Heatmap – {{ viz.label }}
-    </h4>
-    <div class="heatmap-wrapper">
-        <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
-    </div>
-    {% endif %}
+        {% if viz.heatmap and cid in heatmap_data %}
+        <h4 style="font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--gray-800);">
+            Heatmap – {{ viz.label }}
+        </h4>
+        <div class="heatmap-wrapper">
+            <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
+        </div>
+        {% endif %}
 
-    {% endif %}
-    {% endfor %}
+        {% endif %}
+        {% endfor %}
+    </div>
 </section>
+{% endif %}

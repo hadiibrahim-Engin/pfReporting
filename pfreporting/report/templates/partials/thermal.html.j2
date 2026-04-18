@@ -1,59 +1,70 @@
 {% from 'partials/_macros.html.j2' import badge, loading_bar %}
-<section>
-    <h2>Thermal Loading</h2>
-    <div class="section-toolbar">
-        <span class="limit-info">
-            Warning from {{ tcfg.warning_pct }}% /
-            Critical from {{ tcfg.violation_pct }}%
-        </span>
-        <div class="toolbar-right">
-            <button class="filter-btn">Only anomalies</button>
+{% if calc_options.run_thermal %}
+<section id="sec-thermal">
+    <div class="section-header">
+        <h2>Thermal Loading</h2>
+        <div class="section-toolbar-right">
+            <input type="text" class="section-search" data-section="sec-thermal"
+                   placeholder="Search …" autocomplete="off">
+            <button class="section-toggle" data-target="sec-thermal" title="Collapse / Expand">▾</button>
         </div>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th data-sort="text">Element</th>
-                <th data-sort="text">Type</th>
-                <th data-sort="num">Loading</th>
-                <th data-sort="num">I [kA]</th>
-                <th data-sort="num">I_nom [kA]</th>
-                <th>Assessment</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in loading %}
-            <tr>
-                <td>{{ r.name }}</td>
-                <td>{{ r.type }}</td>
-                <td class="num">{{ loading_bar(r.loading_pct, r.status) }}</td>
-                <td class="num">{{ "%.3f"|format(r.i_ka) }}</td>
-                <td class="num">{{ "%.3f"|format(r.i_nenn_ka) }}</td>
-                <td>{{ badge(r.status) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="section-body">
+        <div class="section-toolbar">
+            <span class="limit-info">
+                Warning from {{ tcfg.warning_pct }}% /
+                Critical from {{ tcfg.violation_pct }}%
+            </span>
+            <div class="toolbar-right">
+                <button class="filter-btn">Only anomalies</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th data-sort="text">Element</th>
+                    <th data-sort="text">Type</th>
+                    <th data-sort="num">Loading</th>
+                    <th data-sort="num">I [kA]</th>
+                    <th data-sort="num">I_nom [kA]</th>
+                    <th>Assessment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in loading %}
+                <tr>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.type }}</td>
+                    <td class="num">{{ loading_bar(r.loading_pct, r.status) }}</td>
+                    <td class="num">{{ "%.3f"|format(r.i_ka) }}</td>
+                    <td class="num">{{ "%.3f"|format(r.i_nenn_ka) }}</td>
+                    <td>{{ badge(r.status) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    {% if thermal_hm_data %}
-    <div class="hm-toggle-row">
-        <button class="hm-toggle-btn"
-                data-target="hm-thermal"
-                data-label-open="Show Loading Heatmap"
-                data-label-close="Hide Loading Heatmap">
-            Show Loading Heatmap
-        </button>
-    </div>
-    <div id="hm-thermal" class="hm-panel" style="display:none;"
-         data-hm="{{ thermal_hm_data | tojson | e }}">
-        <div class="hm-controls-bar">
-            <button class="hm-select-btn" data-mode="critical">Only anomalies</button>
-            <button class="hm-select-btn" data-mode="all">All</button>
-            <button class="hm-select-btn" data-mode="none">None</button>
-            <span class="hm-info"></span>
+        {% if thermal_hm_data %}
+        <div class="hm-toggle-row">
+            <button class="hm-toggle-btn"
+                    data-target="hm-thermal"
+                    data-label-open="Show Loading Heatmap"
+                    data-label-close="Hide Loading Heatmap">
+                Show Loading Heatmap
+            </button>
         </div>
-        <div class="hm-elem-selector"></div>
-        <div class="hm-render-area"></div>
+        <div id="hm-thermal" class="hm-panel" style="display:none;"
+             data-hm="{{ thermal_hm_data | tojson | e }}">
+            <div class="hm-controls-bar">
+                <button class="hm-select-btn" data-mode="critical">Only anomalies</button>
+                <button class="hm-select-btn" data-mode="all">All</button>
+                <button class="hm-select-btn" data-mode="none">None</button>
+                <span class="hm-info"></span>
+            </div>
+            <div class="hm-elem-selector"></div>
+            <div class="hm-render-area"></div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </section>
+{% endif %}

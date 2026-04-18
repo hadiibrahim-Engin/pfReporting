@@ -12,9 +12,6 @@
     {% include 'partials/header.html.j2' %}
     {% include 'partials/ampel.html.j2' %}
 
-    <!-- QDS Simulation Settings -->
-    {% include 'partials/qds_info.html.j2' %}
-
     <!-- Global Search -->
     <div class="search-bar">
         <label for="global-search">Search:</label>
@@ -23,13 +20,15 @@
     </div>
 
     {% include 'partials/summary.html.j2' %}
+    {% include 'partials/calc_params.html.j2' %}
+    {% include 'partials/qds_info.html.j2' %}
     {% include 'partials/switched.html.j2' %}
     {% include 'partials/loadflow.html.j2' %}
     {% include 'partials/voltage.html.j2' %}
     {% include 'partials/thermal.html.j2' %}
     {% include 'partials/n1.html.j2' %}
 
-    {% if ts_data and not ts_data.is_empty() %}
+    {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
     {% include 'partials/timeseries.html.j2' %}
     {% endif %}
 

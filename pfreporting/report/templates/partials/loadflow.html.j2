@@ -1,79 +1,117 @@
 {% from 'partials/_macros.html.j2' import badge %}
-<section>
-    <h2>Load Flow Results</h2>
-    <div class="lf-grid">
-        <div class="lf-item">
-            <div class="lf-label">Status (Normal Operation)</div>
-            <div class="lf-value">
-                <span class="{{ 'badge-ok' if lf.converged else 'badge-violation' }}">
-                    {{ lf.status_text }}
-                </span>
+{% if calc_options.run_loadflow %}
+<section id="sec-loadflow">
+    <div class="section-header">
+        <h2>Load Flow Results</h2>
+        <button class="section-toggle" data-target="sec-loadflow" title="Collapse / Expand">▾</button>
+    </div>
+    <div class="section-body">
+        <div class="lf-grid">
+            <div class="lf-item">
+                <div class="lf-label">Status (Normal Operation)</div>
+                <div class="lf-value">
+                    <span class="{{ 'badge-ok' if lf.converged else 'badge-violation' }}">
+                        {{ lf.status_text }}
+                    </span>
+                </div>
             </div>
+            <div class="lf-item">
+                <div class="lf-label">Iterations</div>
+                <div class="lf-value">{{ lf.iterations }}</div>
+            </div>
+            <div class="lf-item">
+                <div class="lf-label">Total Load</div>
+                <div class="lf-value">
+                    {{ "%.2f"|format(lf.total_load_mw) }} MW
+                    {% if lf.total_load_mvar %}
+                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
+                        / {{ "%.2f"|format(lf.total_load_mvar) }} Mvar
+                    </span>
+                    {% endif %}
+                    {% if lf.load_power_factor is not none %}
+                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
+                        (PF {{ "%.3f"|format(lf.load_power_factor) }})
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="lf-item">
+                <div class="lf-label">Total Generation</div>
+                <div class="lf-value">
+                    {{ "%.2f"|format(lf.total_gen_mw) }} MW
+                    {% if lf.total_gen_mvar %}
+                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
+                        / {{ "%.2f"|format(lf.total_gen_mvar) }} Mvar
+                    </span>
+                    {% endif %}
+                    {% if lf.gen_power_factor is not none %}
+                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
+                        (PF {{ "%.3f"|format(lf.gen_power_factor) }})
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="lf-item">
+                <div class="lf-label">Losses</div>
+                <div class="lf-value">
+                    {{ "%.2f"|format(lf.losses_mw) }} MW
+                    {% if lf.losses_mvar %}
+                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
+                        / {{ "%.2f"|format(lf.losses_mvar) }} Mvar
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if lf.qds_steps %}
+            {% set n_ok    = lf.qds_steps | selectattr('converged', 'eq', true)  | list | length %}
+            {% set n_fail  = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+            <div class="lf-item">
+                <div class="lf-label">QDS Time Steps</div>
+                <div class="lf-value">{{ lf.qds_steps | length }}</div>
+            </div>
+            <div class="lf-item {% if n_fail > 0 %}lf-item-warn{% endif %}">
+                <div class="lf-label">Not Converged</div>
+                <div class="lf-value" style="color:{% if n_fail > 0 %}var(--viol){% else %}var(--ok){% endif %}">
+                    {{ n_fail }}
+                </div>
+            </div>
+            {% endif %}
         </div>
-        <div class="lf-item">
-            <div class="lf-label">Iterations</div>
-            <div class="lf-value">{{ lf.iterations }}</div>
-        </div>
-        <div class="lf-item">
-            <div class="lf-label">Total Load</div>
-            <div class="lf-value">{{ "%.2f"|format(lf.total_load_mw) }} MW</div>
-        </div>
-        <div class="lf-item">
-            <div class="lf-label">Total Generation</div>
-            <div class="lf-value">{{ "%.2f"|format(lf.total_gen_mw) }} MW</div>
-        </div>
-        <div class="lf-item">
-            <div class="lf-label">Losses</div>
-            <div class="lf-value">{{ "%.2f"|format(lf.losses_mw) }} MW</div>
-        </div>
+
         {% if lf.qds_steps %}
-        {% set n_ok    = lf.qds_steps | selectattr('converged', 'eq', true)  | list | length %}
-        {% set n_fail  = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
-        <div class="lf-item">
-            <div class="lf-label">QDS Time Steps</div>
-            <div class="lf-value">{{ lf.qds_steps | length }}</div>
-        </div>
-        <div class="lf-item {% if n_fail > 0 %}lf-item-warn{% endif %}">
-            <div class="lf-label">Not Converged</div>
-            <div class="lf-value" style="color:{% if n_fail > 0 %}var(--viol){% else %}var(--ok){% endif %}">
-                {{ n_fail }}
+        {% set n_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+        <details class="qds-steps-details">
+            <summary>
+                QDS convergence per time step
+                ({{ lf.qds_steps | length }} steps{% if n_fail > 0 %},
+                <span style="color:var(--viol);">{{ n_fail }} not converged</span>{% endif %})
+            </summary>
+            <div class="qds-steps-table-wrap">
+                <table class="qds-steps-table">
+                    <thead>
+                        <tr>
+                            <th>Time [h]</th>
+                            <th>Load Flow</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for step in lf.qds_steps %}
+                        <tr class="{{ '' if step.converged else 'step-nonconv' }}">
+                            <td>{{ "%.2f"|format(step.time_h) }}</td>
+                            <td>
+                                {% if step.converged %}
+                                <span class="badge-ok">Converged</span>
+                                {% else %}
+                                <span class="badge-violation">Not Converged</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </details>
         {% endif %}
     </div>
-
-    {% if lf.qds_steps %}
-    {% set n_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
-    <details class="qds-steps-details">
-        <summary>
-            QDS convergence per time step
-            ({{ lf.qds_steps | length }} steps{% if n_fail > 0 %},
-            <span style="color:var(--viol);">{{ n_fail }} not converged</span>{% endif %})
-        </summary>
-        <div class="qds-steps-table-wrap">
-            <table class="qds-steps-table">
-                <thead>
-                    <tr>
-                        <th>Time [h]</th>
-                        <th>Load Flow</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for step in lf.qds_steps %}
-                    <tr class="{{ '' if step.converged else 'step-nonconv' }}">
-                        <td>{{ "%.2f"|format(step.time_h) }}</td>
-                        <td>
-                            {% if step.converged %}
-                            <span class="badge-ok">Converged</span>
-                            {% else %}
-                            <span class="badge-violation">Not Converged</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </details>
-    {% endif %}
 </section>
+{% endif %}

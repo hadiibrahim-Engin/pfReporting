@@ -1,64 +1,75 @@
 {% from 'partials/_macros.html.j2' import badge %}
-<section>
-    <h2>(N-1) Contingency Analysis</h2>
-    <div class="section-toolbar">
-        <span class="limit-info">
-            Max. loading: {{ n1cfg.max_loading_pct }}% /
-            Voltage: {{ n1cfg.min_voltage_pu }}–{{ n1cfg.max_voltage_pu }} p.u.
-        </span>
-        <div class="toolbar-right">
-            <button class="filter-btn">Only anomalies</button>
+{% if calc_options.run_n1 %}
+<section id="sec-n1">
+    <div class="section-header">
+        <h2>(N-1) Contingency Analysis</h2>
+        <div class="section-toolbar-right">
+            <input type="text" class="section-search" data-section="sec-n1"
+                   placeholder="Search …" autocomplete="off">
+            <button class="section-toggle" data-target="sec-n1" title="Collapse / Expand">▾</button>
         </div>
     </div>
-    <div class="table-scroll">
-        <table>
-            <thead>
-                <tr>
-                    <th data-sort="text">Outage Element</th>
-                    <th>Type</th>
-                    <th>Conv.</th>
-                    <th data-sort="num">Max. Loading</th>
-                    <th data-sort="num">Min. Voltage</th>
-                    <th data-sort="num">Max. Voltage</th>
-                    <th>Violations</th>
-                    <th>Assessment</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in n1 %}
-                <tr>
-                    <td>{{ r.outage_element }}</td>
-                    <td>{{ r.type }}</td>
-                    <td>
-                        {% if r.converged %}
-                            Yes
-                        {% else %}
-                            <span class="badge-violation">No</span>
-                        {% endif %}
-                    </td>
-                    <td class="num">
-                        {{ "%.1f"|format(r.max_loading_pct) }}%<br>
-                        <small>({{ r.max_loading_element }})</small>
-                    </td>
-                    <td class="num">
-                        {{ "%.4f"|format(r.min_voltage_pu) }}<br>
-                        <small>({{ r.min_voltage_node }})</small>
-                    </td>
-                    <td class="num">
-                        {{ "%.4f"|format(r.max_voltage_pu) }}<br>
-                        <small>({{ r.max_voltage_node }})</small>
-                    </td>
-                    <td class="violations-cell">
-                        {% if r.violations %}
-                            {{ r.violations | join('<br>') | safe }}
-                        {% else %}
-                            ✓
-                        {% endif %}
-                    </td>
-                    <td>{{ badge(r.status) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="section-body">
+        <div class="section-toolbar">
+            <span class="limit-info">
+                Max. loading: {{ n1cfg.max_loading_pct }}% /
+                Voltage: {{ n1cfg.min_voltage_pu }}–{{ n1cfg.max_voltage_pu }} p.u.
+            </span>
+            <div class="toolbar-right">
+                <button class="filter-btn">Only anomalies</button>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-sort="text">Outage Element</th>
+                        <th>Type</th>
+                        <th>Conv.</th>
+                        <th data-sort="num">Max. Loading</th>
+                        <th data-sort="num">Min. Voltage</th>
+                        <th data-sort="num">Max. Voltage</th>
+                        <th>Violations</th>
+                        <th>Assessment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in n1 %}
+                    <tr>
+                        <td>{{ r.outage_element }}</td>
+                        <td>{{ r.type }}</td>
+                        <td>
+                            {% if r.converged %}
+                                Yes
+                            {% else %}
+                                <span class="badge-violation">No</span>
+                            {% endif %}
+                        </td>
+                        <td class="num">
+                            {{ "%.1f"|format(r.max_loading_pct) }}%<br>
+                            <small>({{ r.max_loading_element }})</small>
+                        </td>
+                        <td class="num">
+                            {{ "%.4f"|format(r.min_voltage_pu) }}<br>
+                            <small>({{ r.min_voltage_node }})</small>
+                        </td>
+                        <td class="num">
+                            {{ "%.4f"|format(r.max_voltage_pu) }}<br>
+                            <small>({{ r.max_voltage_node }})</small>
+                        </td>
+                        <td class="violations-cell">
+                            {% if r.violations %}
+                                {{ r.violations | join('<br>') | safe }}
+                            {% else %}
+                                ✓
+                            {% endif %}
+                        </td>
+                        <td>{{ badge(r.status) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
+{% endif %}

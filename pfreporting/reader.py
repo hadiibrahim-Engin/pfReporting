@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime
 import getpass
 import logging
+import math
 from typing import Any
 
 from pfreporting.config import PFReportConfig, VizRequest
@@ -55,17 +56,25 @@ class PowerFactoryReader:
     # ── QDS simulation settings ───────────────────────────────────────────
 
     def get_qds_info(self) -> QDSInfo:
-        """Read ComStatsim settings for the QDS info block."""
+        """Read ComStatsim settings for the QDS info block.
+
+        Config overrides (config.qds.t_start/t_end/dt) take precedence over
+        the values stored inside PowerFactory when they are set.
+        """
+        qds_cfg = self._cfg.qds
         try:
             qds = self._app.GetFromStudyCase("ComStatsim")
             if qds is None:
                 return QDSInfo()
-            t_start = float(getattr(qds, "Tstart", 0) or 0)
-            t_end   = float(getattr(qds, "Tshow",  24) or 24)
-            dt      = float(getattr(qds, "dt",      1) or 1)
+            pf_t_start = float(getattr(qds, "Tstart", 0) or 0)
+            pf_t_end   = float(getattr(qds, "Tshow",  24) or 24)
+            pf_dt      = float(getattr(qds, "dt",      1) or 1)
+
+            t_start = qds_cfg.t_start if qds_cfg.t_start is not None else pf_t_start
+            t_end   = qds_cfg.t_end   if qds_cfg.t_end   is not None else pf_t_end
+            dt      = qds_cfg.dt      if qds_cfg.dt      is not None else pf_dt
             n_steps = max(0, round((t_end - t_start) / dt)) if dt > 0 else 0
 
-            # Scenario name via active scenario object
             scenario = ""
             try:
                 scen = self._app.GetActiveScenario()
@@ -73,7 +82,6 @@ class PowerFactoryReader:
             except Exception:
                 pass
 
-            # Study time start (optional, PF-version dependent)
             study_time_start = ""
             try:
                 sc = self._app.GetActiveStudyCase()
@@ -138,6 +146,7 @@ class PowerFactoryReader:
         except Exception:
             pass
 
+        # Active power sums
         total_load = sum(
             getattr(e, "m:P:bus1", 0) or 0 for e in self._calc_objects("*.ElmLod")
         )
@@ -147,11 +156,30 @@ class PowerFactoryReader:
             for e in self._calc_objects(cls)
         )
         losses = round(total_gen - total_load, 2)
+
+        # Reactive power sums
+        total_load_q = sum(
+            getattr(e, "m:Q:bus1", 0) or 0 for e in self._calc_objects("*.ElmLod")
+        )
+        total_gen_q = sum(
+            getattr(e, "m:Q:bus1", 0) or 0
+            for cls in ("*.ElmSym", "*.ElmGenstat", "*.ElmPvsys", "*.ElmWind")
+            for e in self._calc_objects(cls)
+        )
+        losses_q = round(total_gen_q - total_load_q, 2)
+
+        # Power factors
+        s_load = math.sqrt(total_load ** 2 + total_load_q ** 2)
+        s_gen  = math.sqrt(total_gen  ** 2 + total_gen_q  ** 2)
+        load_pf = round(total_load / s_load, 3) if s_load > 0 else None
+        gen_pf  = round(total_gen  / s_gen,  3) if s_gen  > 0 else None
+
         log.info(
-            "Load flow: converged=%s  Load=%.2f MW  Generation=%.2f MW  Losses=%.2f MW",
+            "Load flow: converged=%s  P_load=%.2f MW  Q_load=%.2f Mvar  "
+            "P_gen=%.2f MW  Q_gen=%.2f Mvar  Losses=%.2f MW",
             converged,
-            total_load,
-            total_gen,
+            total_load, total_load_q,
+            total_gen,  total_gen_q,
             losses,
         )
         return LoadFlowResult(
@@ -161,6 +189,11 @@ class PowerFactoryReader:
             total_load_mw=round(total_load, 2),
             total_gen_mw=round(total_gen, 2),
             losses_mw=losses,
+            total_load_mvar=round(total_load_q, 2),
+            total_gen_mvar=round(total_gen_q, 2),
+            losses_mvar=losses_q,
+            load_power_factor=load_pf,
+            gen_power_factor=gen_pf,
         )
 
     # ── Voltage results ───────────────────────────────────────────────────

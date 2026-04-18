@@ -1,0 +1,108 @@
+<section id="sec-calc-params">
+    <div class="section-header">
+        <h2>Calculation Parameters</h2>
+        <button class="section-toggle" data-target="sec-calc-params" title="Collapse / Expand">▾</button>
+    </div>
+    <div class="section-body">
+        <div class="calc-params-grid">
+
+            <div class="cp-group">
+                <div class="cp-group-title">Load Flow Settings</div>
+                <div class="cp-row">
+                    <span class="cp-label">Method</span>
+                    <span class="cp-value">Newton-Raphson, balanced AC, positive sequence</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Active Power Control</span>
+                    <span class="cp-value">As dispatched</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Temperature Dependency</span>
+                    <span class="cp-value">20 °C (default)</span>
+                </div>
+            </div>
+
+            {% if calc_options.run_voltage %}
+            <div class="cp-group">
+                <div class="cp-group-title">Voltage Limits</div>
+                <div class="cp-row">
+                    <span class="cp-label">Lower Violation</span>
+                    <span class="cp-value cp-value-viol">&le; {{ vcfg.lower_violation }} p.u.</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Lower Warning</span>
+                    <span class="cp-value cp-value-warn">&le; {{ vcfg.lower_warning }} p.u.</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Upper Warning</span>
+                    <span class="cp-value cp-value-warn">&ge; {{ vcfg.upper_warning }} p.u.</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Upper Violation</span>
+                    <span class="cp-value cp-value-viol">&ge; {{ vcfg.upper_violation }} p.u.</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_thermal %}
+            <div class="cp-group">
+                <div class="cp-group-title">Thermal Loading Limits</div>
+                <div class="cp-row">
+                    <span class="cp-label">Warning Threshold</span>
+                    <span class="cp-value cp-value-warn">&ge; {{ tcfg.warning_pct }}%</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Violation Threshold</span>
+                    <span class="cp-value cp-value-viol">&ge; {{ tcfg.violation_pct }}%</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_n1 %}
+            <div class="cp-group">
+                <div class="cp-group-title">N-1 Criteria</div>
+                <div class="cp-row">
+                    <span class="cp-label">Max. Loading</span>
+                    <span class="cp-value cp-value-viol">&gt; {{ n1cfg.max_loading_pct }}%</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Min. Voltage</span>
+                    <span class="cp-value cp-value-viol">&lt; {{ n1cfg.min_voltage_pu }} p.u.</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Max. Voltage</span>
+                    <span class="cp-value cp-value-viol">&gt; {{ n1cfg.max_voltage_pu }} p.u.</span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_qds and qds_info %}
+            <div class="cp-group">
+                <div class="cp-group-title">Quasi-Dynamic Simulation</div>
+                <div class="cp-row">
+                    <span class="cp-label">Simulation Period</span>
+                    <span class="cp-value">
+                        {{ "%.2f"|format(qds_info.t_start_h) }} h
+                        – {{ "%.2f"|format(qds_info.t_end_h) }} h
+                    </span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Time Step</span>
+                    <span class="cp-value">{{ "%.4g"|format(qds_info.dt_h) }} h</span>
+                </div>
+                <div class="cp-row">
+                    <span class="cp-label">Steps</span>
+                    <span class="cp-value">{{ qds_info.n_steps }}</span>
+                </div>
+                {% if qds_info.result_file %}
+                <div class="cp-row">
+                    <span class="cp-label">Result File</span>
+                    <span class="cp-value" style="font-size:11px;">{{ qds_info.result_file }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</section>

@@ -76,11 +76,28 @@ class PFTableWriter:
         """
         Execute the QDS calculation (ComStatsim) and return the loaded
         ElmRes object. Raises ReaderError if no ElmRes is found.
+
+        If config.qds.t_start / t_end / dt are set, they are applied to
+        the ComStatsim object before execution.
+        Note: PF attribute names (Tstart, Tshow, dt) may differ across
+        PowerFactory versions – verify against your PF API documentation.
         """
         app = self._app
+        qds_cfg = self._cfg.qds
         try:
             qds = app.GetFromStudyCase("ComStatsim")
             if qds:
+                # Apply time range overrides from config (if set)
+                if qds_cfg.t_start is not None:
+                    qds.Tstart = qds_cfg.t_start
+                    log.info("QDS t_start overridden to %.2f h", qds_cfg.t_start)
+                if qds_cfg.t_end is not None:
+                    qds.Tshow = qds_cfg.t_end
+                    log.info("QDS t_end overridden to %.2f h", qds_cfg.t_end)
+                if qds_cfg.dt is not None:
+                    qds.dt = qds_cfg.dt
+                    log.info("QDS dt overridden to %.4f h", qds_cfg.dt)
+
                 log.info("Running QDS calculation (ComStatsim) …")
                 app.EchoOff()
                 qds.Execute()
@@ -317,3 +334,57 @@ class PFTableWriter:
             return str(getattr(obj, method_name)(*args) or "")
         except Exception:
             return ""
+
+
+class PFTimeSeriesWriter:
+    """
+    High-level wrapper: writes ElmRes time series to an IntReport — one table
+    per VizRequest. Generalizes the ScriptedLineTimeSeries pattern to all
+    configured element classes.
+
+    Usage (after QDS has run):
+        writer = PFTimeSeriesWriter(app, pf_report, config)
+        writer.write_all(config.report.quasi_dynamic_result_file)
+    """
+
+    def __init__(self, app: Any, report_obj: Any, config: PFReportConfig) -> None:
+        self._app = app
+        self._report = report_obj
+        self._cfg = config
+        self._log = logging.getLogger("pfreporting")
+
+    def write_all(self, elmres_name: str) -> None:
+        """Load the named ElmRes and write all configured VizRequests to IntReport tables."""
+        sc = self._app.GetActiveStudyCase()
+        if not sc:
+            self._log.warning("PFTimeSeriesWriter: no active study case — skipping.")
+            return
+
+        res_list = sc.GetContents(elmres_name) or sc.GetContents("*.ElmRes")
+        if not res_list:
+            self._log.warning(
+                "PFTimeSeriesWriter: ElmRes '%s' not found — skipping.", elmres_name
+            )
+            return
+
+        elmres = res_list[0]
+        try:
+            elmres.Load()
+        except Exception as exc:
+            self._log.warning("PFTimeSeriesWriter: could not load ElmRes: %s", exc)
+            return
+
+        self._log.info(
+            "PFTimeSeriesWriter: writing %d VizRequests to IntReport …",
+            len(self._cfg.visualizations),
+        )
+
+        # Reuse the full PFTableWriter logic
+        writer = PFTableWriter(self._app, self._cfg)
+        try:
+            writer.write_all(self._report, elmres, clear_existing=False)
+        finally:
+            try:
+                elmres.Release()
+            except Exception:
+                pass

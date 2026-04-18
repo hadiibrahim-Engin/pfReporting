@@ -1,7 +1,13 @@
-<div class="ampel-box ampel-placeholder">
-    <span class="ampel-icon">&#128274;</span>
+{% set color_class = "ampel-green" if ampel.color == "green" else ("ampel-amber" if ampel.color == "amber" else "ampel-red") %}
+{% set icon = "&#9989;" if ampel.color == "green" else ("&#9888;" if ampel.color == "amber" else "&#10060;") %}
+<div class="ampel-box {{ color_class }}">
+    <span class="ampel-icon">{{ icon }}</span>
     <div>
-        <div class="ampel-text">DE-ENERGIZATION ASSESSMENT</div>
-        <div class="ampel-subtext">Assessment logic to be defined – placeholder</div>
+        <div class="ampel-text">{{ ampel.verdict }}</div>
+        <ul class="ampel-findings">
+            {% for finding in ampel.findings %}
+            <li>{{ finding }}</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>

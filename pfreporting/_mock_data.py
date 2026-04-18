@@ -58,6 +58,11 @@ def build_mock_data() -> ReportData:
         total_load_mw=245.80,
         total_gen_mw=252.30,
         losses_mw=6.50,
+        total_load_mvar=45.20,
+        total_gen_mvar=48.10,
+        losses_mvar=2.90,
+        load_power_factor=0.983,
+        gen_power_factor=0.982,
         qds_steps=[
             QDSStep(time_h=float(i), converged=(i not in non_conv))
             for i in range(_STEPS)

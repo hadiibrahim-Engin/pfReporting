@@ -49,6 +49,35 @@ class N1Config(BaseModel):
     max_voltage_pu: float = Field(1.10, ge=1)
 
 
+# ─── Calculation options ──────────────────────────────────────────────────────
+
+
+class CalculationOptions(BaseModel):
+    """Controls which calculation steps run and appear in the report."""
+
+    run_qds: bool = True       # Quasi-dynamic simulation + time series charts
+    run_loadflow: bool = True  # Static load flow
+    run_voltage: bool = True   # Voltage band check
+    run_thermal: bool = True   # Thermal loading check
+    run_n1: bool = True        # N-1 contingency analysis
+
+
+# ─── QDS time range override ──────────────────────────────────────────────────
+
+
+class QDSConfig(BaseModel):
+    """Optional overrides for the quasi-dynamic simulation time range.
+
+    If set, these values are applied to ComStatsim before execution and are
+    used instead of reading from the PowerFactory object. Leave as None to
+    keep whatever is configured inside PowerFactory.
+    """
+
+    t_start: float | None = None   # Simulation start time [h]
+    t_end: float | None = None     # Simulation end time [h]
+    dt: float | None = None        # Time step [h]
+
+
 # ─── Visualization ────────────────────────────────────────────────────────────
 
 
@@ -64,6 +93,7 @@ class VizRequest(BaseModel):
     warn_lo: float | None = None
     violation_lo: float | None = None
     heatmap: bool = False
+    heatmap_elements: list[str] | None = None
     max_elements: int = Field(200, ge=1, le=2000)
 
     @property
@@ -93,8 +123,20 @@ def _default_visualizations() -> list[VizRequest]:
             unit="%",
             warn_hi=80.0,
             violation_hi=100.0,
-            heatmap=False,
+            heatmap=True,
             max_elements=50,
+        ),
+        VizRequest(
+            element_class="ElmTerm",
+            variable="m:u",
+            label="Nodes – Voltage",
+            unit="p.u.",
+            warn_lo=0.95,
+            violation_lo=0.90,
+            warn_hi=1.05,
+            violation_hi=1.10,
+            heatmap=True,
+            max_elements=200,
         ),
         VizRequest(
             element_class="ElmLne",
@@ -138,6 +180,8 @@ class PFReportConfig(BaseModel):
     thermal: ThermalConfig = Field(default_factory=ThermalConfig)
     n1: N1Config = Field(default_factory=N1Config)
     report: ReportConfig = Field(default_factory=ReportConfig)
+    calc: CalculationOptions = Field(default_factory=CalculationOptions)
+    qds: QDSConfig = Field(default_factory=QDSConfig)
     visualizations: list[VizRequest] = Field(
         default_factory=_default_visualizations
     )

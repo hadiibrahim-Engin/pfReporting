@@ -3,7 +3,7 @@ pfreporting – Automatic De-energization Assessment with PowerFactory.
 
 Public API:
     run_full_workflow(app, config, pf_report)  – Recommended entry point:
-        Step 1 – Run QDS + write results to IntReport tables
+        Step 1 – Run QDS simulation + write results to IntReport tables
         Step 2 – Read static results, run N-1 analysis
         Step 3 – Generate and save HTML report
 
@@ -21,7 +21,7 @@ from typing import Any
 from pfreporting.__version__ import __version__
 from pfreporting.analysis import AnalysisEngine
 from pfreporting.config import PFReportConfig
-from pfreporting.logger import get_logger
+from pfreporting.logger import get_logger, log_step_header
 from pfreporting.models import QDSStep, TimeSeriesData
 from pfreporting.reader import PowerFactoryReader
 from pfreporting.report.builder import ReportData
@@ -41,17 +41,16 @@ def run_full_workflow(
     """
     Complete two-phase workflow for the de-energization assessment.
 
-    Step 1 – Database integration (IntReport)
+    Step 1 – QDS simulation (optional, if pf_report is provided)
         • Run QDS calculation (ComStatsim)
         • Read time series from ElmRes
         • Write results to PowerFactory IntReport tables
-          (persistent storage in PF database model)
 
     Step 2 – Static results & N-1 analysis
-        • Load flow calculation
-        • Voltage band check for all nodes
-        • Thermal loading of all elements
-        • N-1 contingency analysis (automatic outage loop)
+        • Load flow calculation (if calc.run_loadflow)
+        • Voltage band check (if calc.run_voltage)
+        • Thermal loading (if calc.run_thermal)
+        • N-1 contingency analysis (if calc.run_n1)
 
     Step 3 – HTML report
         • Aggregate all results
@@ -62,86 +61,108 @@ def run_full_workflow(
     ----------
     app:         PowerFactory application object (powerfactory.GetApplication())
     config:      Configuration; default values if None
-    pf_report:   IntReport object (script.GetParent()); if None, only Steps 2+3 run
+    pf_report:   IntReport object for DB integration (optional – pass None to skip)
     output_path: Optional output path; overrides ReportConfig.output_dir
-
-    Returns
-    -------
-    Path  Path of the generated HTML file
     """
     if config is None:
         config = PFReportConfig()
 
-    from pfreporting.analysis import AnalysisEngine
     from pfreporting.db_writer import PFTableWriter
-    from pfreporting.reader import PowerFactoryReader
-    from pfreporting.report.builder import ReportData
-    from pfreporting.report.generator import HTMLReportGenerator
 
     reader    = PowerFactoryReader(app, config)
     engine    = AnalysisEngine(config)
     writer    = PFTableWriter(app, config)
     generator = HTMLReportGenerator(config)
+    calc      = config.calc
 
+    # Determine how many major steps will run (for progress display)
+    _steps_planned = [
+        (calc.run_qds and pf_report is not None, "QDS Simulation & Database Write"),
+        (True, "Static Results & Analysis"),
+        (True, "HTML Report Generation"),
+    ]
+    total_steps = sum(1 for enabled, _ in _steps_planned if enabled)
+    step_counter = [0]
+
+    def next_step(title: str) -> None:
+        step_counter[0] += 1
+        log_step_header(title, step_counter[0], total_steps)
+
+    log.info("")
     log.info("=" * 60)
-    log.info("De-energization Assessment v%s – workflow started", __version__)
+    log.info("  De-Energization Assessment  v%s", __version__)
     log.info("=" * 60)
 
-    # ── Step 1: QDS → IntReport tables ───────────────────────────────
-    ts_data = None
-    if pf_report is not None:
-        log.info("[Step 1] QDS simulation & database write …")
+    # ── Step 1: QDS → IntReport tables ───────────────────────────────────
+    ts_raw: TimeSeriesData | None = None
+    ts_data: TimeSeriesData | None = None
+    if calc.run_qds and pf_report is not None:
+        next_step("QDS Simulation & Database Write")
         try:
             elmres = writer.run_qds()
-            ts_data = writer.write_all(pf_report, elmres, clear_existing=True)
+            ts_raw = writer.write_all(pf_report, elmres, clear_existing=True)
             elmres.Release()
-            ts_data = engine.filter_critical_series(ts_data, config.visualizations)
-            log.info(
-                "[Step 1] Complete – %d critical time series in %d tables.",
-                sum(len(s) for s in ts_data.sections.values()),
-                len(ts_data.sections),
-            )
+            ts_data = engine.filter_critical_series(ts_raw, config.visualizations)
+            n_series = sum(len(s) for s in ts_data.sections.values())
+            log.info("QDS complete – %d series in %d chart sections.", n_series, len(ts_data.sections))
         except Exception as exc:
-            log.warning("[Step 1] Failed: %s", exc)
-            ts_data = None
+            log.warning("QDS step failed: %s", exc)
+            ts_raw = ts_data = None
+    elif not calc.run_qds:
+        log.info("QDS step skipped (calc.run_qds=False).")
     else:
-        log.info("[Step 1] No IntReport provided – DB step skipped.")
+        log.info("QDS step skipped (no IntReport provided; will read ElmRes directly).")
 
-    # ── Step 2: Static results ────────────────────────────────────────
-    log.info("[Step 2] Reading & analyzing static results …")
+    # ── Step 2: Static results ────────────────────────────────────────────
+    next_step("Static Results & Analysis")
+
     info     = reader.get_project_info()
     qds_info = reader.get_qds_info()
     switched = reader.get_switched_elements()
-    lf       = reader.get_loadflow_results()
-    voltage  = engine.analyze_voltages(reader.get_voltage_results())
-    loading  = engine.analyze_thermal(reader.get_loading_results())
-    n1       = engine.analyze_n1(reader.get_n1_results())
-    overall  = engine.get_overall_status(voltage, loading, n1)
 
+    lf = reader.get_loadflow_results() if calc.run_loadflow else _empty_loadflow()
+    if not calc.run_loadflow:
+        log.info("Load flow skipped (calc.run_loadflow=False).")
+
+    voltage = engine.analyze_voltages(reader.get_voltage_results()) if calc.run_voltage else []
+    if not calc.run_voltage:
+        log.info("Voltage analysis skipped (calc.run_voltage=False).")
+
+    loading = engine.analyze_thermal(reader.get_loading_results()) if calc.run_thermal else []
+    if not calc.run_thermal:
+        log.info("Thermal analysis skipped (calc.run_thermal=False).")
+
+    n1 = engine.analyze_n1(reader.get_n1_results()) if calc.run_n1 else []
+    if not calc.run_n1:
+        log.info("N-1 analysis skipped (calc.run_n1=False).")
+
+    overall = engine.get_overall_status(voltage, loading, n1)
     log.info(
-        "[Step 2] Complete – Status: %s, Violations: %d",
+        "Analysis complete – Status: %s, Violations: %d",
         overall.status.upper(),
         overall.total_violations,
     )
 
-    # If Step 1 was skipped: fetch time series directly from ElmRes
-    if ts_data is None:
+    # If QDS step was skipped or failed: read time series directly from ElmRes
+    if ts_data is None and calc.run_qds:
         try:
-            log.info("[Step 2] Reading time series directly from ElmRes …")
+            log.info("Reading time series directly from ElmRes …")
             elmres  = reader.load_elmres()
             ts_raw  = reader.get_time_series(elmres, config.visualizations)
             ts_data = engine.filter_critical_series(ts_raw, config.visualizations)
             elmres.Release()
         except Exception as exc:
-            log.warning("[Step 2] Time series not available: %s", exc)
-            ts_data = TimeSeriesData(time=[])
+            log.warning("Time series not available: %s", exc)
+            ts_raw = ts_data = TimeSeriesData(time=[])
+    elif ts_data is None:
+        ts_raw = ts_data = TimeSeriesData(time=[])
 
-    # Derive convergence per QDS time step from time series
+    # Derive convergence per QDS time step from time series data
     if not ts_data.is_empty():
         lf.qds_steps = _derive_qds_steps(ts_data)
 
-    # ── Step 3: HTML report ───────────────────────────────────────────
-    log.info("[Step 3] Generating HTML report …")
+    # ── Step 3: HTML report ───────────────────────────────────────────────
+    next_step("HTML Report Generation")
     data = ReportData(
         info=info,
         qds_info=qds_info,
@@ -152,6 +173,7 @@ def run_full_workflow(
         n1=n1,
         overall=overall,
         ts_data=ts_data,
+        ts_raw=ts_raw or TimeSeriesData(time=[]),
     )
     html = generator.generate(data)
 
@@ -159,7 +181,10 @@ def run_full_workflow(
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")
 
-    log.info("[Step 3] Report saved: %s", dest)
+    log.info("Report saved: %s", dest)
+    log.info("")
+    log.info("=" * 60)
+    log.info("  DONE")
     log.info("=" * 60)
     return dest
 
@@ -235,3 +260,16 @@ def _derive_qds_steps(ts_data: TimeSeriesData) -> list[QDSStep]:
         ) if all_series else True
         steps.append(QDSStep(time_h=t, converged=converged))
     return steps
+
+
+def _empty_loadflow():
+    """Return a placeholder LoadFlowResult when load flow is skipped."""
+    from pfreporting.models import LoadFlowResult
+    return LoadFlowResult(
+        converged=False,
+        status_text="Not calculated",
+        iterations=0,
+        total_load_mw=0.0,
+        total_gen_mw=0.0,
+        losses_mw=0.0,
+    )

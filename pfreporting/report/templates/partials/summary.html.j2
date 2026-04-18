@@ -1,22 +1,63 @@
-<section class="summary">
-    <h2>Summary</h2>
-    <p>{{ overall.summary_text | safe }}</p>
-    <div class="kpi-row">
-        <div class="kpi">
-            <div class="kpi-value">{{ overall.total_nodes }}</div>
-            <div class="kpi-label">Nodes checked</div>
+<section class="summary" id="sec-summary">
+    <div class="section-header">
+        <h2>Summary</h2>
+        <button class="section-toggle" data-target="sec-summary" title="Collapse / Expand">▾</button>
+    </div>
+    <div class="section-body">
+        <p>{{ overall.summary_text | safe }}</p>
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="kpi-value">{{ overall.total_nodes }}</div>
+                <div class="kpi-label">Nodes checked</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value">{{ overall.total_elements }}</div>
+                <div class="kpi-label">Elements checked</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-value">{{ overall.total_n1 }}</div>
+                <div class="kpi-label">N-1 cases checked</div>
+            </div>
+            <div class="kpi {% if overall.total_violations > 0 %}kpi-highlight{% endif %}">
+                <div class="kpi-value">{{ overall.total_violations }}</div>
+                <div class="kpi-label">Total violations</div>
+            </div>
         </div>
-        <div class="kpi">
-            <div class="kpi-value">{{ overall.total_elements }}</div>
-            <div class="kpi-label">Elements checked</div>
+
+        {% if top_voltage_violations or top_loading_violations %}
+        <div class="violations-quickview">
+            <h3 style="font-size:14px;font-weight:600;margin:0 0 10px;color:#9b2c2c;">
+                Critical Elements
+            </h3>
+            <div class="violations-cols">
+                {% if top_voltage_violations %}
+                <div>
+                    <h4 style="font-size:12px;font-weight:600;color:var(--gray-700);margin:0 0 6px;">
+                        Voltage Violations
+                    </h4>
+                    {% for r in top_voltage_violations %}
+                    <div class="viol-row">
+                        <span>{{ r.node }}</span>
+                        <span class="badge-violation">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if top_loading_violations %}
+                <div>
+                    <h4 style="font-size:12px;font-weight:600;color:var(--gray-700);margin:0 0 6px;">
+                        Thermal Violations
+                    </h4>
+                    {% for r in top_loading_violations %}
+                    <div class="viol-row">
+                        <span>{{ r.name }}</span>
+                        <span class="badge-violation">{{ "%.1f"|format(r.loading_pct) }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
         </div>
-        <div class="kpi">
-            <div class="kpi-value">{{ overall.total_n1 }}</div>
-            <div class="kpi-label">N-1 cases checked</div>
-        </div>
-        <div class="kpi {% if overall.total_violations > 0 %}kpi-highlight{% endif %}">
-            <div class="kpi-value">{{ overall.total_violations }}</div>
-            <div class="kpi-label">Total violations</div>
-        </div>
+        {% endif %}
     </div>
 </section>
