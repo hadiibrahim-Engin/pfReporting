@@ -77,7 +77,7 @@ def run_full_workflow(
 
     # Determine how many major steps will run (for progress display)
     _steps_planned = [
-        (calc.run_qds and pf_report is not None, "QDS Simulation & Database Write"),
+        (calc.run_qds, "QDS Simulation"),
         (True, "Static Results & Analysis"),
         (True, "HTML Report Generation"),
     ]
@@ -93,25 +93,33 @@ def run_full_workflow(
     log.info("  De-Energization Assessment  v%s", __version__)
     log.info("=" * 60)
 
-    # -- Step 1: QDS → IntReport tables -----------------------------------
+    # -- Step 1: QDS simulation (optional IntReport write) -----------------
     ts_raw: TimeSeriesData | None = None
     ts_data: TimeSeriesData | None = None
-    if calc.run_qds and pf_report is not None:
-        next_step("QDS Simulation & Database Write")
+    if calc.run_qds:
+        if pf_report is not None:
+            next_step("QDS Simulation & Database Write")
+        else:
+            next_step("QDS Simulation")
         try:
             elmres = writer.run_qds()
-            ts_raw = writer.write_all(pf_report, elmres, clear_existing=True)
+            if pf_report is not None:
+                ts_raw = writer.write_all(pf_report, elmres, clear_existing=True)
+                ts_data = engine.filter_critical_series(ts_raw, config.visualizations)
+                n_series = sum(len(s) for s in ts_data.sections.values())
+                log.info(
+                    "QDS complete - %d series in %d chart sections.",
+                    n_series,
+                    len(ts_data.sections),
+                )
+            else:
+                log.info("QDS complete (no IntReport provided; using ElmRes directly).")
             elmres.Release()
-            ts_data = engine.filter_critical_series(ts_raw, config.visualizations)
-            n_series = sum(len(s) for s in ts_data.sections.values())
-            log.info("QDS complete - %d series in %d chart sections.", n_series, len(ts_data.sections))
         except Exception as exc:
             log.warning("QDS step failed: %s", exc)
             ts_raw = ts_data = None
     elif not calc.run_qds:
         log.info("QDS step skipped (calc.run_qds=False).")
-    else:
-        log.info("QDS step skipped (no IntReport provided; will read ElmRes directly).")
 
     # -- Step 2: Static results --------------------------------------------
     next_step("Static Results & Analysis")

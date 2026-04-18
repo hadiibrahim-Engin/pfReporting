@@ -16,9 +16,9 @@ Prerequisites - making the package available (one of three options):
     Option C  Place in the same directory as the script (no sys.path needed)
 
 Workflow:
-    [Step 1]  Run QDS simulation (ComStatsim)  [skipped if pf_report=None]
+    [Step 1]  Run QDS simulation (ComStatsim)
               Read time series from ElmRes
-              Write results to IntReport tables (PF database)
+              Optionally write results to IntReport tables (PF database)
 
     [Step 2]  Load flow + voltage band + thermal loading + N-1 analysis
               (each calculation can be toggled via CalculationOptions)
@@ -188,10 +188,19 @@ if CONFIG_JSON_PATH:
 # -- Start workflow ------------------------------------------------------------
 from pfreporting import run_full_workflow
 
+pf_report = None
+try:
+    parent = script.GetParent()
+    if parent and parent.GetClassName() == "IntReport":
+        pf_report = parent
+        app.PrintInfo("IntReport detected: QDS tables will be written to report database.")
+except Exception:
+    pf_report = None
+
 dest = run_full_workflow(
     app=app,
     config=CONFIG,
-    pf_report=None,   # No IntReport required - reads time series from ElmRes
+    pf_report=pf_report,  # QDS always runs; IntReport write is used when available
 )
 
 # -- Print clickable link in PF output window ----------------------------------
