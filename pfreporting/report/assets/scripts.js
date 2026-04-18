@@ -302,6 +302,10 @@
         }
     }
 
+    function getUnitPrecision(unit) {
+        return unit === '%' ? 8 : 4;
+    }
+
     /*
      * renderHeatmap(container, displayData, fullData)
      *   displayData - rows actually rendered (may be filtered subset)
@@ -309,6 +313,7 @@
      */
     function renderHeatmap(container, displayData, fullData) {
         var refData = fullData || displayData;
+        var unitPrecision = getUnitPrecision(displayData.unit);
         var allVals = refData.rows.flatMap(function (r) {
             return r.values.filter(function (v) { return v != null; });
         });
@@ -342,7 +347,9 @@
             row.values.forEach(function (v) {
                 var td = tr.insertCell();
                 td.style.backgroundColor = heatColor(v, minVal, maxVal);
-                td.title = v != null ? v.toFixed(2) + ' ' + displayData.unit : 'n/a';
+                td.title = v != null
+                    ? Number(v).toFixed(unitPrecision) + ' ' + displayData.unit
+                    : 'n/a';
             });
         });
 
@@ -353,9 +360,9 @@
         var leg = document.createElement('div');
         leg.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#4b5563;';
         var legId = 'hm-leg-' + Math.random().toString(36).slice(2);
-        leg.innerHTML = '<span>' + minVal.toFixed(2) + ' ' + displayData.unit + '</span>'
+        leg.innerHTML = '<span>' + minVal.toFixed(unitPrecision) + ' ' + displayData.unit + '</span>'
             + '<canvas id="' + legId + '" width="160" height="12" style="border-radius:4px"></canvas>'
-            + '<span>' + maxVal.toFixed(2) + ' ' + displayData.unit + '</span>';
+            + '<span>' + maxVal.toFixed(unitPrecision) + ' ' + displayData.unit + '</span>';
         container.appendChild(leg);
         var lgCanvas = document.getElementById(legId);
         if (lgCanvas) {
@@ -465,12 +472,39 @@
             },
             y: {
                 title: { display: true, text: cfg.unit, font: { size: 11 } },
-                ticks: { font: { size: 10 } },
+                ticks: {
+                    font: { size: 10 },
+                    callback: function (value) {
+                        if (value == null || Number.isNaN(Number(value))) {
+                            return value;
+                        }
+                        return Number(value).toFixed(valuePrecision);
+                    },
+                },
             },
         };
         if (annotations.length > 0 && typeof Chart.registry.plugins.get('annotation') !== 'undefined') {
             options.plugins.annotation = { annotations: annotations };
         }
+
+        var valuePrecision = Number.isInteger(cfg.value_precision)
+            ? cfg.value_precision
+            : (cfg.variable === 'c:loading' ? 8 : 4);
+
+        options.plugins.tooltip = {
+            callbacks: {
+                label: function (context) {
+                    var dsLabel = context.dataset && context.dataset.label
+                        ? context.dataset.label + ': '
+                        : '';
+                    var val = context.parsed ? context.parsed.y : null;
+                    if (val == null || Number.isNaN(val)) {
+                        return dsLabel + 'n/a';
+                    }
+                    return dsLabel + Number(val).toFixed(valuePrecision) + ' ' + cfg.unit;
+                },
+            },
+        };
 
         /* Re-attach legend onClick after deep-cloning options */
         options.plugins.legend.onClick = commonOptions.plugins.legend.onClick;

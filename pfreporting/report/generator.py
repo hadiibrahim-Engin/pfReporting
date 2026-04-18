@@ -147,7 +147,7 @@ class HTMLReportGenerator:
 
         result: list[dict] = []
         time_labels = [
-            round(t, 3) if isinstance(t, float) else t
+                float(t) if isinstance(t, float) else t
             for t in data.ts_data.time
         ]
 
@@ -161,7 +161,7 @@ class HTMLReportGenerator:
                 {
                     "name": name,
                     "values": [
-                        round(v, 4) if v is not None else None
+                            float(v) if v is not None else None
                         for v in ts.values
                     ],
                 }
@@ -172,6 +172,8 @@ class HTMLReportGenerator:
                 "id":           f"chart-{cid}",
                 "label":        vr.label,
                 "unit":         vr.unit,
+                    "variable":     vr.variable,
+                    "value_precision": 8 if vr.variable == "c:loading" else 4,
                 "warn_hi":      vr.warn_hi,
                 "violation_hi": vr.violation_hi,
                 "warn_lo":      vr.warn_lo,
@@ -211,7 +213,7 @@ class HTMLReportGenerator:
                 {
                     "name": name,
                     "values": [
-                        round(v, 2) if v is not None else None
+                        float(v) if v is not None else None
                         for v in ts.values
                     ],
                 }
@@ -219,7 +221,7 @@ class HTMLReportGenerator:
                 if not vr.heatmap_elements or name in vr.heatmap_elements
             ]
             result[cid] = {
-                "time": [round(t, 2) if isinstance(t, float) else t for t in src.time],
+                "time": [float(t) if isinstance(t, float) else t for t in src.time],
                 "rows": rows,
                 "unit": vr.unit,
             }
@@ -270,7 +272,7 @@ class HTMLReportGenerator:
         hm_vr = self._get_loading_hm_vr()
         whitelist = hm_vr.heatmap_elements if hm_vr else None
         status_map = {r.name: r.status for r in data.loading}
-        time = [round(t, 3) for t in src.time]
+        time = [float(t) for t in src.time]
         seen: set[str] = set()
         rows: list[dict] = []
         for section in src.sections.values():
@@ -282,7 +284,7 @@ class HTMLReportGenerator:
                 seen.add(name)
                 rows.append({
                     "name":   name,
-                    "values": [round(v, 2) if v is not None else None for v in ts.values],
+                    "values": [float(v) if v is not None else None for v in ts.values],
                     "status": status_map.get(name, "ok"),
                 })
         if not rows:
@@ -316,7 +318,7 @@ class HTMLReportGenerator:
         hm_vr = self._get_voltage_hm_vr()
         whitelist = hm_vr.heatmap_elements if hm_vr else None
         status_map = {r.node: r.status for r in data.voltage}
-        time = [round(t, 3) for t in src.time]
+        time = [float(t) for t in src.time]
         seen: set[str] = set()
         rows: list[dict] = []
         for section in src.sections.values():
@@ -328,7 +330,7 @@ class HTMLReportGenerator:
                 seen.add(name)
                 rows.append({
                     "name":   name,
-                    "values": [round(v, 4) if v is not None else None for v in ts.values],
+                    "values": [float(v) if v is not None else None for v in ts.values],
                     "status": status_map.get(name, "ok"),
                 })
         if not rows:
