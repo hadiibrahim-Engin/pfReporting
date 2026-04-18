@@ -134,20 +134,20 @@ def attach_powerfactory_handler(app) -> None:
     """Attach PowerFactory output handler to package logger.
 
     Uses app.PrintError/PrintWarn/PrintInfo/PrintPlain based on log level.
-    Removes any existing PowerFactoryLogHandler instances to prevent
-    duplicate log messages when called multiple times.
+    Removes all existing handlers and replaces them with PowerFactoryLogHandler
+    to prevent duplicate log messages.
 
     Args:
         app: PowerFactory Application object.
     """
     logger = get_logger()
     
-    # Remove any existing PowerFactoryLogHandler instances
+    # Remove ALL handlers to prevent duplication
+    # (RichHandler from _configure + any previous PowerFactoryLogHandler instances)
     for handler in logger.handlers[:]:  # Copy list to avoid mutation issues
-        if isinstance(handler, PowerFactoryLogHandler):
-            logger.removeHandler(handler)
+        logger.removeHandler(handler)
     
-    # Add the new handler
+    # Add only the PowerFactory handler
     pf_handler = PowerFactoryLogHandler(app)
     pf_handler.setLevel(logging.INFO)
     logger.addHandler(pf_handler)
