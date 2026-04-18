@@ -83,6 +83,25 @@
         });
     });
 
+    document.querySelectorAll('.filter-toggle').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var section = cb.closest('section');
+            var tbody   = section.querySelector('table tbody');
+            if (!tbody) return;
+
+            var active = cb.checked;
+            tbody.querySelectorAll('tr').forEach(function (row) {
+                if (active) {
+                    var hasIssue = row.querySelector('.badge-violation, .badge-warning');
+                    row.dataset.filterHidden = hasIssue ? '0' : '1';
+                } else {
+                    row.dataset.filterHidden = '0';
+                }
+            });
+            applyVisibility(tbody);
+        });
+    });
+
     /* ----------------------------------------------------------
        Global live search
     ---------------------------------------------------------- */
@@ -149,6 +168,38 @@
                 row.dataset.sectionSearchHidden = (!q || text.includes(q)) ? '0' : '1';
                 applyVisibility(null, row);
             });
+        });
+    });
+
+    /* ----------------------------------------------------------
+       Glass tabs
+    ---------------------------------------------------------- */
+    var tabButtons = document.querySelectorAll('.glass-tab');
+    var tabPanels = document.querySelectorAll('.tab-panel');
+
+    function activateTab(targetId) {
+        tabButtons.forEach(function (btn) {
+            var isActive = btn.dataset.tab === targetId;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        tabPanels.forEach(function (panel) {
+            var isActive = panel.dataset.tab === targetId;
+            panel.classList.toggle('active', isActive);
+            if (isActive) {
+                panel.classList.remove('fade-in');
+                void panel.offsetWidth;
+                panel.classList.add('fade-in');
+            }
+        });
+    }
+
+    tabButtons.forEach(function (btn) {
+        if (btn.classList.contains('disabled')) return;
+        btn.addEventListener('click', function () {
+            var target = btn.dataset.tab;
+            if (!target) return;
+            activateTab(target);
         });
     });
 
@@ -287,21 +338,23 @@
     });
 
     function heatColor(val, min, max) {
-        if (val == null) return '#f3f4f6';
+        if (val == null) return 'rgba(255,255,255,0.3)';
         var t = max > min ? (val - min) / (max - min) : 0;
         t = Math.max(0, Math.min(1, t));
-        if (t < 0.5) {
-            var r = Math.round(22  + (217 - 22)  * (t * 2));
-            var g = Math.round(163 + (119 - 163) * (t * 2));
-            var b = Math.round(74  + (6   - 74)  * (t * 2));
-            return 'rgb(' + r + ',' + g + ',' + b + ')';
-        } else {
-            var tt = (t - 0.5) * 2;
-            var r2 = Math.round(217 + (220 - 217) * tt);
-            var g2 = Math.round(119 + (38  - 119) * tt);
-            var b2 = Math.round(6   + (38  - 6)   * tt);
-            return 'rgb(' + r2 + ',' + g2 + ',' + b2 + ')';
+        var c1 = [29, 78, 216];   // blue
+        var c2 = [147, 51, 234];  // purple
+        var c3 = [249, 115, 22];  // orange
+
+        function mix(a, b, tt) {
+            return [
+                Math.round(a[0] + (b[0] - a[0]) * tt),
+                Math.round(a[1] + (b[1] - a[1]) * tt),
+                Math.round(a[2] + (b[2] - a[2]) * tt),
+            ];
         }
+
+        var rgb = t < 0.5 ? mix(c1, c2, t * 2) : mix(c2, c3, (t - 0.5) * 2);
+        return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
     }
 
     function getUnitPrecision(unit) {

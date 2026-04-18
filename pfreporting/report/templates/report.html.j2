@@ -11,6 +11,52 @@
 
     {% include 'partials/header.html.j2' %}
     {% include 'partials/executive_summary.html.j2' %}
+
+    {% set v_total = voltage | length %}
+    {% set t_total = loading | length %}
+    {% set ns = namespace(qds_series=0) %}
+    {% if ts_data and not ts_data.is_empty() %}
+        {% for sec in ts_data.sections.values() %}
+            {% set ns.qds_series = ns.qds_series + (sec | length) %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="glass-tabs" role="tablist" aria-label="Report Tabs">
+        <button class="glass-tab active" type="button" data-tab="tab-voltage" role="tab" aria-selected="true">
+            Spannungsbandprüfung
+            <span class="tab-count">{{ v_total }}</span>
+        </button>
+        <button class="glass-tab" type="button" data-tab="tab-thermal" role="tab" aria-selected="false">
+            Thermische Auslastung
+            <span class="tab-count">{{ t_total }}</span>
+        </button>
+        {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
+        <button class="glass-tab" type="button" data-tab="tab-qds" role="tab" aria-selected="false">
+            Quasi-Dynamik – nur kritisch
+            <span class="tab-count">{{ ns.qds_series }}</span>
+        </button>
+        {% else %}
+        <button class="glass-tab disabled" type="button" role="tab" aria-selected="false" disabled>
+            Quasi-Dynamik – nur kritisch
+            <span class="tab-count">0</span>
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="tab-panels">
+        <div class="tab-panel active" data-tab="tab-voltage" role="tabpanel">
+            {% include 'partials/voltage.html.j2' %}
+        </div>
+        <div class="tab-panel" data-tab="tab-thermal" role="tabpanel">
+            {% include 'partials/thermal.html.j2' %}
+        </div>
+        {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
+        <div class="tab-panel" data-tab="tab-qds" role="tabpanel">
+            {% include 'partials/timeseries.html.j2' %}
+        </div>
+        {% endif %}
+    </div>
+
     {% include 'partials/ampel.html.j2' %}
 
     <!-- Global Search -->
@@ -25,13 +71,7 @@
     {% include 'partials/qds_info.html.j2' %}
     {% include 'partials/switched.html.j2' %}
     {% include 'partials/loadflow.html.j2' %}
-    {% include 'partials/voltage.html.j2' %}
-    {% include 'partials/thermal.html.j2' %}
     {% include 'partials/n1.html.j2' %}
-
-    {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
-    {% include 'partials/timeseries.html.j2' %}
-    {% endif %}
 
     {% include 'partials/statistics.html.j2' %}
     {% include 'partials/footer.html.j2' %}
