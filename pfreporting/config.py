@@ -1,6 +1,8 @@
 """Configuration hierarchy - all parameters as Pydantic v2 models."""
 from __future__ import annotations
 
+import logging
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -209,6 +211,16 @@ class ReportConfig(BaseModel):
     use_timestamp_subdir: bool = True
     quasi_dynamic_result_file: str = "Quasi-Dynamic Simulation AC.ElmRes"
     intreport_name: str | None = None
+    log_level: str = "INFO"
+    max_points: int | None = Field(default=None, ge=50)
+
+    @field_validator("log_level")
+    @classmethod
+    def _normalize_log_level(cls, v: str) -> str:
+        level = str(v).upper()
+        if level not in logging._nameToLevel:
+            raise ValueError("log_level must be a valid logging level name")
+        return level
 
 
 # --- Main config --------------------------------------------------------------

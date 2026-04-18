@@ -36,6 +36,7 @@ class ReportData:
     ts_data: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
     ts_raw: TimeSeriesData = field(default_factory=lambda: TimeSeriesData(time=[]))
     qds_info: QDSInfo | None = None
+    warnings: list[str] = field(default_factory=list)
 
     # -- Factory -----------------------------------------------------------
 
@@ -92,6 +93,7 @@ class ReportData:
         # Time series - optional
         ts_raw = TimeSeriesData(time=[])
         ts_data = TimeSeriesData(time=[])
+        warnings: list[str] = []
         try:
             log.info("Loading quasi-dynamic time series …")
             elmres = reader.load_elmres()
@@ -100,6 +102,7 @@ class ReportData:
             elmres.Release()
         except Exception as exc:
             log.warning("Time series not available: %s", exc)
+            warnings.append(f"Time series not available: {exc}")
 
         return cls(
             info=info,
@@ -112,4 +115,5 @@ class ReportData:
             overall=overall,
             ts_data=ts_data,
             ts_raw=ts_raw,
+            warnings=warnings,
         )

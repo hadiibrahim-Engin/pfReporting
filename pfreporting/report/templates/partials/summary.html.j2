@@ -5,6 +5,16 @@
     </div>
     <div class="section-body">
         <p>{{ overall.summary_text | safe }}</p>
+        {% if warnings %}
+        <div class="report-warnings">
+            <strong>Warnings:</strong>
+            <ul>
+            {% for w in warnings %}
+                <li>{{ w }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <div class="kpi-row">
             <div class="kpi">
                 <div class="kpi-value">{{ overall.total_nodes }}</div>

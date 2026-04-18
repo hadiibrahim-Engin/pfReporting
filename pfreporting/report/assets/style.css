@@ -172,6 +172,20 @@ h2 {
     line-height: 1.7;
 }
 
+.report-warnings {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn);
+    color: var(--gray-800);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.report-warnings ul {
+    margin: 6px 0 0 16px;
+}
+
 .kpi-row {
     display: flex;
     gap: 16px;

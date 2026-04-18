@@ -117,6 +117,11 @@ class MockReport:
         return self.tables[table]["fields"]
 
 
+class MockReportNoFieldNames(MockReport):
+    def GetFieldNames(self, table: str) -> list[str]:
+        raise AttributeError("GetFieldNames not available")
+
+
 # -- Fixtures -------------------------------------------------------------------
 
 @pytest.fixture
@@ -184,6 +189,16 @@ def test_read_all_unit_from_meta(config, populated_report):
     section = ts_data.sections[vr.chart_id]
     for ts in section.values():
         assert ts.unit != ""
+
+
+def test_read_all_meta_fallback_when_fieldnames_missing(config):
+    report = MockReportNoFieldNames()
+    writer = PFTableWriter(MockApp(), config)
+    writer.write_all(report, MockElmRes(), clear_existing=True)
+    reader = PFTableReader(MockApp(), config)
+    ts_data = reader.read_all(report)
+    vr = config.visualizations[0]
+    assert vr.chart_id in ts_data.sections
 
 
 # -- Round-trip: write then read -----------------------------------------------

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import logging
 from collections import defaultdict
 from importlib import resources
@@ -101,6 +102,7 @@ class HTMLReportGenerator:
                 n1=data.n1,
                 ts_data=data.ts_data,
                 viz_requests=self.config.visualizations,
+                warnings=data.warnings,
                 heatmap_data=heatmap_data,
                 thermal_hm_data=thermal_hm,
                 voltage_hm_data=voltage_hm,
@@ -146,10 +148,10 @@ class HTMLReportGenerator:
             return []
 
         result: list[dict] = []
-        time_labels = [
-                float(t) if isinstance(t, float) else t
-            for t in data.ts_data.time
-        ]
+        time_labels = [float(t) if isinstance(t, float) else t for t in data.ts_data.time]
+        sample_idx = self._downsample_indices(time_labels, self.config.report.max_points)
+        if sample_idx is not None:
+            time_labels = [time_labels[i] for i in sample_idx]
 
         for vr in self.config.visualizations:
             cid = vr.chart_id
@@ -157,16 +159,12 @@ class HTMLReportGenerator:
             if not section:
                 continue
 
-            series_list = [
-                {
-                    "name": name,
-                    "values": [
-                            float(v) if v is not None else None
-                        for v in ts.values
-                    ],
-                }
-                for name, ts in section.items()
-            ]
+            series_list = []
+            for name, ts in section.items():
+                values = [float(v) if v is not None else None for v in ts.values]
+                if sample_idx is not None:
+                    values = [values[i] if i < len(values) else None for i in sample_idx]
+                series_list.append({"name": name, "values": values})
 
             result.append({
                 "id":           f"chart-{cid}",
@@ -183,6 +181,20 @@ class HTMLReportGenerator:
             })
 
         return result
+
+    @staticmethod
+    def _downsample_indices(time_labels: list[float | str], max_points: int | None) -> list[int] | None:
+        """Return evenly spaced indices for downsampling, or None when unused."""
+        if not max_points or len(time_labels) <= max_points:
+            return None
+        count = len(time_labels)
+        step = max(1, math.floor(count / max_points))
+        idx = list(range(0, count, step))
+        if idx[-1] != count - 1:
+            idx.append(count - 1)
+        if len(idx) > max_points:
+            idx = idx[: max_points - 1] + [count - 1]
+        return idx
 
     def _build_heatmap_data(self, data: ReportData) -> dict[str, dict]:
         """Build generic heatmap payloads keyed by visualization chart id.

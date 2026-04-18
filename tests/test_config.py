@@ -77,3 +77,7 @@ class TestPFReportConfig:
         cfg = PFReportConfig.model_validate(data)
         assert cfg.voltage.lower_warning == 0.93
         assert cfg.thermal.warning_pct == 75.0
+
+    def test_invalid_log_level(self):
+        with pytest.raises(ValidationError):
+            PFReportConfig.model_validate({"report": {"log_level": "NOPE"}})

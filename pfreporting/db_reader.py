@@ -11,11 +11,17 @@ Usage:
 """
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
 from pfreporting.config import PFReportConfig, VizRequest
-from pfreporting.db_writer import _SUFFIX_UNIT, meta_table_name, table_name
+from pfreporting.db_writer import (
+    _META_COLUMNS_FIELD,
+    _SUFFIX_UNIT,
+    meta_table_name,
+    table_name,
+)
 from pfreporting.logger import get_logger
 from pfreporting.models import TimeSeries, TimeSeriesData
 
@@ -102,7 +108,7 @@ class PFTableReader:
             return None
 
         # -- Read field names -------------------------------------------
-        col_names = self._get_field_names(report, tbl_main, nrows, vr)
+        col_names = self._get_field_names(report, tbl_main, tbl_meta, nrows, vr)
         if not col_names:
             return None
 
@@ -143,7 +149,7 @@ class PFTableReader:
     # -- Determine field names ---------------------------------------------
 
     def _get_field_names(
-        self, report: Any, tbl: str, nrows: int, vr: VizRequest
+        self, report: Any, tbl: str, tbl_meta: str, nrows: int, vr: VizRequest
     ) -> list[str]:
         """
         Read available field names for one IntReport time-series table.
@@ -167,7 +173,27 @@ class PFTableReader:
         except Exception:
             pass
 
+        meta_cols = self._read_meta_columns(report, tbl_meta)
+        if meta_cols:
+            return meta_cols
+
         return self._probe_field_names(report, tbl, nrows)
+
+    def _read_meta_columns(self, report: Any, tbl_meta: str) -> list[str]:
+        """Read serialized column names from the meta table."""
+        try:
+            raw = report.GetValue(tbl_meta, _META_COLUMNS_FIELD, 0)
+        except Exception:
+            return []
+        if not raw:
+            return []
+        try:
+            cols = json.loads(raw)
+            return [
+                c for c in cols if isinstance(c, str) and c not in ("time", "time_string")
+            ]
+        except Exception:
+            return []
 
     def _probe_field_names(self, report: Any, tbl: str, nrows: int) -> list[str]:
         """

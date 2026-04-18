@@ -26,6 +26,7 @@ Usage:
 """
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -47,6 +48,7 @@ _OBJECT  = 3
 _SUFFIX_DESC       = "_desc"
 _SUFFIX_SHORT_DESC = "_short_desc"
 _SUFFIX_UNIT       = "_unit"
+_META_COLUMNS_FIELD = "__columns__"
 
 
 def table_name(chart_id: str) -> str:
@@ -339,6 +341,7 @@ class PFTableWriter:
 
         # -- Create meta table ------------------------------------------
         report.CreateTable(tbl_meta)
+        report.CreateField(tbl_meta, _META_COLUMNS_FIELD, _STRING)
         meta_records: dict[str, dict] = {}
         for col_name, col_idx, _ in columns:
             desc_l  = self._safe_get(elmres, "GetDescription", col_idx, 0) or vr.variable
@@ -366,6 +369,12 @@ class PFTableWriter:
                 ts_map[col_name].append(val)
 
         # -- Populate meta table (row 0) --------------------------------
+        report.SetValue(
+            tbl_meta,
+            _META_COLUMNS_FIELD,
+            0,
+            json.dumps([col_name for col_name, _, _ in columns]),
+        )
         for col_name, _, _ in columns:
             m = meta_records[col_name]
             report.SetValue(tbl_meta, col_name + _SUFFIX_DESC,       0, m["desc"])

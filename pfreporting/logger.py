@@ -58,6 +58,24 @@ def _configure(logger: logging.Logger) -> None:
     logger.propagate = False
 
 
+def _resolve_level(level: str | int) -> int:
+    if isinstance(level, int):
+        return level
+    name = str(level).upper()
+    if name in logging._nameToLevel:
+        return logging._nameToLevel[name]
+    raise ValueError(f"Invalid log level: {level}")
+
+
+def configure_log_level(level: str | int) -> None:
+    """Update logger and handlers to the provided level."""
+    logger = get_logger()
+    lvl = _resolve_level(level)
+    logger.setLevel(lvl)
+    for handler in logger.handlers:
+        handler.setLevel(lvl)
+
+
 def log_step_header(
     title: str,
     step: int | None = None,
@@ -130,7 +148,7 @@ class PowerFactoryLogHandler(logging.Handler):
             self.handleError(record)
 
 
-def attach_powerfactory_handler(app) -> None:
+def attach_powerfactory_handler(app, level: str | int = logging.INFO) -> None:
     """Attach PowerFactory output handler to package logger.
 
     Uses app.PrintError/PrintWarn/PrintInfo/PrintPlain based on log level.
@@ -149,5 +167,6 @@ def attach_powerfactory_handler(app) -> None:
     
     # Add only the PowerFactory handler
     pf_handler = PowerFactoryLogHandler(app)
-    pf_handler.setLevel(logging.INFO)
+    pf_handler.setLevel(_resolve_level(level))
     logger.addHandler(pf_handler)
+    logger.setLevel(_resolve_level(level))

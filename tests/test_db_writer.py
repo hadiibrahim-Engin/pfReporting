@@ -12,6 +12,7 @@ from pfreporting.db_writer import (
     _SUFFIX_DESC,
     _SUFFIX_SHORT_DESC,
     _SUFFIX_UNIT,
+    _META_COLUMNS_FIELD,
 )
 from pfreporting.models import TimeSeriesData
 
@@ -237,6 +238,14 @@ def test_write_all_meta_unit_stored(writer, report, elmres):
     tbl_meta = meta_table_name(vr.chart_id)
     unit_val = report.GetValue(tbl_meta, "Line_1" + _SUFFIX_UNIT, 0)
     assert unit_val is not None
+
+
+def test_write_all_meta_columns_stored(writer, report, elmres):
+    writer.write_all(report, elmres)
+    vr = writer._cfg.visualizations[0]
+    tbl_meta = meta_table_name(vr.chart_id)
+    col_val = report.GetValue(tbl_meta, _META_COLUMNS_FIELD, 0)
+    assert col_val is not None
 
 
 def test_write_all_tr2_section(writer, report, elmres):

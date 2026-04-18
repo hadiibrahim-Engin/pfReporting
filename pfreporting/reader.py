@@ -361,10 +361,13 @@ class PowerFactoryReader:
         if ldf is None:
             raise ReaderError("No ComLdf object found in study case")
 
-        candidates = [
-            (e, "Line") for e in self._calc_objects("*.ElmLne")
-        ] + [
-            (e, "Transformer (2W)") for e in self._calc_objects("*.ElmTr2")
+        lines = self._calc_objects("*.ElmLne")
+        tr2s = self._calc_objects("*.ElmTr2")
+        branches = lines + tr2s
+        buses = self._calc_objects("*.ElmTerm")
+
+        candidates = [(e, "Line") for e in lines] + [
+            (e, "Transformer (2W)") for e in tr2s
         ]
 
         results: list[N1Result] = []
@@ -393,7 +396,7 @@ class PowerFactoryReader:
             )
 
             if converged:
-                self._fill_n1_postcontingency(entry)
+                self._fill_n1_postcontingency(entry, branches, buses)
 
             elem.outserv = 0
             results.append(entry)
@@ -408,7 +411,12 @@ class PowerFactoryReader:
 
         return results
 
-    def _fill_n1_postcontingency(self, entry: N1Result) -> None:
+    def _fill_n1_postcontingency(
+        self,
+        entry: N1Result,
+        branches: list[Any] | None = None,
+        buses: list[Any] | None = None,
+    ) -> None:
         """Fill one contingency entry using post-contingency PF states.
 
         Args:
@@ -420,16 +428,20 @@ class PowerFactoryReader:
         """
         n1_cfg = self._cfg.n1
         max_load, max_load_elem = 0.0, "-"
-        for cls in ("*.ElmLne", "*.ElmTr2"):
-            for branch in self._calc_objects(cls):
-                loading = float(getattr(branch, "c:loading", 0) or 0)
-                if loading > max_load:
-                    max_load = loading
-                    max_load_elem = self._loc_name(branch)
+        if branches is None:
+            branches = self._calc_objects("*.ElmLne") + self._calc_objects("*.ElmTr2")
+        if buses is None:
+            buses = self._calc_objects("*.ElmTerm")
+
+        for branch in branches:
+            loading = float(getattr(branch, "c:loading", 0) or 0)
+            if loading > max_load:
+                max_load = loading
+                max_load_elem = self._loc_name(branch)
 
         min_v, min_v_node = 1.0, "-"
         max_v, max_v_node = 0.0, "-"
-        for bus in self._calc_objects("*.ElmTerm"):
+        for bus in buses:
             u = getattr(bus, "m:u", None)
             if u is None:
                 continue
