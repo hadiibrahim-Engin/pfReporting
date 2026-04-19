@@ -142,11 +142,22 @@ class PowerFactoryLogHandler(logging.Handler):
                 self._app.PrintInfo(msg)
             else:
                 self._app.PrintPlain(msg)
-        except RuntimeError:
-            # PowerFactory COM object was deleted between runs — silently discard.
-            pass
         except Exception:
-            self.handleError(record)
+            # Silently discard — PF COM object may have been deleted between runs.
+            pass
+
+
+def release_powerfactory_handler() -> None:
+    """Remove PowerFactoryLogHandler instances to drop stale app COM references.
+
+    Must be called at the very start of main(), BEFORE gc.collect(), so that
+    the old app COM wrapper has no live Python references when PowerFactory's
+    runtime invalidates it — preventing "Application deleted" on repeated runs.
+    """
+    logger = logging.getLogger("pfreporting")
+    for handler in logger.handlers[:]:
+        if isinstance(handler, PowerFactoryLogHandler):
+            logger.removeHandler(handler)
 
 
 def attach_powerfactory_handler(app, level: str | int = logging.INFO) -> None:

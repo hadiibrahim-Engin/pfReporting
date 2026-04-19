@@ -234,14 +234,16 @@ def _find_intreport_for_script(app, script, preferred_name=None):
 # ============================================================================
 
 def main():
-    # Force Python to release any stale COM wrappers from the previous run before
-    # PowerFactory's internal cleanup runs.  Without this, the old app reference
-    # held by the logging handler (and any other cached objects) is still alive when
-    # PF invalidates it, which triggers "already deleted" on the second run.
+    # Step 1: drop the old PowerFactoryLogHandler so its _app reference is freed.
+    # gc.collect() cannot release an old COM wrapper while the handler still holds it.
+    from pfreporting.logger import release_powerfactory_handler
+    release_powerfactory_handler()
+
+    # Step 2: now gc can actually collect the old app COM wrapper.
     import gc
     gc.collect()
 
-    # Fresh reference every time — avoids "already deleted" on repeated runs
+    # Step 3: fresh reference every time — avoids "already deleted" on repeated runs.
     app    = powerfactory.GetApplication()
     script = app.GetCurrentScript()
 
