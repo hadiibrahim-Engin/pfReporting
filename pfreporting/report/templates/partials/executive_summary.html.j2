@@ -18,6 +18,7 @@
 <section class="exec-summary" id="sec-exec-summary">
     <div class="exec-grid">
         <div class="exec-card exec-card-violation">
+            <div class="exec-icon">⚡</div>
             <div class="exec-title">Spannungsverletzungen</div>
             <div class="exec-value-row">
                 <span class="exec-value">{{ v_viol }}</span>
@@ -27,10 +28,10 @@
                 <div class="bar bar-violation" style="width:{{ v_viol_pct_c | round(2) }}%"></div>
                 <span class="bar-label">{{ "%.1f"|format(v_viol_pct) }}%</span>
             </div>
-            <div class="exec-trend exec-trend-up">↑ 0.0% vs. letzter Lauf</div>
         </div>
 
         <div class="exec-card exec-card-warning">
+            <div class="exec-icon">⚡</div>
             <div class="exec-title">Spannungswarnungen</div>
             <div class="exec-value-row">
                 <span class="exec-value">{{ v_warn }}</span>
@@ -40,10 +41,10 @@
                 <div class="bar bar-warning" style="width:{{ v_warn_pct_c | round(2) }}%"></div>
                 <span class="bar-label">{{ "%.1f"|format(v_warn_pct) }}%</span>
             </div>
-            <div class="exec-trend exec-trend-down">↓ 0.0% vs. letzter Lauf</div>
         </div>
 
         <div class="exec-card exec-card-violation">
+            <div class="exec-icon">🔥</div>
             <div class="exec-title">Thermische Verletzungen</div>
             <div class="exec-value-row">
                 <span class="exec-value">{{ t_viol }}</span>
@@ -53,10 +54,10 @@
                 <div class="bar bar-violation" style="width:{{ t_viol_pct_c | round(2) }}%"></div>
                 <span class="bar-label">{{ "%.1f"|format(t_viol_pct) }}%</span>
             </div>
-            <div class="exec-trend exec-trend-up">↑ 0.0% vs. letzter Lauf</div>
         </div>
 
         <div class="exec-card exec-card-warning">
+            <div class="exec-icon">🔥</div>
             <div class="exec-title">Thermische Warnungen</div>
             <div class="exec-value-row">
                 <span class="exec-value">{{ t_warn }}</span>
@@ -66,7 +67,6 @@
                 <div class="bar bar-warning" style="width:{{ t_warn_pct_c | round(2) }}%"></div>
                 <span class="bar-label">{{ "%.1f"|format(t_warn_pct) }}%</span>
             </div>
-            <div class="exec-trend exec-trend-down">↓ 0.0% vs. letzter Lauf</div>
         </div>
     </div>
 </section>

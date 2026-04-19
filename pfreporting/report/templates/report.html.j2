@@ -10,7 +10,22 @@
 <div class="report">
 
     {% include 'partials/header.html.j2' %}
+    {% include 'partials/overview_board.html.j2' %}
     {% include 'partials/executive_summary.html.j2' %}
+    {% include 'partials/ampel.html.j2' %}
+
+    <!-- Global Search -->
+    <div class="search-bar">
+        <label for="global-search">Search:</label>
+        <input type="text" id="global-search" placeholder="Node name, element …" autocomplete="off">
+        <span id="search-count"></span>
+    </div>
+
+    {% include 'partials/switched.html.j2' %}
+    {% include 'partials/n1.html.j2' %}
+    {% include 'partials/loadflow.html.j2' %}
+    {% include 'partials/statistics.html.j2' %}
+    {% include 'partials/qds_info.html.j2' %}
 
     {% set v_total = voltage | length %}
     {% set t_total = loading | length %}
@@ -21,59 +36,48 @@
         {% endfor %}
     {% endif %}
 
+    {% set has_tabs = calc_options.run_voltage or calc_options.run_thermal or (calc_options.run_qds and ts_data and not ts_data.is_empty()) %}
+    {% set first_tab = 'tab-voltage' if calc_options.run_voltage else ('tab-thermal' if calc_options.run_thermal else 'tab-qds') %}
+    {% if has_tabs %}
     <div class="glass-tabs" role="tablist" aria-label="Report Tabs">
-        <button class="glass-tab active" type="button" data-tab="tab-voltage" role="tab" aria-selected="true">
+        {% if calc_options.run_voltage %}
+        <button class="glass-tab {% if first_tab == 'tab-voltage' %}active{% endif %}" type="button" data-tab="tab-voltage" role="tab" aria-selected="{% if first_tab == 'tab-voltage' %}true{% else %}false{% endif %}">
             Spannungsbandprüfung
             <span class="tab-count">{{ v_total }}</span>
         </button>
-        <button class="glass-tab" type="button" data-tab="tab-thermal" role="tab" aria-selected="false">
+        {% endif %}
+        {% if calc_options.run_thermal %}
+        <button class="glass-tab {% if first_tab == 'tab-thermal' %}active{% endif %}" type="button" data-tab="tab-thermal" role="tab" aria-selected="{% if first_tab == 'tab-thermal' %}true{% else %}false{% endif %}">
             Thermische Auslastung
             <span class="tab-count">{{ t_total }}</span>
         </button>
+        {% endif %}
         {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
-        <button class="glass-tab" type="button" data-tab="tab-qds" role="tab" aria-selected="false">
+        <button class="glass-tab {% if first_tab == 'tab-qds' %}active{% endif %}" type="button" data-tab="tab-qds" role="tab" aria-selected="{% if first_tab == 'tab-qds' %}true{% else %}false{% endif %}">
             Quasi-Dynamik – nur kritisch
             <span class="tab-count">{{ ns.qds_series }}</span>
-        </button>
-        {% else %}
-        <button class="glass-tab disabled" type="button" role="tab" aria-selected="false" disabled>
-            Quasi-Dynamik – nur kritisch
-            <span class="tab-count">0</span>
         </button>
         {% endif %}
     </div>
 
     <div class="tab-panels">
-        <div class="tab-panel active" data-tab="tab-voltage" role="tabpanel">
+        {% if calc_options.run_voltage %}
+        <div class="tab-panel {% if first_tab == 'tab-voltage' %}active{% endif %}" data-tab="tab-voltage" role="tabpanel">
             {% include 'partials/voltage.html.j2' %}
         </div>
-        <div class="tab-panel" data-tab="tab-thermal" role="tabpanel">
+        {% endif %}
+        {% if calc_options.run_thermal %}
+        <div class="tab-panel {% if first_tab == 'tab-thermal' %}active{% endif %}" data-tab="tab-thermal" role="tabpanel">
             {% include 'partials/thermal.html.j2' %}
         </div>
+        {% endif %}
         {% if calc_options.run_qds and ts_data and not ts_data.is_empty() %}
-        <div class="tab-panel" data-tab="tab-qds" role="tabpanel">
+        <div class="tab-panel {% if first_tab == 'tab-qds' %}active{% endif %}" data-tab="tab-qds" role="tabpanel">
             {% include 'partials/timeseries.html.j2' %}
         </div>
         {% endif %}
     </div>
-
-    {% include 'partials/ampel.html.j2' %}
-
-    <!-- Global Search -->
-    <div class="search-bar">
-        <label for="global-search">Search:</label>
-        <input type="text" id="global-search" placeholder="Node name, element …" autocomplete="off">
-        <span id="search-count"></span>
-    </div>
-
-    {% include 'partials/summary.html.j2' %}
-    {% include 'partials/calc_params.html.j2' %}
-    {% include 'partials/qds_info.html.j2' %}
-    {% include 'partials/switched.html.j2' %}
-    {% include 'partials/loadflow.html.j2' %}
-    {% include 'partials/n1.html.j2' %}
-
-    {% include 'partials/statistics.html.j2' %}
+    {% endif %}
     {% include 'partials/footer.html.j2' %}
 
 </div>

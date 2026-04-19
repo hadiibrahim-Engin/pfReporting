@@ -5,139 +5,110 @@
     </div>
     <div class="section-body">
 
-        <!-- Status summary bars -->
-        <div class="stat-grid">
-
-            {% macro stacked(title, counts) %}
-            {% set total = counts.ok + counts.warning + counts.violation %}
-            {% if total > 0 %}
-            <div class="stat-item">
-                <div class="stat-title">{{ title }}</div>
-                <div class="stacked-bar">
-                    {% if counts.ok > 0 %}
-                    <div class="sb-ok" style="width:{{ (counts.ok / total * 100) | round(2) }}%">{{ counts.ok }}</div>
-                    {% endif %}
-                    {% if counts.warning > 0 %}
-                    <div class="sb-warn" style="width:{{ (counts.warning / total * 100) | round(2) }}%">{{ counts.warning }}</div>
-                    {% endif %}
-                    {% if counts.violation > 0 %}
-                    <div class="sb-verl" style="width:{{ (counts.violation / total * 100) | round(2) }}%">{{ counts.violation }}</div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-            {% endmacro %}
+        <div class="stats-overview-grid">
 
             {% if calc_options.run_voltage %}
-            {{ stacked('Voltage Band', overall.counts.voltage) }}
+            {% set v_total = voltage | length %}
+            {% set v_viol = voltage | selectattr('status', 'eq', 'violation') | list | length %}
+            {% set v_warn = voltage | selectattr('status', 'eq', 'warning') | list | length %}
+            {% set v_vals = voltage | map(attribute='u_pu') | list %}
+            {% set v_min = v_vals | min if v_vals else none %}
+            {% set v_max = v_vals | max if v_vals else none %}
+            {% set v_avg = (v_vals | sum / v_total) if v_total > 0 else none %}
+            {% set v_worst = voltage | min(attribute='u_pu') if v_total > 0 else none %}
+            <div class="stats-card">
+                <div class="stats-card-title">Voltage Band</div>
+                <div class="stats-metric-row"><span>Nodes</span><span class="num">{{ v_total }}</span></div>
+                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ v_viol }}</span></div>
+                <div class="stats-metric-row"><span>Warnings</span><span class="badge-warning">{{ v_warn }}</span></div>
+                {% if v_min is not none %}
+                <div class="stats-metric-row">
+                    <span>Min / Avg / Max</span>
+                    <span class="num">{{ "%.4f"|format(v_min) }} / {{ "%.4f"|format(v_avg) }} / {{ "%.4f"|format(v_max) }} p.u.</span>
+                </div>
+                {% endif %}
+                {% if v_worst %}
+                <div class="stats-note">Worst node: <strong>{{ v_worst.node }}</strong> ({{ "%.4f"|format(v_worst.u_pu) }} p.u.)</div>
+                {% endif %}
+            </div>
             {% endif %}
+
             {% if calc_options.run_thermal %}
-            {{ stacked('Thermal Loading', overall.counts.thermal) }}
+            {% set t_total = loading | length %}
+            {% set t_viol = loading | selectattr('status', 'eq', 'violation') | list | length %}
+            {% set t_warn = loading | selectattr('status', 'eq', 'warning') | list | length %}
+            {% set t_vals = loading | map(attribute='loading_pct') | list %}
+            {% set t_min = t_vals | min if t_vals else none %}
+            {% set t_max = t_vals | max if t_vals else none %}
+            {% set t_avg = (t_vals | sum / t_total) if t_total > 0 else none %}
+            {% set t_worst = loading | max(attribute='loading_pct') if t_total > 0 else none %}
+            <div class="stats-card">
+                <div class="stats-card-title">Thermal Loading</div>
+                <div class="stats-metric-row"><span>Elements</span><span class="num">{{ t_total }}</span></div>
+                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ t_viol }}</span></div>
+                <div class="stats-metric-row"><span>Warnings</span><span class="badge-warning">{{ t_warn }}</span></div>
+                {% if t_min is not none %}
+                <div class="stats-metric-row">
+                    <span>Min / Avg / Max</span>
+                    <span class="num">{{ "%.1f"|format(t_min) }} / {{ "%.1f"|format(t_avg) }} / {{ "%.1f"|format(t_max) }} %</span>
+                </div>
+                {% endif %}
+                {% if t_worst %}
+                <div class="stats-note">Worst element: <strong>{{ t_worst.name }}</strong> ({{ "%.1f"|format(t_worst.loading_pct) }}%)</div>
+                {% endif %}
+            </div>
             {% endif %}
+
             {% if calc_options.run_n1 %}
-            {{ stacked('(N-1) Security', overall.counts.n1) }}
-            {% endif %}
-
-        </div>
-        <div class="legend">
-            <span class="leg-ok">&#9632; OK</span>
-            <span class="leg-warn">&#9632; Warning</span>
-            <span class="leg-verl">&#9632; Violation</span>
-        </div>
-
-        <!-- Detailed distribution tables -->
-        <div class="stats-detail-grid">
-
-            {% if calc_options.run_voltage and stats.volt_buckets %}
-            <div class="stats-detail-card">
-                <div class="stats-detail-title">Voltage Distribution</div>
-                <table class="compact-table">
-                    <thead><tr><th>Range [p.u.]</th><th class="num">Buses</th><th class="num">Share</th></tr></thead>
-                    <tbody>
-                    {% set volt_total = stats.volt_buckets.values() | sum %}
-                    {% for label, count in stats.volt_buckets.items() %}
-                    <tr class="{% if label in ('<0.90', '>1.10') and count > 0 %}row-violation{% elif label in ('0.90-0.95', '1.05-1.10') and count > 0 %}row-warning{% endif %}">
-                        <td>{{ label }}</td>
-                        <td class="num">{{ count }}</td>
-                        <td class="num">{% if volt_total > 0 %}{{ "%.1f"|format(count / volt_total * 100) }}%{% else %}-{% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% if stats.volt_worst %}
-                <div class="stats-worst">Worst: <strong>{{ stats.volt_worst.node }}</strong> {{ "%.4f"|format(stats.volt_worst.u_pu) }} p.u.</div>
+            {% set n1_total = n1 | length %}
+            {% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
+            {% set n1_conv = n1 | selectattr('converged', 'eq', true) | list | length %}
+            {% set n1_rate = (n1_conv / n1_total * 100) if n1_total > 0 else none %}
+            {% set n1_worst_load = n1 | max(attribute='max_loading_pct') if n1_total > 0 else none %}
+            {% set n1_worst_minv = n1 | min(attribute='min_voltage_pu') if n1_total > 0 else none %}
+            <div class="stats-card">
+                <div class="stats-card-title">(N-1) Contingency</div>
+                <div class="stats-metric-row"><span>Cases</span><span class="num">{{ n1_total }}</span></div>
+                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ n1_viol }}</span></div>
+                {% if n1_rate is not none %}
+                <div class="stats-metric-row"><span>Convergence</span><span class="num">{{ "%.1f"|format(n1_rate) }}%</span></div>
                 {% endif %}
-            </div>
-            {% endif %}
-
-            {% if calc_options.run_thermal and stats.load_buckets %}
-            <div class="stats-detail-card">
-                <div class="stats-detail-title">Loading Distribution</div>
-                <table class="compact-table">
-                    <thead><tr><th>Range</th><th class="num">Elements</th><th class="num">Share</th></tr></thead>
-                    <tbody>
-                    {% set load_total = stats.load_buckets.values() | sum %}
-                    {% for label, count in stats.load_buckets.items() %}
-                    <tr class="{% if label == '>100%' and count > 0 %}row-violation{% elif label == '80-100%' and count > 0 %}row-warning{% endif %}">
-                        <td>{{ label }}</td>
-                        <td class="num">{{ count }}</td>
-                        <td class="num">{% if load_total > 0 %}{{ "%.1f"|format(count / load_total * 100) }}%{% else %}-{% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% if stats.load_worst %}
-                <div class="stats-worst">Worst: <strong>{{ stats.load_worst.name }}</strong> {{ "%.1f"|format(stats.load_worst.loading_pct) }}%</div>
+                {% if n1_worst_load %}
+                <div class="stats-note">Worst loading: <strong>{{ n1_worst_load.outage_element }}</strong> ({{ "%.1f"|format(n1_worst_load.max_loading_pct) }}%)</div>
                 {% endif %}
-            </div>
-            {% endif %}
-
-            {% if calc_options.run_n1 and stats.n1_total > 0 %}
-            <div class="stats-detail-card">
-                <div class="stats-detail-title">N-1 Summary</div>
-                <table class="compact-table">
-                    <thead><tr><th>Metric</th><th class="num">Value</th></tr></thead>
-                    <tbody>
-                    <tr><td>Contingencies checked</td><td class="num">{{ stats.n1_total }}</td></tr>
-                    <tr class="{% if stats.n1_violated > 0 %}row-violation{% endif %}">
-                        <td>Violations</td>
-                        <td class="num">{{ stats.n1_violated }}</td>
-                    </tr>
-                    {% if stats.worst_n1 %}
-                    <tr>
-                        <td>Worst outage</td>
-                        <td class="num" style="font-size:11px;">{{ stats.worst_n1.outage_element }}</td>
-                    </tr>
-                    <tr>
-                        <td>→ Max. loading</td>
-                        <td class="num">{{ "%.1f"|format(stats.worst_n1.max_loading_pct) }}%</td>
-                    </tr>
-                    {% endif %}
-                    </tbody>
-                </table>
+                {% if n1_worst_minv %}
+                <div class="stats-note">Lowest voltage: <strong>{{ n1_worst_minv.min_voltage_node }}</strong> ({{ "%.4f"|format(n1_worst_minv.min_voltage_pu) }} p.u.)</div>
+                {% endif %}
             </div>
             {% endif %}
 
             {% if calc_options.run_loadflow %}
-            <div class="stats-detail-card">
-                <div class="stats-detail-title">Power Balance</div>
-                <table class="compact-table">
-                    <thead><tr><th>Quantity</th><th class="num">MW</th><th class="num">Mvar</th></tr></thead>
-                    <tbody>
-                    <tr><td>Generation</td>
-                        <td class="num">{{ "%.2f"|format(stats.power_balance.gen_mw) }}</td>
-                        <td class="num">{{ "%.2f"|format(stats.power_balance.gen_mvar) }}</td>
-                    </tr>
-                    <tr><td>Load</td>
-                        <td class="num">{{ "%.2f"|format(stats.power_balance.load_mw) }}</td>
-                        <td class="num">{{ "%.2f"|format(stats.power_balance.load_mvar) }}</td>
-                    </tr>
-                    <tr><td>Losses</td>
-                        <td class="num">{{ "%.2f"|format(stats.power_balance.losses_mw) }}</td>
-                        <td class="num">-</td>
-                    </tr>
-                    </tbody>
-                </table>
+            {% set loss_pct = (lf.losses_mw / lf.total_gen_mw * 100) if lf.total_gen_mw > 0 else none %}
+            <div class="stats-card">
+                <div class="stats-card-title">Load Flow</div>
+                <div class="stats-metric-row"><span>Status</span><span class="num">{{ lf.status_text }}</span></div>
+                <div class="stats-metric-row"><span>Iterations</span><span class="num">{{ lf.iterations }}</span></div>
+                <div class="stats-metric-row"><span>Load / Gen</span><span class="num">{{ "%.2f"|format(lf.total_load_mw) }} / {{ "%.2f"|format(lf.total_gen_mw) }} MW</span></div>
+                {% if loss_pct is not none %}
+                <div class="stats-metric-row"><span>Losses</span><span class="num">{{ "%.2f"|format(lf.losses_mw) }} MW ({{ "%.2f"|format(loss_pct) }}%)</span></div>
+                {% endif %}
+                {% if lf.load_power_factor is not none %}
+                <div class="stats-note">Load PF: <strong>{{ "%.3f"|format(lf.load_power_factor) }}</strong> · Gen PF: <strong>{{ "%.3f"|format(lf.gen_power_factor) }}</strong></div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if calc_options.run_qds and lf.qds_steps %}
+            {% set qds_total = lf.qds_steps | length %}
+            {% set qds_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+            {% set qds_rate = ((qds_total - qds_fail) / qds_total * 100) if qds_total > 0 else none %}
+            <div class="stats-card">
+                <div class="stats-card-title">Quasi-Dynamic</div>
+                <div class="stats-metric-row"><span>Time Steps</span><span class="num">{{ qds_total }}</span></div>
+                <div class="stats-metric-row"><span>Not Converged</span><span class="badge-violation">{{ qds_fail }}</span></div>
+                {% if qds_rate is not none %}
+                <div class="stats-metric-row"><span>Convergence</span><span class="num">{{ "%.1f"|format(qds_rate) }}%</span></div>
+                {% endif %}
             </div>
             {% endif %}
 

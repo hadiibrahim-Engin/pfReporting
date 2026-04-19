@@ -61,6 +61,18 @@
     /* ----------------------------------------------------------
        Filter: Only anomalies
     ---------------------------------------------------------- */
+    function applyIssueFilter(tbody, active) {
+        tbody.querySelectorAll('tr').forEach(function (row) {
+            if (active) {
+                var hasIssue = row.querySelector('.badge-violation, .badge-warning');
+                row.dataset.filterHidden = hasIssue ? '0' : '1';
+            } else {
+                row.dataset.filterHidden = '0';
+            }
+        });
+        applyVisibility(tbody);
+    }
+
     document.querySelectorAll('.filter-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var section = btn.closest('section');
@@ -70,35 +82,22 @@
             var labelDefault = btn.dataset.labelDefault || 'Only anomalies';
             var labelActive = btn.dataset.labelActive || 'Show all';
             var active = btn.classList.toggle('active');
-            tbody.querySelectorAll('tr').forEach(function (row) {
-                if (active) {
-                    var hasIssue = row.querySelector('.badge-violation, .badge-warning');
-                    row.dataset.filterHidden = hasIssue ? '0' : '1';
-                } else {
-                    row.dataset.filterHidden = '0';
-                }
-            });
+            applyIssueFilter(tbody, active);
             btn.textContent = active ? labelActive : labelDefault;
-            applyVisibility(tbody);
         });
     });
 
     document.querySelectorAll('.filter-toggle').forEach(function (cb) {
+        var section = cb.closest('section');
+        var tbody = section ? section.querySelector('table tbody') : null;
+        if (tbody) {
+            applyIssueFilter(tbody, cb.checked);
+        }
         cb.addEventListener('change', function () {
             var section = cb.closest('section');
             var tbody   = section.querySelector('table tbody');
             if (!tbody) return;
-
-            var active = cb.checked;
-            tbody.querySelectorAll('tr').forEach(function (row) {
-                if (active) {
-                    var hasIssue = row.querySelector('.badge-violation, .badge-warning');
-                    row.dataset.filterHidden = hasIssue ? '0' : '1';
-                } else {
-                    row.dataset.filterHidden = '0';
-                }
-            });
-            applyVisibility(tbody);
+            applyIssueFilter(tbody, cb.checked);
         });
     });
 
@@ -192,6 +191,9 @@
                 panel.classList.add('fade-in');
             }
         });
+        if (targetId === 'tab-qds' && typeof initCharts === 'function') {
+            initCharts();
+        }
     }
 
     tabButtons.forEach(function (btn) {
