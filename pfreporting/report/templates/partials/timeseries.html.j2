@@ -26,10 +26,8 @@
                 <span class="text-xs font-normal text-slate-400 ml-2">[{{ viz.unit }}] &mdash; {{ ts_data.sections[cid] | length }} elements</span>
             </h3>
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <div class="chart-wrapper">
-                    <canvas id="chart-{{ cid }}"></canvas>
-                </div>
-                <p class="text-xs text-slate-400 mt-2 text-right">Mouse wheel: Zoom &middot; Drag: Pan &middot; Double-click: Reset</p>
+                <div id="chart-{{ cid }}" class="chart-wrapper"></div>
+                <p class="text-xs text-slate-400 mt-2 text-right">Scroll: Zoom &middot; Drag: Pan &middot; Double-click: Reset</p>
             </div>
         </div>
 

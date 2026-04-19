@@ -373,16 +373,14 @@
     }
 
     /* ----------------------------------------------------------
-       Chart.js — initialization from window.__chartData
+       ECharts — initialization from window.__chartData
     ---------------------------------------------------------- */
+    var _echartsInstances = [];
+
     function initCharts() {
         if (window.__chartsInitialized) return;
-        if (typeof Chart === 'undefined' || !window.__chartData) return;
+        if (typeof echarts === 'undefined' || !window.__chartData) return;
         window.__chartsInitialized = true;
-
-        if (typeof ChartZoom !== 'undefined') {
-            Chart.register(ChartZoom);
-        }
 
         var COLORS = [
             '#2563eb', '#dc2626', '#d97706', '#16a34a', '#7c3aed',
@@ -390,131 +388,142 @@
             '#b91c1c', '#b45309', '#166534', '#6d28d9', '#0e7490',
         ];
 
-        function getColor(index) { return COLORS[index % COLORS.length]; }
-
-        var commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { boxWidth: 12, font: { size: 11 } },
-                    onClick: function (e, legendItem, legend) {
-                        var index = legendItem.datasetIndex;
-                        var meta  = legend.chart.getDatasetMeta(index);
-                        meta.hidden = !meta.hidden;
-                        legend.chart.update();
-                    },
-                },
-                zoom: {
-                    zoom:  { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
-                    pan:   { enabled: true, mode: 'x' },
-                },
-            },
-            elements: {
-                point: { radius: 0, hoverRadius: 4 },
-                line:  { tension: 0.2, borderWidth: 1.5 },
-            },
-        };
-
         window.__chartData.forEach(function (cfg) {
-            var canvas = document.getElementById(cfg.id);
-            if (!canvas) return;
+            var div = document.getElementById(cfg.id);
+            if (!div) return;
 
-            var datasets = cfg.series.map(function (s, i) {
-                return {
-                    label: s.name,
-                    data: s.values,
-                    borderColor: getColor(i),
-                    backgroundColor: getColor(i) + '22',
-                    fill: false,
-                };
-            });
-
-            var annotations = [];
-            if (cfg.warn_hi != null) {
-                annotations.push({
-                    type: 'line', yMin: cfg.warn_hi, yMax: cfg.warn_hi,
-                    borderColor: '#d97706', borderWidth: 1.5, borderDash: [4, 4],
-                    label: { content: 'Warning ' + cfg.warn_hi + ' ' + cfg.unit, display: true, position: 'end', color: '#d97706', font: { size: 10 } },
-                });
-            }
-            if (cfg.violation_hi != null) {
-                annotations.push({
-                    type: 'line', yMin: cfg.violation_hi, yMax: cfg.violation_hi,
-                    borderColor: '#dc2626', borderWidth: 1.5, borderDash: [4, 4],
-                    label: { content: 'Violation ' + cfg.violation_hi + ' ' + cfg.unit, display: true, position: 'end', color: '#dc2626', font: { size: 10 } },
-                });
-            }
+            var nPoints = cfg.time ? cfg.time.length : 0;
+            var useLarge = nPoints > 2000;
 
             var valuePrecision = Number.isInteger(cfg.value_precision)
                 ? cfg.value_precision
                 : (cfg.variable === 'c:loading' ? 8 : 4);
 
-            var options = JSON.parse(JSON.stringify(commonOptions));
-            options.scales = {
-                x: {
-                    title: { display: true, text: 'Time [h]', font: { size: 11 } },
-                    ticks: { maxTicksLimit: 12, font: { size: 10 } },
-                },
-                y: {
-                    title: { display: true, text: cfg.unit, font: { size: 11 } },
-                    ticks: {
-                        font: { size: 10 },
-                        callback: function (value) {
-                            if (value == null || Number.isNaN(Number(value))) return value;
-                            return Number(value).toFixed(valuePrecision);
-                        },
-                    },
-                },
-            };
-            if (annotations.length > 0 && typeof Chart.registry.plugins.get('annotation') !== 'undefined') {
-                options.plugins.annotation = { annotations: annotations };
-            }
-
-            options.plugins.tooltip = {
-                callbacks: {
-                    label: function (context) {
-                        var dsLabel = context.dataset && context.dataset.label ? context.dataset.label + ': ' : '';
-                        var val = context.parsed ? context.parsed.y : null;
-                        if (val == null || Number.isNaN(val)) return dsLabel + 'n/a';
-                        return dsLabel + Number(val).toFixed(valuePrecision) + ' ' + cfg.unit;
-                    },
-                },
-            };
-
-            /* Re-attach legend onClick after deep-clone */
-            options.plugins.legend.onClick = commonOptions.plugins.legend.onClick;
-
-            var chart = new Chart(canvas, {
-                type: 'line',
-                data: { labels: cfg.time, datasets: datasets },
-                options: options,
+            /* Build series */
+            var series = cfg.series.map(function (s, i) {
+                var data = [];
+                for (var k = 0; k < (cfg.time || []).length; k++) {
+                    data.push([cfg.time[k], s.values[k] == null ? null : s.values[k]]);
+                }
+                return {
+                    name: s.name,
+                    type: 'line',
+                    data: data,
+                    large: useLarge,
+                    largeThreshold: 2000,
+                    symbol: 'none',
+                    lineStyle: { width: 1.5, color: COLORS[i % COLORS.length] },
+                    itemStyle: { color: COLORS[i % COLORS.length] },
+                    connectNulls: false,
+                };
             });
 
-            /* Add "Hide all / Show all" button above chart */
-            var card = canvas.closest('.bg-slate-50, .chart-wrapper');
-            var cardParent = card ? card.parentElement : null;
+            /* Threshold mark lines */
+            var markLineData = [];
+            if (cfg.warn_hi != null) {
+                markLineData.push({
+                    yAxis: cfg.warn_hi,
+                    name: 'Warning ' + cfg.warn_hi + ' ' + cfg.unit,
+                    lineStyle: { color: '#d97706', type: 'dashed', width: 1.5 },
+                    label: { formatter: 'Warn {c}', position: 'insideEndTop', color: '#d97706', fontSize: 10 },
+                });
+            }
+            if (cfg.violation_hi != null) {
+                markLineData.push({
+                    yAxis: cfg.violation_hi,
+                    name: 'Violation ' + cfg.violation_hi + ' ' + cfg.unit,
+                    lineStyle: { color: '#dc2626', type: 'dashed', width: 1.5 },
+                    label: { formatter: 'Viol {c}', position: 'insideEndTop', color: '#dc2626', fontSize: 10 },
+                });
+            }
+            if (markLineData.length > 0 && series.length > 0) {
+                series[0].markLine = { silent: true, data: markLineData, symbol: 'none' };
+            }
+
+            var option = {
+                animation: false,
+                grid: { left: 60, right: 20, top: 30, bottom: 80 },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        var t = params[0] ? Number(params[0].value[0]).toFixed(4) + ' h' : '';
+                        var lines = params.map(function (p) {
+                            var val = p.value[1];
+                            var vStr = val == null ? 'n/a' : Number(val).toFixed(valuePrecision) + ' ' + cfg.unit;
+                            return p.marker + ' ' + p.seriesName + ': <b>' + vStr + '</b>';
+                        });
+                        return t + '<br>' + lines.join('<br>');
+                    },
+                },
+                legend: {
+                    bottom: 30,
+                    type: 'scroll',
+                    textStyle: { fontSize: 11 },
+                },
+                dataZoom: [
+                    { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
+                    { type: 'slider', xAxisIndex: 0, bottom: 4, height: 20, filterMode: 'none' },
+                ],
+                xAxis: {
+                    type: 'value',
+                    name: 'Time [h]',
+                    nameLocation: 'middle',
+                    nameGap: 28,
+                    nameTextStyle: { fontSize: 11 },
+                    axisLabel: { fontSize: 10, formatter: function (v) { return Number(v).toFixed(2); } },
+                    min: 'dataMin',
+                    max: 'dataMax',
+                },
+                yAxis: {
+                    type: 'value',
+                    name: cfg.unit,
+                    nameLocation: 'middle',
+                    nameGap: 45,
+                    nameTextStyle: { fontSize: 11 },
+                    axisLabel: {
+                        fontSize: 10,
+                        formatter: function (v) { return Number(v).toFixed(valuePrecision); },
+                    },
+                },
+                series: series,
+            };
+
+            var chart = echarts.init(div, null, { renderer: 'canvas' });
+            chart.setOption(option);
+            _echartsInstances.push(chart);
+
+            /* Double-click → reset zoom */
+            chart.getZr().on('dblclick', function () {
+                chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
+            });
+
+            /* "Hide all / Show all" button */
+            var cardParent = div.parentElement;
             if (cardParent) {
                 var ctrlBar = document.createElement('div');
                 ctrlBar.className = 'flex justify-end mb-2';
                 var hideBtn = document.createElement('button');
                 hideBtn.className = 'text-xs px-3 py-1 border border-slate-200 rounded-lg text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors bg-white';
                 hideBtn.textContent = 'Hide all';
+                var allHidden = false;
                 hideBtn.addEventListener('click', function () {
-                    var allHidden = chart.data.datasets.every(function (ds, i) {
-                        return chart.getDatasetMeta(i).hidden;
+                    allHidden = !allHidden;
+                    cfg.series.forEach(function (s) {
+                        chart.dispatchAction({
+                            type: allHidden ? 'legendUnSelect' : 'legendSelect',
+                            name: s.name,
+                        });
                     });
-                    chart.data.datasets.forEach(function (ds, i) {
-                        chart.getDatasetMeta(i).hidden = !allHidden;
-                    });
-                    chart.update();
-                    hideBtn.textContent = allHidden ? 'Hide all' : 'Show all';
+                    hideBtn.textContent = allHidden ? 'Show all' : 'Hide all';
                 });
                 ctrlBar.appendChild(hideBtn);
-                cardParent.insertBefore(ctrlBar, card);
+                cardParent.insertBefore(ctrlBar, div);
             }
+        });
+
+        /* Resize all instances when window resizes */
+        window.addEventListener('resize', function () {
+            _echartsInstances.forEach(function (c) { c.resize(); });
         });
     }
 
