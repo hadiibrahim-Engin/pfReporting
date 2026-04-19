@@ -29,8 +29,9 @@ class HTMLReportGenerator:
             trim_blocks=True,
             lstrip_blocks=True,
         )
-        self._css     = self._read_asset("style.css")
-        self._scripts = self._read_asset("scripts.js")
+        self._css      = self._read_asset("style.css")
+        self._scripts  = self._read_asset("scripts.js")
+        self._logo_svg = self._read_asset("logo_amprion.svg")
 
     # -- Public API --------------------------------------------------------
 
@@ -92,6 +93,7 @@ class HTMLReportGenerator:
                 stats=stats,
                 css=self._css,
                 scripts=self._scripts,
+                logo_svg=self._logo_svg,
                 chart_data_json=json.dumps(chart_data, ensure_ascii=False),
             )
         except Exception as exc:

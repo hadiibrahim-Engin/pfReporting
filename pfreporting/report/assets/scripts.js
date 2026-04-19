@@ -418,28 +418,6 @@
                 };
             });
 
-            /* Threshold mark lines */
-            var markLineData = [];
-            if (cfg.warn_hi != null) {
-                markLineData.push({
-                    yAxis: cfg.warn_hi,
-                    name: 'Warning ' + cfg.warn_hi + ' ' + cfg.unit,
-                    lineStyle: { color: '#d97706', type: 'dashed', width: 1.5 },
-                    label: { formatter: 'Warn {c}', position: 'insideEndTop', color: '#d97706', fontSize: 10 },
-                });
-            }
-            if (cfg.violation_hi != null) {
-                markLineData.push({
-                    yAxis: cfg.violation_hi,
-                    name: 'Violation ' + cfg.violation_hi + ' ' + cfg.unit,
-                    lineStyle: { color: '#dc2626', type: 'dashed', width: 1.5 },
-                    label: { formatter: 'Viol {c}', position: 'insideEndTop', color: '#dc2626', fontSize: 10 },
-                });
-            }
-            if (markLineData.length > 0 && series.length > 0) {
-                series[0].markLine = { silent: true, data: markLineData, symbol: 'none' };
-            }
-
             var option = {
                 animation: false,
                 grid: { left: 60, right: 20, top: 30, bottom: 80 },
