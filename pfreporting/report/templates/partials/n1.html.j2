@@ -1,76 +1,72 @@
 {% from 'partials/_macros.html.j2' import badge %}
 {% if calc_options.run_n1 %}
-<section id="sec-n1">
-    <div class="section-header">
-        <h2>(N-1) Contingency Analysis</h2>
-        <div class="section-toolbar-right">
-            <button class="section-toggle" data-target="sec-n1" title="Collapse / Expand">▾</button>
-        </div>
+<section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-n1">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+         @click="toggleSection('sec-n1')">
+        <h2 class="text-base font-semibold text-slate-800">
+            (N-1) Contingency Analysis
+            <span class="ml-2 text-xs font-normal text-slate-400">({{ n1 | length }} cases)</span>
+        </h2>
+        <svg :class="{'rotate-180': sections['sec-n1']}"
+             class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
     </div>
-    <div class="section-body">
-        <div class="section-toolbar">
-            <div class="toolbar-left">
-                <span class="limit-info">
-                    Max. loading: {{ n1cfg.max_loading_pct }}% /
-                    Voltage: {{ n1cfg.min_voltage_pu }}-{{ n1cfg.max_voltage_pu }} p.u.
-                </span>
-                <input type="text" class="section-search" data-section="sec-n1"
-                       placeholder="Suchen …" autocomplete="off">
-            </div>
-            <div class="toolbar-right">
-                <label class="glass-toggle">
-                    <input type="checkbox" class="filter-toggle" checked>
-                    <span class="toggle-track"></span>
-                    <span class="toggle-label">Nur Verletzungen / Warnungen anzeigen</span>
-                </label>
-            </div>
+    <div x-show="!sections['sec-n1']" x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
+
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <span class="text-xs text-slate-500">
+                Max. loading: {{ n1cfg.max_loading_pct }}% &nbsp;/&nbsp;
+                Voltage: {{ n1cfg.min_voltage_pu }}&ndash;{{ n1cfg.max_voltage_pu }} p.u.
+            </span>
+            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                <input type="checkbox" class="filter-toggle rounded accent-blue-600" checked>
+                <span>Show only violations / warnings</span>
+            </label>
         </div>
-        <div class="table-scroll">
-            <table>
+
+        <!-- DataTables-enabled N-1 table -->
+        <div class="overflow-x-auto">
+            <table id="dt-n1" class="w-full text-sm">
                 <thead>
                     <tr>
-                        <th data-sort="text">Outage Element</th>
-                        <th>Type</th>
-                        <th>Conv.</th>
-                        <th data-sort="num">Max. Loading</th>
-                        <th data-sort="num">Min. Voltage</th>
-                        <th data-sort="num">Max. Voltage</th>
-                        <th>Violations</th>
-                        <th>Assessment</th>
+                        <th class="text-left px-3 py-2">Outage Element</th>
+                        <th class="text-left px-3 py-2">Type</th>
+                        <th class="text-left px-3 py-2">Conv.</th>
+                        <th class="text-right px-3 py-2">Max. Loading</th>
+                        <th class="text-right px-3 py-2">Min. Voltage</th>
+                        <th class="text-right px-3 py-2">Max. Voltage</th>
+                        <th class="text-left px-3 py-2">Violations</th>
+                        <th class="text-left px-3 py-2">Assessment</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for r in n1 %}
-                    <tr>
-                        <td>{{ r.outage_element }}</td>
-                        <td>{{ r.type }}</td>
-                        <td>
-                            {% if r.converged %}
-                                Yes
-                            {% else %}
-                                <span class="badge-violation">No</span>
-                            {% endif %}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="px-3 py-2 text-slate-800">{{ r.outage_element }}</td>
+                        <td class="px-3 py-2 text-slate-600">{{ r.type }}</td>
+                        <td class="px-3 py-2">
+                            {% if r.converged %}Yes{% else %}<span class="badge-violation">No</span>{% endif %}
                         </td>
-                        <td class="num">
-                            {{ "%.1f"|format(r.max_loading_pct) }}%<br>
-                            <small>({{ r.max_loading_element }})</small>
+                        <td class="px-3 py-2 text-right">
+                            <span class="font-mono">{{ "%.1f"|format(r.max_loading_pct) }}%</span>
+                            <br><small class="text-slate-400 text-xs">{{ r.max_loading_element }}</small>
                         </td>
-                        <td class="num">
-                            {{ "%.4f"|format(r.min_voltage_pu) }}<br>
-                            <small>({{ r.min_voltage_node }})</small>
+                        <td class="px-3 py-2 text-right">
+                            <span class="font-mono">{{ "%.4f"|format(r.min_voltage_pu) }}</span>
+                            <br><small class="text-slate-400 text-xs">{{ r.min_voltage_node }}</small>
                         </td>
-                        <td class="num">
-                            {{ "%.4f"|format(r.max_voltage_pu) }}<br>
-                            <small>({{ r.max_voltage_node }})</small>
+                        <td class="px-3 py-2 text-right">
+                            <span class="font-mono">{{ "%.4f"|format(r.max_voltage_pu) }}</span>
+                            <br><small class="text-slate-400 text-xs">{{ r.max_voltage_node }}</small>
                         </td>
-                        <td class="violations-cell">
-                            {% if r.violations %}
-                                {{ r.violations | join('<br>') | safe }}
-                            {% else %}
-                                ✓
-                            {% endif %}
+                        <td class="px-3 py-2 text-xs text-red-600 max-w-xs">
+                            {% if r.violations %}{{ r.violations | join('<br>') | safe }}{% else %}&#10003;{% endif %}
                         </td>
-                        <td>{{ badge(r.status) }}</td>
+                        <td class="px-3 py-2">{{ badge(r.status) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

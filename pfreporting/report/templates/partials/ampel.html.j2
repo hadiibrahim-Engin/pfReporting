@@ -1,13 +1,19 @@
-{% set color_class = "ampel-green" if ampel.color == "green" else ("ampel-amber" if ampel.color == "amber" else "ampel-red") %}
-{% set icon = "&#9989;" if ampel.color == "green" else ("&#9888;" if ampel.color == "amber" else "&#10060;") %}
-<div class="ampel-box {{ color_class }}">
-    <span class="ampel-icon">{{ icon }}</span>
-    <div>
-        <div class="ampel-text">{{ ampel.verdict }}</div>
-        <ul class="ampel-findings">
-            {% for finding in ampel.findings %}
-            <li>{{ finding }}</li>
-            {% endfor %}
-        </ul>
+{% set color_map = {
+    'green': 'bg-emerald-50 border-emerald-400 text-emerald-800',
+    'amber': 'bg-amber-50 border-amber-400 text-amber-800',
+    'red':   'bg-red-50 border-red-400 text-red-800'
+} %}
+{% set icon_map = {'green': '✅', 'amber': '⚠️', 'red': '❌'} %}
+<div class="rounded-xl border-l-4 p-4 mb-4 {{ color_map[ampel.color] }}">
+    <div class="flex items-start gap-3">
+        <span class="text-2xl leading-none mt-0.5 flex-shrink-0">{{ icon_map[ampel.color] }}</span>
+        <div>
+            <p class="font-bold text-lg leading-tight">{{ ampel.verdict }}</p>
+            <ul class="text-sm mt-1.5 space-y-0.5 list-disc list-inside opacity-90">
+                {% for f in ampel.findings %}
+                <li>{{ f }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>

@@ -1,14 +1,15 @@
-<header>
-    <div class="header-left">
-        <h1>De-Energization Assessment</h1>
-        <div class="meta">
-            <span>Project: <strong>{{ info.project }}</strong></span>
-            <span>Study Case: <strong>{{ info.study_case }}</strong></span>
+<header class="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl px-8 py-7 flex justify-between items-start shadow-xl mb-6">
+    <div>
+        <p class="text-blue-300 text-xs font-semibold uppercase tracking-widest mb-1">Freischaltbewertung</p>
+        <h1 class="text-white text-3xl font-extrabold tracking-tight leading-tight">{{ info.project }}</h1>
+        <div class="flex flex-wrap gap-5 mt-3 text-blue-200 text-sm">
+            <span>Study Case: <strong class="text-white font-semibold">{{ info.study_case }}</strong></span>
+            <span>{{ info.date }} &mdash; {{ info.time }}</span>
         </div>
     </div>
-    <div class="header-right">
-        <div class="company">{{ info.company }}</div>
-        <div class="datum">{{ info.date }} - {{ info.time }}</div>
-        <div class="bearbeiter">Author: {{ info.author }}</div>
+    <div class="text-right text-blue-200 text-sm flex-shrink-0 ml-8">
+        <div class="text-white text-xl font-bold mb-1">{{ info.company }}</div>
+        <div>Author: <span class="text-white font-medium">{{ info.author }}</span></div>
+        <div class="mt-2 text-xs text-blue-300">DIgSILENT PowerFactory</div>
     </div>
 </header>

@@ -7,8 +7,18 @@ without exposing PowerFactory objects to the report layer.
 from __future__ import annotations
 
 import datetime
+from enum import Enum, auto
 from pathlib import Path
 from typing import Any
+
+
+class ExecutionMode(Enum):
+    """Controls which phases of the workflow are executed."""
+    FULL              = auto()
+    CALCULATIONS_ONLY = auto()
+    TABLES_ONLY       = auto()
+    HTML_ONLY         = auto()
+    SUMMARY_ONLY      = auto()
 
 from pfreporting.__version__ import __version__
 from pfreporting.analysis import AnalysisEngine
@@ -27,7 +37,9 @@ def run_full_workflow(
     config: PFReportConfig | None = None,
     pf_report: Any = None,
     output_path: str | Path | None = None,
-) -> Path:
+    mode: ExecutionMode = ExecutionMode.FULL,
+    data_before: "ReportData | None" = None,
+) -> "dict[str, Path]":
     """
     Complete two-phase workflow for the de-energization assessment.
 
@@ -159,8 +171,8 @@ def run_full_workflow(
         source = ts_raw if ts_raw and not ts_raw.is_empty() else ts_data
         lf.qds_steps = _derive_qds_steps(source)
 
-    # -- Step 3: HTML report -----------------------------------------------
-    next_step("HTML Report Generation")
+    # -- Step 3: Report generation -----------------------------------------
+    next_step("Report Generation")
     data = ReportData(
         info=info,
         qds_info=qds_info,
@@ -174,18 +186,49 @@ def run_full_workflow(
         ts_raw=ts_raw or TimeSeriesData(time=[]),
         warnings=warnings,
     )
-    html = generator.generate(data)
 
-    dest = _resolve_output_path(data, config, output_path)
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(html, encoding="utf-8")
+    outputs: dict[str, Path] = {}
 
-    log.info("Report saved: %s", dest)
+    if mode in (ExecutionMode.FULL, ExecutionMode.HTML_ONLY, ExecutionMode.TABLES_ONLY):
+        html = generator.generate(data)
+        dest = _resolve_output_path(data, config, output_path, suffix="")
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(html, encoding="utf-8")
+        log.info("Main report saved: %s", dest)
+        outputs["main"] = dest
+
+    if mode in (ExecutionMode.FULL, ExecutionMode.SUMMARY_ONLY):
+        from pfreporting.report.renderers import ExecSummaryRenderer
+        exec_html = ExecSummaryRenderer(config).render(data)
+        exec_dest = _resolve_output_path(data, config, output_path, suffix="_ExecSummary")
+        exec_dest.parent.mkdir(parents=True, exist_ok=True)
+        exec_dest.write_text(exec_html, encoding="utf-8")
+        log.info("Executive summary saved: %s", exec_dest)
+        outputs["executive_summary"] = exec_dest
+
+    if mode == ExecutionMode.FULL and calc.run_qds and not (ts_data is None or ts_data.is_empty()):
+        from pfreporting.report.renderers import QDSDetailRenderer
+        qds_html = QDSDetailRenderer(config).render(data)
+        qds_dest = _resolve_output_path(data, config, output_path, suffix="_QDSDetail")
+        qds_dest.parent.mkdir(parents=True, exist_ok=True)
+        qds_dest.write_text(qds_html, encoding="utf-8")
+        log.info("QDS detail report saved: %s", qds_dest)
+        outputs["qds_detail"] = qds_dest
+
+    if mode == ExecutionMode.FULL and data_before is not None:
+        from pfreporting.report.renderers import LoadFlowComparisonRenderer
+        lf_html = LoadFlowComparisonRenderer(config).render(data, data_before)
+        lf_dest = _resolve_output_path(data, config, output_path, suffix="_LFComparison")
+        lf_dest.parent.mkdir(parents=True, exist_ok=True)
+        lf_dest.write_text(lf_html, encoding="utf-8")
+        log.info("Load-flow comparison saved: %s", lf_dest)
+        outputs["loadflow_comparison"] = lf_dest
+
     log.info("")
     log.info("=" * 60)
     log.info("  DONE")
     log.info("=" * 60)
-    return dest
+    return outputs
 
 
 def run_report(
@@ -222,24 +265,28 @@ def _resolve_output_path(
     data: ReportData,
     config: PFReportConfig,
     override: str | Path | None,
+    suffix: str = "",
 ) -> Path:
     """Resolve final HTML file destination path."""
     if override:
         p = Path(override)
-        return p if p.suffix == ".html" else p / _default_filename(data)
+        if p.suffix == ".html":
+            stem = p.stem + suffix
+            return p.with_name(stem + ".html")
+        return p / _default_filename(data, suffix)
 
     base = Path(config.report.output_dir)
     if config.report.use_timestamp_subdir:
         subdir = f"{datetime.date.today().isoformat()}_{data.info.project}"
         base = base / subdir
-    return base / _default_filename(data)
+    return base / _default_filename(data, suffix)
 
 
-def _default_filename(data: ReportData) -> str:
+def _default_filename(data: ReportData, suffix: str = "") -> str:
     """Build timestamped report filename."""
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_name = data.info.project.replace(" ", "_")[:40]
-    return f"DeEnergizationAssessment_{safe_name}_{ts}.html"
+    return f"DeEnergizationAssessment_{safe_name}_{ts}{suffix}.html"
 
 
 def _derive_qds_steps(ts_data: TimeSeriesData) -> list[QDSStep]:

@@ -1,110 +1,83 @@
 {% from 'partials/_macros.html.j2' import badge %}
 {% if calc_options.run_loadflow %}
-<section id="sec-loadflow">
-    <div class="section-header">
-        <h2>Load Flow Results</h2>
-        <button class="section-toggle" data-target="sec-loadflow" title="Collapse / Expand">▾</button>
+<section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-loadflow">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+         @click="toggleSection('sec-loadflow')">
+        <h2 class="text-base font-semibold text-slate-800">Load Flow Results</h2>
+        <svg :class="{'rotate-180': sections['sec-loadflow']}"
+             class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
     </div>
-    <div class="section-body">
-        <div class="lf-grid">
-            <div class="lf-item">
-                <div class="lf-label">Status (Normal Operation)</div>
-                <div class="lf-value">
-                    <span class="{{ 'badge-ok' if lf.converged else 'badge-violation' }}">
-                        {{ lf.status_text }}
-                    </span>
+    <div x-show="!sections['sec-loadflow']" x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
+
+        <div class="flex flex-wrap gap-3 mb-4">
+            <div class="flex-1 min-w-[140px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Status</div>
+                <div class="text-base font-semibold">
+                    <span class="{{ 'badge-ok' if lf.converged else 'badge-violation' }}">{{ lf.status_text }}</span>
                 </div>
             </div>
-            <div class="lf-item">
-                <div class="lf-label">Iterations</div>
-                <div class="lf-value">{{ lf.iterations }}</div>
+            <div class="flex-1 min-w-[140px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Iterations</div>
+                <div class="text-base font-semibold text-slate-800">{{ lf.iterations }}</div>
             </div>
-            <div class="lf-item">
-                <div class="lf-label">Total Load</div>
-                <div class="lf-value">
+            <div class="flex-1 min-w-[180px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Total Load</div>
+                <div class="text-base font-semibold text-slate-800">
                     {{ "%.2f"|format(lf.total_load_mw) }} MW
-                    {% if lf.total_load_mvar %}
-                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
-                        / {{ "%.2f"|format(lf.total_load_mvar) }} Mvar
-                    </span>
-                    {% endif %}
-                    {% if lf.load_power_factor is not none %}
-                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
-                        (PF {{ "%.3f"|format(lf.load_power_factor) }})
-                    </span>
-                    {% endif %}
+                    {% if lf.total_load_mvar %}<span class="text-xs text-slate-400 ml-1">/ {{ "%.2f"|format(lf.total_load_mvar) }} Mvar</span>{% endif %}
+                    {% if lf.load_power_factor is not none %}<span class="text-xs text-slate-400 ml-1">(PF {{ "%.3f"|format(lf.load_power_factor) }})</span>{% endif %}
                 </div>
             </div>
-            <div class="lf-item">
-                <div class="lf-label">Total Generation</div>
-                <div class="lf-value">
+            <div class="flex-1 min-w-[180px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Total Generation</div>
+                <div class="text-base font-semibold text-slate-800">
                     {{ "%.2f"|format(lf.total_gen_mw) }} MW
-                    {% if lf.total_gen_mvar %}
-                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
-                        / {{ "%.2f"|format(lf.total_gen_mvar) }} Mvar
-                    </span>
-                    {% endif %}
-                    {% if lf.gen_power_factor is not none %}
-                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
-                        (PF {{ "%.3f"|format(lf.gen_power_factor) }})
-                    </span>
-                    {% endif %}
+                    {% if lf.total_gen_mvar %}<span class="text-xs text-slate-400 ml-1">/ {{ "%.2f"|format(lf.total_gen_mvar) }} Mvar</span>{% endif %}
+                    {% if lf.gen_power_factor is not none %}<span class="text-xs text-slate-400 ml-1">(PF {{ "%.3f"|format(lf.gen_power_factor) }})</span>{% endif %}
                 </div>
             </div>
-            <div class="lf-item">
-                <div class="lf-label">Losses</div>
-                <div class="lf-value">
+            <div class="flex-1 min-w-[140px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Losses</div>
+                <div class="text-base font-semibold text-slate-800">
                     {{ "%.2f"|format(lf.losses_mw) }} MW
-                    {% if lf.losses_mvar %}
-                    <span style="color:var(--gray-500);font-size:12px;margin-left:6px;">
-                        / {{ "%.2f"|format(lf.losses_mvar) }} Mvar
-                    </span>
-                    {% endif %}
+                    {% if lf.losses_mvar %}<span class="text-xs text-slate-400 ml-1">/ {{ "%.2f"|format(lf.losses_mvar) }} Mvar</span>{% endif %}
                 </div>
             </div>
             {% if lf.qds_steps %}
-            {% set n_ok    = lf.qds_steps | selectattr('converged', 'eq', true)  | list | length %}
-            {% set n_fail  = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
-            <div class="lf-item">
-                <div class="lf-label">QDS Time Steps</div>
-                <div class="lf-value">{{ lf.qds_steps | length }}</div>
+            {% set n_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
+            <div class="flex-1 min-w-[120px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">QDS Steps</div>
+                <div class="text-base font-semibold text-slate-800">{{ lf.qds_steps | length }}</div>
             </div>
-            <div class="lf-item {% if n_fail > 0 %}lf-item-warn{% endif %}">
-                <div class="lf-label">Not Converged</div>
-                <div class="lf-value" style="color:{% if n_fail > 0 %}var(--viol){% else %}var(--ok){% endif %}">
-                    {{ n_fail }}
-                </div>
+            <div class="flex-1 min-w-[120px] {% if n_fail > 0 %}bg-red-50 border border-red-200{% else %}bg-emerald-50 border border-emerald-200{% endif %} rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Not Converged</div>
+                <div class="text-base font-semibold {% if n_fail > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ n_fail }}</div>
             </div>
             {% endif %}
         </div>
 
         {% if lf.qds_steps %}
         {% set n_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
-        <details class="qds-steps-details">
-            <summary>
+        <details class="border border-slate-200 rounded-xl overflow-hidden mt-2">
+            <summary class="px-4 py-3 bg-slate-50 cursor-pointer text-sm font-semibold text-slate-700 list-none flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
                 QDS convergence per time step
-                ({{ lf.qds_steps | length }} steps{% if n_fail > 0 %},
-                <span style="color:var(--viol);">{{ n_fail }} not converged</span>{% endif %})
+                ({{ lf.qds_steps | length }} steps{% if n_fail > 0 %}, <span class="text-red-500">{{ n_fail }} not converged</span>{% endif %})
             </summary>
-            <div class="qds-steps-table-wrap">
+            <div class="max-h-72 overflow-y-auto">
                 <table class="qds-steps-table">
-                    <thead>
-                        <tr>
-                            <th>Time [h]</th>
-                            <th>Load Flow</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Time [h]</th><th>Load Flow</th></tr></thead>
                     <tbody>
                         {% for step in lf.qds_steps %}
                         <tr class="{{ '' if step.converged else 'step-nonconv' }}">
                             <td>{{ "%.2f"|format(step.time_h) }}</td>
-                            <td>
-                                {% if step.converged %}
-                                <span class="badge-ok">Converged</span>
-                                {% else %}
-                                <span class="badge-violation">Not Converged</span>
-                                {% endif %}
-                            </td>
+                            <td>{% if step.converged %}<span class="badge-ok">Converged</span>{% else %}<span class="badge-violation">Not Converged</span>{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

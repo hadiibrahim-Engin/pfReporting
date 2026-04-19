@@ -1,0 +1,74 @@
+{
+  "calc": {
+    "run_qds": true,
+    "run_loadflow": true,
+    "run_voltage": true,
+    "run_thermal": true,
+    "run_n1": true
+  },
+  "qds": {
+    "start_datetime": "2026-04-19 00:00",
+    "end_datetime": "2026-04-20 00:00",
+    "t_start": null,
+    "t_end": null,
+    "dt": 0.25
+  },
+  "voltage": {
+    "lower_warning": 0.95,
+    "lower_violation": 0.90,
+    "upper_warning": 1.05,
+    "upper_violation": 1.10
+  },
+  "thermal": {
+    "warning_pct": 80.0,
+    "violation_pct": 100.0
+  },
+  "n1": {
+    "max_loading_pct": 100.0,
+    "min_voltage_pu": 0.90,
+    "max_voltage_pu": 1.10
+  },
+  "report": {
+    "output_dir": "C:\\\\PF_Reports",
+    "company": "Amprion GmbH",
+    "use_timestamp_subdir": true,
+    "quasi_dynamic_result_file": "Quasi-Dynamic Simulation AC.ElmRes",
+    "intreport_name": "MyReport",
+    "log_level": "INFO",
+    "max_points": 800
+  },
+  "visualizations": [
+    {
+      "element_class": "ElmLne",
+      "variable": "c:loading",
+      "label": "Lines - Loading",
+      "unit": "%",
+      "warn_hi": 80.0,
+      "violation_hi": 100.0,
+      "heatmap": true,
+      "max_elements": 200
+    },
+    {
+      "element_class": "ElmTr2",
+      "variable": "c:loading",
+      "label": "Transformers - Loading",
+      "unit": "%",
+      "warn_hi": 80.0,
+      "violation_hi": 100.0,
+      "heatmap": true,
+      "max_elements": 50
+    },
+    {
+      "element_class": "ElmTerm",
+      "variable": "m:u",
+      "label": "Nodes - Voltage",
+      "unit": "p.u.",
+      "warn_lo": 0.95,
+      "violation_lo": 0.90,
+      "warn_hi": 1.05,
+      "violation_hi": 1.10,
+      "heatmap": true,
+      "max_elements": 200
+    }
+  ]
+}

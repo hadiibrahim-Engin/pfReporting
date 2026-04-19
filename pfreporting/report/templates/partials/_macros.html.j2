@@ -6,9 +6,33 @@
 
 {% macro loading_bar(pct, status) %}
 {% set bar_cls = {'ok': 'bar-ok', 'warning': 'bar-warning', 'violation': 'bar-violation'}[status] %}
-{% set width = (pct * 0.66) | round(3) %}
+{% set width = [pct * 0.66, 66] | min | round(3) %}
 <div class="bar-container">
     <div class="bar {{ bar_cls }}" style="width:{{ width }}%"></div>
     <span class="bar-label">{{ "%.1f"|format(pct) }}%</span>
+</div>
+{% endmacro %}
+
+{# Reusable KPI pill card for hero section #}
+{% macro kpi_pill(value, label, highlight=false) %}
+<div class="rounded-xl p-4 text-center border {% if highlight %}bg-red-50 border-red-200{% else %}bg-slate-50 border-slate-200{% endif %}">
+    <div class="text-3xl font-bold {% if highlight %}text-red-600{% else %}text-slate-800{% endif %}">{{ value }}</div>
+    <div class="text-xs text-slate-500 uppercase tracking-widest mt-1">{{ label }}</div>
+</div>
+{% endmacro %}
+
+{# Reusable collapsible section header — requires Alpine parent with sections[id] state #}
+{% macro section_header(title, section_id, count=none) %}
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+     @click="toggleSection('{{ section_id }}')">
+    <h2 class="text-base font-semibold text-slate-800">
+        {{ title }}
+        {% if count is not none %}<span class="ml-2 text-xs font-normal text-slate-400">({{ count }})</span>{% endif %}
+    </h2>
+    <svg :class="{'rotate-180': sections['{{ section_id }}']}"
+         class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+    </svg>
 </div>
 {% endmacro %}

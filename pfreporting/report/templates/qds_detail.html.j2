@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QDS Detail &mdash; {{ info.project }} &mdash; {{ info.date }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>{{ css }}</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+<header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-2xl m-4 p-6 shadow-lg">
+    <p class="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-1">Quasi-Dynamic Simulation Detail</p>
+    <h1 class="text-2xl font-bold">{{ info.project }}</h1>
+    <p class="text-sm text-blue-200 mt-1">{{ info.study_case }} &mdash; {{ info.date }} {{ info.time }}</p>
+</header>
+
+<main class="max-w-screen-xl mx-auto px-4 pb-10 space-y-6">
+
+    {# ---- QDS Parameters ---- #}
+    {% if qds_info %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">Simulation Parameters</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <p class="text-xs text-slate-500 mb-1">Period</p>
+                <p class="text-lg font-bold text-slate-800">{{ "%.2f"|format(qds_info.t_start_h) }} – {{ "%.2f"|format(qds_info.t_end_h) }} h</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <p class="text-xs text-slate-500 mb-1">Time Step</p>
+                <p class="text-lg font-bold text-slate-800">{{ "%.4g"|format(qds_info.dt_h) }} h</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <p class="text-xs text-slate-500 mb-1">Steps</p>
+                <p class="text-lg font-bold text-slate-800">{{ qds_info.n_steps }}</p>
+            </div>
+            {% if qds_info.result_file %}
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <p class="text-xs text-slate-500 mb-1">Result File</p>
+                <p class="text-sm font-mono text-slate-700 break-all">{{ qds_info.result_file }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# ---- Convergence Timeline ---- #}
+    {% if lf and lf.qds_steps %}
+    {% set n_converged = lf.qds_steps | selectattr('converged', 'eq', true) | list | length %}
+    {% set n_total = lf.qds_steps | length %}
+    {% set conv_pct = (n_converged / n_total * 100) if n_total > 0 else 0 %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">Convergence</h2>
+        <div class="flex items-baseline gap-3 mb-4">
+            <span class="text-5xl font-extrabold {% if n_converged == n_total %}text-emerald-600{% else %}text-amber-600{% endif %}">
+                {{ n_converged }}/{{ n_total }}
+            </span>
+            <span class="text-sm text-slate-500">steps converged ({{ "%.1f"|format(conv_pct) }}%)</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="text-xs w-full border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-600">
+                        <th class="text-left px-3 py-2 font-semibold">Step</th>
+                        <th class="text-left px-3 py-2 font-semibold">Time [h]</th>
+                        <th class="text-left px-3 py-2 font-semibold">Converged</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in lf.qds_steps %}
+                    <tr class="border-t border-slate-100 {% if not step.converged %}bg-red-50{% endif %}">
+                        <td class="px-3 py-1.5 text-slate-600">{{ loop.index }}</td>
+                        <td class="px-3 py-1.5 font-mono">{{ "%.4f"|format(step.time_h) }}</td>
+                        <td class="px-3 py-1.5">
+                            {% if step.converged %}
+                            <span class="text-emerald-600 font-semibold">Yes</span>
+                            {% else %}
+                            <span class="text-red-600 font-semibold">No</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ---- Time Series Charts ---- #}
+    {% if ts_data and not ts_data.is_empty() %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-2">Time Series Charts</h2>
+        <p class="text-xs text-slate-400 mb-5">Mouse wheel: Zoom &middot; Drag: Pan &middot; Double-click: Reset</p>
+        {% for viz in viz_requests %}
+        {% set cid = viz.chart_id %}
+        {% if cid in ts_data.sections and ts_data.sections[cid] %}
+        <div class="mb-8">
+            <h3 class="text-sm font-semibold text-slate-700 mb-3">
+                {{ viz.label }}
+                <span class="text-xs font-normal text-slate-400 ml-2">[{{ viz.unit }}] &mdash; {{ ts_data.sections[cid] | length }} elements</span>
+            </h3>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <div class="chart-wrapper">
+                    <canvas id="chart-{{ cid }}"></canvas>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </section>
+
+    {# ---- Heatmaps ---- #}
+    {% for viz in viz_requests %}
+    {% set cid = viz.chart_id %}
+    {% if viz.heatmap and cid in heatmap_data %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">Heatmap &mdash; {{ viz.label }}</h2>
+        <div class="overflow-x-auto border border-slate-200 rounded-xl p-3 bg-slate-50">
+            <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
+        </div>
+    </section>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+</main>
+
+<script>{{ vendor_js.hammer }}</script>
+<script>{{ vendor_js.chart }}</script>
+<script>{{ vendor_js.zoom }}</script>
+<script>window.__chartData = {{ chart_data_json }};</script>
+<script>{{ scripts }}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initCharts === 'function') initCharts();
+    if (typeof initHeatmaps === 'function') initHeatmaps();
+});
+</script>
+
+</body>
+</html>

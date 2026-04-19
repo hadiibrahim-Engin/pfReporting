@@ -1,64 +1,60 @@
-<div class="overview-board">
-    <div class="overview-card">
-        <div class="overview-title">Summary</div>
-        <p class="overview-text">{{ overall.summary_text | safe }}</p>
+<div class="grid md:grid-cols-2 gap-4 mb-4">
+
+    <!-- Left: assessment summary + KPI pills -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Assessment Summary</h3>
+        <p class="text-slate-700 leading-relaxed mb-4 text-sm">{{ overall.summary_text | safe }}</p>
+
         {% if warnings %}
-        <div class="report-warnings">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-900 mb-4">
             <strong>Warnings:</strong>
-            <ul>
-            {% for w in warnings %}
-                <li>{{ w }}</li>
-            {% endfor %}
+            <ul class="mt-1 list-disc list-inside space-y-0.5 text-xs">
+                {% for w in warnings %}<li>{{ w }}</li>{% endfor %}
             </ul>
         </div>
         {% endif %}
-        <div class="kpi-row">
-            <div class="kpi">
-                <div class="kpi-value">{{ overall.total_nodes }}</div>
-                <div class="kpi-label">Nodes checked</div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+            <div class="rounded-xl p-4 text-center bg-slate-50 border border-slate-200">
+                <div class="text-3xl font-bold text-blue-700">{{ overall.total_nodes }}</div>
+                <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Nodes</div>
             </div>
-            <div class="kpi">
-                <div class="kpi-value">{{ overall.total_elements }}</div>
-                <div class="kpi-label">Elements checked</div>
+            <div class="rounded-xl p-4 text-center bg-slate-50 border border-slate-200">
+                <div class="text-3xl font-bold text-blue-700">{{ overall.total_elements }}</div>
+                <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
             </div>
-            <div class="kpi">
-                <div class="kpi-value">{{ overall.total_n1 }}</div>
-                <div class="kpi-label">N-1 cases checked</div>
+            <div class="rounded-xl p-4 text-center bg-slate-50 border border-slate-200">
+                <div class="text-3xl font-bold text-blue-700">{{ overall.total_n1 }}</div>
+                <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
             </div>
-            <div class="kpi {% if overall.total_violations > 0 %}kpi-highlight{% endif %}">
-                <div class="kpi-value">{{ overall.total_violations }}</div>
-                <div class="kpi-label">Total violations</div>
+            <div class="rounded-xl p-4 text-center {% if overall.total_violations > 0 %}bg-red-50 border border-red-200{% else %}bg-emerald-50 border border-emerald-200{% endif %}">
+                <div class="text-3xl font-bold {% if overall.total_violations > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ overall.total_violations }}</div>
+                <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Violations</div>
             </div>
         </div>
 
         {% if top_voltage_violations or top_loading_violations %}
-        <div class="violations-quickview">
-            <h3 style="font-size:14px;font-weight:600;margin:0 0 10px;color:#9b2c2c;">
-                Critical Elements
-            </h3>
-            <div class="violations-cols">
+        <div class="mt-5 border border-red-100 rounded-xl p-4 bg-red-50">
+            <h4 class="text-xs font-bold text-red-700 uppercase tracking-widest mb-3">Critical Elements</h4>
+            <div class="grid sm:grid-cols-2 gap-4">
                 {% if top_voltage_violations %}
                 <div>
-                    <h4 style="font-size:12px;font-weight:600;color:var(--gray-700);margin:0 0 6px;">
-                        Voltage Violations
-                    </h4>
+                    <p class="text-xs font-semibold text-slate-600 mb-2">Voltage Violations</p>
                     {% for r in top_voltage_violations %}
-                    <div class="viol-row">
-                        <span>{{ r.node }}</span>
-                        <span class="badge-violation">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
+                    <div class="flex justify-between items-center py-1 border-b border-red-100 text-xs gap-2">
+                        <span class="truncate text-slate-700">{{ r.node }}</span>
+                        <span class="badge-violation flex-shrink-0">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
                 {% if top_loading_violations %}
                 <div>
-                    <h4 style="font-size:12px;font-weight:600;color:var(--gray-700);margin:0 0 6px;">
-                        Thermal Violations
-                    </h4>
+                    <p class="text-xs font-semibold text-slate-600 mb-2">Thermal Violations</p>
                     {% for r in top_loading_violations %}
-                    <div class="viol-row">
-                        <span>{{ r.name }}</span>
-                        <span class="badge-violation">{{ "%.1f"|format(r.loading_pct) }}%</span>
+                    <div class="flex justify-between items-center py-1 border-b border-red-100 text-xs gap-2">
+                        <span class="truncate text-slate-700">{{ r.name }}</span>
+                        <span class="badge-violation flex-shrink-0">{{ "%.1f"|format(r.loading_pct) }}%</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -68,107 +64,109 @@
         {% endif %}
     </div>
 
-    <div class="overview-card">
-        <div class="overview-title">Calculation Settings</div>
-        <div class="calc-params-grid">
+    <!-- Right: calculation settings -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Calculation Settings</h3>
 
-            <div class="cp-group">
-                <div class="cp-group-title">Load Flow Settings</div>
-                <div class="cp-row">
-                    <span class="cp-label">Method</span>
-                    <span class="cp-value">Newton-Raphson, balanced AC, positive sequence</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Active Power Control</span>
-                    <span class="cp-value">As dispatched</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Temperature Dependency</span>
-                    <span class="cp-value">20 °C (default)</span>
-                </div>
+        <div class="space-y-4">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Load Flow</p>
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Method</dt>
+                        <dd class="text-slate-800 font-medium text-right">Newton-Raphson, AC, pos. seq.</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Active Power Control</dt>
+                        <dd class="text-slate-800 font-medium">As dispatched</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Temperature</dt>
+                        <dd class="text-slate-800 font-medium">20 °C (default)</dd>
+                    </div>
+                </dl>
             </div>
 
             {% if calc_options.run_voltage %}
-            <div class="cp-group">
-                <div class="cp-group-title">Voltage Limits</div>
-                <div class="cp-row">
-                    <span class="cp-label">Lower Violation</span>
-                    <span class="cp-value cp-value-viol">&le; {{ vcfg.lower_violation }} p.u.</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Lower Warning</span>
-                    <span class="cp-value cp-value-warn">&le; {{ vcfg.lower_warning }} p.u.</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Upper Warning</span>
-                    <span class="cp-value cp-value-warn">&ge; {{ vcfg.upper_warning }} p.u.</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Upper Violation</span>
-                    <span class="cp-value cp-value-viol">&ge; {{ vcfg.upper_violation }} p.u.</span>
-                </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Voltage Limits</p>
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Lower Violation</dt>
+                        <dd class="font-semibold text-red-600">&le; {{ vcfg.lower_violation }} p.u.</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Lower Warning</dt>
+                        <dd class="font-semibold text-amber-600">&le; {{ vcfg.lower_warning }} p.u.</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Upper Warning</dt>
+                        <dd class="font-semibold text-amber-600">&ge; {{ vcfg.upper_warning }} p.u.</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Upper Violation</dt>
+                        <dd class="font-semibold text-red-600">&ge; {{ vcfg.upper_violation }} p.u.</dd>
+                    </div>
+                </dl>
             </div>
             {% endif %}
 
             {% if calc_options.run_thermal %}
-            <div class="cp-group">
-                <div class="cp-group-title">Thermal Loading Limits</div>
-                <div class="cp-row">
-                    <span class="cp-label">Warning Threshold</span>
-                    <span class="cp-value cp-value-warn">&ge; {{ tcfg.warning_pct }}%</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Violation Threshold</span>
-                    <span class="cp-value cp-value-viol">&ge; {{ tcfg.violation_pct }}%</span>
-                </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Thermal Limits</p>
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Warning</dt>
+                        <dd class="font-semibold text-amber-600">&ge; {{ tcfg.warning_pct }}%</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Violation</dt>
+                        <dd class="font-semibold text-red-600">&ge; {{ tcfg.violation_pct }}%</dd>
+                    </div>
+                </dl>
             </div>
             {% endif %}
 
             {% if calc_options.run_n1 %}
-            <div class="cp-group">
-                <div class="cp-group-title">N-1 Criteria</div>
-                <div class="cp-row">
-                    <span class="cp-label">Max. Loading</span>
-                    <span class="cp-value cp-value-viol">&gt; {{ n1cfg.max_loading_pct }}%</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Min. Voltage</span>
-                    <span class="cp-value cp-value-viol">&lt; {{ n1cfg.min_voltage_pu }} p.u.</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Max. Voltage</span>
-                    <span class="cp-value cp-value-viol">&gt; {{ n1cfg.max_voltage_pu }} p.u.</span>
-                </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">N-1 Criteria</p>
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Max. Loading</dt>
+                        <dd class="font-semibold text-red-600">&gt; {{ n1cfg.max_loading_pct }}%</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Min. Voltage</dt>
+                        <dd class="font-semibold text-red-600">&lt; {{ n1cfg.min_voltage_pu }} p.u.</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Max. Voltage</dt>
+                        <dd class="font-semibold text-red-600">&gt; {{ n1cfg.max_voltage_pu }} p.u.</dd>
+                    </div>
+                </dl>
             </div>
             {% endif %}
 
             {% if calc_options.run_qds and qds_info %}
-            <div class="cp-group">
-                <div class="cp-group-title">Quasi-Dynamic Simulation</div>
-                <div class="cp-row">
-                    <span class="cp-label">Simulation Period</span>
-                    <span class="cp-value">
-                        {{ "%.2f"|format(qds_info.t_start_h) }} h
-                        - {{ "%.2f"|format(qds_info.t_end_h) }} h
-                    </span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Time Step</span>
-                    <span class="cp-value">{{ "%.4g"|format(qds_info.dt_h) }} h</span>
-                </div>
-                <div class="cp-row">
-                    <span class="cp-label">Steps</span>
-                    <span class="cp-value">{{ qds_info.n_steps }}</span>
-                </div>
-                {% if qds_info.result_file %}
-                <div class="cp-row">
-                    <span class="cp-label">Result File</span>
-                    <span class="cp-value" style="font-size:11px;">{{ qds_info.result_file }}</span>
-                </div>
-                {% endif %}
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Quasi-Dynamic Simulation</p>
+                <dl class="divide-y divide-slate-100">
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Period</dt>
+                        <dd class="font-medium text-slate-800">{{ "%.2f"|format(qds_info.t_start_h) }} – {{ "%.2f"|format(qds_info.t_end_h) }} h</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Step Size</dt>
+                        <dd class="font-medium text-slate-800">{{ "%.4g"|format(qds_info.dt_h) }} h</dd>
+                    </div>
+                    <div class="flex justify-between py-1.5 text-sm">
+                        <dt class="text-slate-500">Steps</dt>
+                        <dd class="font-medium text-slate-800">{{ qds_info.n_steps }}</dd>
+                    </div>
+                </dl>
             </div>
             {% endif %}
-
         </div>
     </div>
+
 </div>

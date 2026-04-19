@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load-Flow Comparison &mdash; {{ info.project }} &mdash; {{ info.date }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>{{ css }}</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+<header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-2xl m-4 p-6 shadow-lg">
+    <p class="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-1">Load-Flow Comparison</p>
+    <h1 class="text-2xl font-bold">{{ info.project }}</h1>
+    <p class="text-sm text-blue-200 mt-1">{{ info.study_case }} &mdash; {{ info.date }} {{ info.time }}</p>
+    {% if lf_before is none %}
+    <p class="mt-3 text-xs bg-amber-500/20 border border-amber-400/40 rounded-lg px-3 py-2 text-amber-100">
+        Before-state data unavailable — showing after-state only.
+    </p>
+    {% endif %}
+</header>
+
+<main class="max-w-screen-xl mx-auto px-4 pb-10 space-y-6">
+
+    {# ---- Power Balance ---- #}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">Power Balance</h2>
+        <div class="grid sm:grid-cols-3 gap-4">
+
+            {% set metrics = [
+                ('Load', 'total_load_mw', 'MW'),
+                ('Generation', 'total_gen_mw', 'MW'),
+                ('Losses', 'losses_mw', 'MW'),
+            ] %}
+            {% for label, field, unit in metrics %}
+            {% set val_after = lf_after[field] if lf_after else none %}
+            {% set val_before = lf_before[field] if lf_before else none %}
+            {% set delta = (val_after - val_before) if (val_after is not none and val_before is not none) else none %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                <p class="text-xs text-slate-500 uppercase tracking-widest mb-3">{{ label }}</p>
+                {% if lf_before is not none %}
+                <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+                    <span>Before: <span class="font-semibold text-slate-600">{{ "%.2f"|format(val_before) }} {{ unit }}</span></span>
+                </div>
+                {% endif %}
+                <p class="text-3xl font-extrabold text-slate-800">
+                    {{ "%.2f"|format(val_after) }} <span class="text-base font-normal text-slate-400">{{ unit }}</span>
+                </p>
+                {% if delta is not none %}
+                <p class="text-xs mt-2 {% if delta > 0 %}text-red-600{% elif delta < 0 %}text-emerald-600{% else %}text-slate-400{% endif %}">
+                    {{ "%+.2f"|format(delta) }} {{ unit }} vs before
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        </div>
+    </section>
+
+    {# ---- Voltage Comparison Table ---- #}
+    {% if calc_options.run_voltage and voltage_rows %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">
+            Voltage Comparison
+            <span class="text-xs font-normal text-slate-400 ml-2">{{ voltage_rows | length }} nodes</span>
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="text-xs w-full border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-600 text-left">
+                        <th class="px-3 py-2 font-semibold">Node</th>
+                        <th class="px-3 py-2 font-semibold">U_nom [kV]</th>
+                        {% if lf_before is not none %}
+                        <th class="px-3 py-2 font-semibold">Before [p.u.]</th>
+                        {% endif %}
+                        <th class="px-3 py-2 font-semibold">After [p.u.]</th>
+                        {% if lf_before is not none %}
+                        <th class="px-3 py-2 font-semibold">&Delta; [p.u.]</th>
+                        {% endif %}
+                        <th class="px-3 py-2 font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in voltage_rows %}
+                    <tr class="border-t border-slate-100 hover:bg-slate-50">
+                        <td class="px-3 py-1.5 font-medium text-slate-700">{{ r.node }}</td>
+                        <td class="px-3 py-1.5 text-slate-500">{{ "%.1f"|format(r.u_nenn_kv) }}</td>
+                        {% if lf_before is not none %}
+                        <td class="px-3 py-1.5 font-mono">
+                            {{ "%.4f"|format(r.u_pu_before) if r.u_pu_before is not none else '—' }}
+                        </td>
+                        {% endif %}
+                        <td class="px-3 py-1.5 font-mono font-semibold">{{ "%.4f"|format(r.u_pu_after) }}</td>
+                        {% if lf_before is not none %}
+                        <td class="px-3 py-1.5 font-mono
+                            {% if r.delta is not none and r.delta > 0 %}text-emerald-600
+                            {% elif r.delta is not none and r.delta < 0 %}text-red-600
+                            {% else %}text-slate-400{% endif %}">
+                            {{ "%+.4f"|format(r.delta) if r.delta is not none else '—' }}
+                        </td>
+                        {% endif %}
+                        <td class="px-3 py-1.5">
+                            {% if r.status == 'violation' %}
+                            <span class="badge-violation">Violation</span>
+                            {% elif r.status == 'warning' %}
+                            <span class="badge-warning">Warning</span>
+                            {% else %}
+                            <span class="badge-ok">OK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ---- Thermal Loading Comparison Table ---- #}
+    {% if calc_options.run_thermal and loading_rows %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-4">
+            Thermal Loading Comparison
+            <span class="text-xs font-normal text-slate-400 ml-2">{{ loading_rows | length }} elements</span>
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="text-xs w-full border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-600 text-left">
+                        <th class="px-3 py-2 font-semibold">Element</th>
+                        {% if lf_before is not none %}
+                        <th class="px-3 py-2 font-semibold">Before [%]</th>
+                        {% endif %}
+                        <th class="px-3 py-2 font-semibold">After [%]</th>
+                        {% if lf_before is not none %}
+                        <th class="px-3 py-2 font-semibold">&Delta; [%]</th>
+                        {% endif %}
+                        <th class="px-3 py-2 font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in loading_rows %}
+                    <tr class="border-t border-slate-100 hover:bg-slate-50">
+                        <td class="px-3 py-1.5 font-medium text-slate-700">{{ r.name }}</td>
+                        {% if lf_before is not none %}
+                        <td class="px-3 py-1.5 font-mono">
+                            {{ "%.1f"|format(r.loading_before) if r.loading_before is not none else '—' }}
+                        </td>
+                        {% endif %}
+                        <td class="px-3 py-1.5 font-mono font-semibold">{{ "%.1f"|format(r.loading_after) }}</td>
+                        {% if lf_before is not none %}
+                        <td class="px-3 py-1.5 font-mono
+                            {% if r.delta is not none and r.delta > 0 %}text-red-600
+                            {% elif r.delta is not none and r.delta < 0 %}text-emerald-600
+                            {% else %}text-slate-400{% endif %}">
+                            {{ "%+.1f"|format(r.delta) if r.delta is not none else '—' }}
+                        </td>
+                        {% endif %}
+                        <td class="px-3 py-1.5">
+                            {% if r.status == 'violation' %}
+                            <span class="badge-violation">Violation</span>
+                            {% elif r.status == 'warning' %}
+                            <span class="badge-warning">Warning</span>
+                            {% else %}
+                            <span class="badge-ok">OK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ---- N-1 Summary (after-state) ---- #}
+    {% if calc_options.run_n1 and n1 %}
+    {% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
+    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
+        <h2 class="text-base font-semibold text-slate-800 mb-3">N-1 Summary (After State)</h2>
+        <div class="flex items-baseline gap-3">
+            <span class="text-5xl font-extrabold {% if n1_viol > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
+                {{ n1_viol }}
+            </span>
+            <span class="text-sm text-slate-500">violation{{ 's' if n1_viol != 1 else '' }} out of {{ n1 | length }} N-1 cases</span>
+        </div>
+    </section>
+    {% endif %}
+
+</main>
+
+</body>
+</html>

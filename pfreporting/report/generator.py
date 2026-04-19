@@ -128,32 +128,27 @@ class HTMLReportGenerator:
 
     # -- Chart data --------------------------------------------------------
 
-    def _build_chart_data(self, data: ReportData) -> list[dict]:
+    @staticmethod
+    def _build_chart_data_static(data: ReportData, config: PFReportConfig) -> list[dict]:
         """Build ``window.__chartData`` payload consumed by ``scripts.js``.
 
         Args:
             data: Report dataset with filtered time-series sections.
+            config: Report configuration with visualization settings.
 
         Returns:
             List of chart configuration dictionaries.
-
-        Each returned item contains:
-            - ``id``: DOM chart container id
-            - ``label`` / ``unit``: display metadata
-            - threshold fields (``warn_*`` and ``violation_*``)
-            - ``time``: x-axis labels
-            - ``series``: list of ``{"name": str, "values": list}``
         """
         if data.ts_data.is_empty():
             return []
 
         result: list[dict] = []
         time_labels = [float(t) if isinstance(t, float) else t for t in data.ts_data.time]
-        sample_idx = self._downsample_indices(time_labels, self.config.report.max_points)
+        sample_idx = HTMLReportGenerator._downsample_indices(time_labels, config.report.max_points)
         if sample_idx is not None:
             time_labels = [time_labels[i] for i in sample_idx]
 
-        for vr in self.config.visualizations:
+        for vr in config.visualizations:
             cid = vr.chart_id
             section = data.ts_data.sections.get(cid)
             if not section:
@@ -167,20 +162,23 @@ class HTMLReportGenerator:
                 series_list.append({"name": name, "values": values})
 
             result.append({
-                "id":           f"chart-{cid}",
-                "label":        vr.label,
-                "unit":         vr.unit,
-                    "variable":     vr.variable,
-                    "value_precision": 8 if vr.variable == "c:loading" else 4,
-                "warn_hi":      vr.warn_hi,
-                "violation_hi": vr.violation_hi,
-                "warn_lo":      vr.warn_lo,
-                "violation_lo": vr.violation_lo,
-                "time":         time_labels,
-                "series":       series_list,
+                "id":              f"chart-{cid}",
+                "label":           vr.label,
+                "unit":            vr.unit,
+                "variable":        vr.variable,
+                "value_precision": 8 if vr.variable == "c:loading" else 4,
+                "warn_hi":         vr.warn_hi,
+                "violation_hi":    vr.violation_hi,
+                "warn_lo":         vr.warn_lo,
+                "violation_lo":    vr.violation_lo,
+                "time":            time_labels,
+                "series":          series_list,
             })
 
         return result
+
+    def _build_chart_data(self, data: ReportData) -> list[dict]:
+        return self._build_chart_data_static(data, self.config)
 
     @staticmethod
     def _downsample_indices(time_labels: list[float | str], max_points: int | None) -> list[int] | None:
@@ -196,24 +194,23 @@ class HTMLReportGenerator:
             idx = idx[: max_points - 1] + [count - 1]
         return idx
 
-    def _build_heatmap_data(self, data: ReportData) -> dict[str, dict]:
+    @staticmethod
+    def _build_heatmap_data_static(data: ReportData, config: PFReportConfig) -> dict[str, dict]:
         """Build generic heatmap payloads keyed by visualization chart id.
 
         Args:
             data: Report dataset with raw and filtered time series.
+            config: Report configuration with visualization settings.
 
         Returns:
             ``dict[chart_id, heatmap_payload]`` for enabled heatmap requests.
-
-        The method prefers unfiltered ``ts_raw`` so heatmaps can show complete
-        distributions even when chart series were reduced to critical subsets.
         """
         result: dict[str, dict] = {}
         src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
         if src.is_empty():
             return result
 
-        for vr in self.config.visualizations:
+        for vr in config.visualizations:
             if not vr.heatmap:
                 continue
             cid = vr.chart_id
@@ -239,6 +236,9 @@ class HTMLReportGenerator:
             }
 
         return result
+
+    def _build_heatmap_data(self, data: ReportData) -> dict[str, dict]:
+        return self._build_heatmap_data_static(data, self.config)
 
     def _get_loading_hm_vr(self) -> "VizRequest | None":
         """Return loading heatmap visualization request if configured.

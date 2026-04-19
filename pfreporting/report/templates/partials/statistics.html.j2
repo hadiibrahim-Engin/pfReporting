@@ -1,11 +1,17 @@
-<section id="sec-statistics">
-    <div class="section-header">
-        <h2>Statistics Overview</h2>
-        <button class="section-toggle" data-target="sec-statistics" title="Collapse / Expand">▾</button>
+<section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-statistics">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+         @click="toggleSection('sec-statistics')">
+        <h2 class="text-base font-semibold text-slate-800">Statistics Overview</h2>
+        <svg :class="{'rotate-180': sections['sec-statistics']}"
+             class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
     </div>
-    <div class="section-body">
+    <div x-show="!sections['sec-statistics']" x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
 
-        <div class="stats-overview-grid">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
             {% if calc_options.run_voltage %}
             {% set v_total = voltage | length %}
@@ -16,20 +22,20 @@
             {% set v_max = v_vals | max if v_vals else none %}
             {% set v_avg = (v_vals | sum / v_total) if v_total > 0 else none %}
             {% set v_worst = voltage | min(attribute='u_pu') if v_total > 0 else none %}
-            <div class="stats-card">
-                <div class="stats-card-title">Voltage Band</div>
-                <div class="stats-metric-row"><span>Nodes</span><span class="num">{{ v_total }}</span></div>
-                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ v_viol }}</span></div>
-                <div class="stats-metric-row"><span>Warnings</span><span class="badge-warning">{{ v_warn }}</span></div>
-                {% if v_min is not none %}
-                <div class="stats-metric-row">
-                    <span>Min / Avg / Max</span>
-                    <span class="num">{{ "%.4f"|format(v_min) }} / {{ "%.4f"|format(v_avg) }} / {{ "%.4f"|format(v_max) }} p.u.</span>
-                </div>
-                {% endif %}
-                {% if v_worst %}
-                <div class="stats-note">Worst node: <strong>{{ v_worst.node }}</strong> ({{ "%.4f"|format(v_worst.u_pu) }} p.u.)</div>
-                {% endif %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Voltage Band</p>
+                <dl class="space-y-1.5">
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Nodes</dt><dd class="font-semibold text-slate-800">{{ v_total }}</dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Violations</dt><dd><span class="badge-violation">{{ v_viol }}</span></dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Warnings</dt><dd><span class="badge-warning">{{ v_warn }}</span></dd></div>
+                    {% if v_min is not none %}
+                    <div class="flex justify-between text-xs text-slate-400 pt-1 border-t border-slate-200">
+                        <dt>Min / Avg / Max</dt>
+                        <dd class="font-mono">{{ "%.4f"|format(v_min) }} / {{ "%.4f"|format(v_avg) }} / {{ "%.4f"|format(v_max) }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if v_worst %}<div class="text-xs text-slate-400 mt-1">Worst: <strong class="text-slate-600">{{ v_worst.node }}</strong> ({{ "%.4f"|format(v_worst.u_pu) }} p.u.)</div>{% endif %}
+                </dl>
             </div>
             {% endif %}
 
@@ -42,20 +48,20 @@
             {% set t_max = t_vals | max if t_vals else none %}
             {% set t_avg = (t_vals | sum / t_total) if t_total > 0 else none %}
             {% set t_worst = loading | max(attribute='loading_pct') if t_total > 0 else none %}
-            <div class="stats-card">
-                <div class="stats-card-title">Thermal Loading</div>
-                <div class="stats-metric-row"><span>Elements</span><span class="num">{{ t_total }}</span></div>
-                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ t_viol }}</span></div>
-                <div class="stats-metric-row"><span>Warnings</span><span class="badge-warning">{{ t_warn }}</span></div>
-                {% if t_min is not none %}
-                <div class="stats-metric-row">
-                    <span>Min / Avg / Max</span>
-                    <span class="num">{{ "%.1f"|format(t_min) }} / {{ "%.1f"|format(t_avg) }} / {{ "%.1f"|format(t_max) }} %</span>
-                </div>
-                {% endif %}
-                {% if t_worst %}
-                <div class="stats-note">Worst element: <strong>{{ t_worst.name }}</strong> ({{ "%.1f"|format(t_worst.loading_pct) }}%)</div>
-                {% endif %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Thermal Loading</p>
+                <dl class="space-y-1.5">
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Elements</dt><dd class="font-semibold text-slate-800">{{ t_total }}</dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Violations</dt><dd><span class="badge-violation">{{ t_viol }}</span></dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Warnings</dt><dd><span class="badge-warning">{{ t_warn }}</span></dd></div>
+                    {% if t_min is not none %}
+                    <div class="flex justify-between text-xs text-slate-400 pt-1 border-t border-slate-200">
+                        <dt>Min / Avg / Max</dt>
+                        <dd class="font-mono">{{ "%.1f"|format(t_min) }} / {{ "%.1f"|format(t_avg) }} / {{ "%.1f"|format(t_max) }} %</dd>
+                    </div>
+                    {% endif %}
+                    {% if t_worst %}<div class="text-xs text-slate-400 mt-1">Worst: <strong class="text-slate-600">{{ t_worst.name }}</strong> ({{ "%.1f"|format(t_worst.loading_pct) }}%)</div>{% endif %}
+                </dl>
             </div>
             {% endif %}
 
@@ -66,35 +72,31 @@
             {% set n1_rate = (n1_conv / n1_total * 100) if n1_total > 0 else none %}
             {% set n1_worst_load = n1 | max(attribute='max_loading_pct') if n1_total > 0 else none %}
             {% set n1_worst_minv = n1 | min(attribute='min_voltage_pu') if n1_total > 0 else none %}
-            <div class="stats-card">
-                <div class="stats-card-title">(N-1) Contingency</div>
-                <div class="stats-metric-row"><span>Cases</span><span class="num">{{ n1_total }}</span></div>
-                <div class="stats-metric-row"><span>Violations</span><span class="badge-violation">{{ n1_viol }}</span></div>
-                {% if n1_rate is not none %}
-                <div class="stats-metric-row"><span>Convergence</span><span class="num">{{ "%.1f"|format(n1_rate) }}%</span></div>
-                {% endif %}
-                {% if n1_worst_load %}
-                <div class="stats-note">Worst loading: <strong>{{ n1_worst_load.outage_element }}</strong> ({{ "%.1f"|format(n1_worst_load.max_loading_pct) }}%)</div>
-                {% endif %}
-                {% if n1_worst_minv %}
-                <div class="stats-note">Lowest voltage: <strong>{{ n1_worst_minv.min_voltage_node }}</strong> ({{ "%.4f"|format(n1_worst_minv.min_voltage_pu) }} p.u.)</div>
-                {% endif %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">(N-1) Contingency</p>
+                <dl class="space-y-1.5">
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Cases</dt><dd class="font-semibold text-slate-800">{{ n1_total }}</dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Violations</dt><dd><span class="badge-violation">{{ n1_viol }}</span></dd></div>
+                    {% if n1_rate is not none %}
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Convergence</dt><dd class="font-semibold {% if n1_rate < 100 %}text-amber-600{% else %}text-emerald-600{% endif %}">{{ "%.1f"|format(n1_rate) }}%</dd></div>
+                    {% endif %}
+                    {% if n1_worst_load %}<div class="text-xs text-slate-400 mt-1">Worst load: <strong class="text-slate-600">{{ n1_worst_load.outage_element }}</strong> ({{ "%.1f"|format(n1_worst_load.max_loading_pct) }}%)</div>{% endif %}
+                </dl>
             </div>
             {% endif %}
 
             {% if calc_options.run_loadflow %}
             {% set loss_pct = (lf.losses_mw / lf.total_gen_mw * 100) if lf.total_gen_mw > 0 else none %}
-            <div class="stats-card">
-                <div class="stats-card-title">Load Flow</div>
-                <div class="stats-metric-row"><span>Status</span><span class="num">{{ lf.status_text }}</span></div>
-                <div class="stats-metric-row"><span>Iterations</span><span class="num">{{ lf.iterations }}</span></div>
-                <div class="stats-metric-row"><span>Load / Gen</span><span class="num">{{ "%.2f"|format(lf.total_load_mw) }} / {{ "%.2f"|format(lf.total_gen_mw) }} MW</span></div>
-                {% if loss_pct is not none %}
-                <div class="stats-metric-row"><span>Losses</span><span class="num">{{ "%.2f"|format(lf.losses_mw) }} MW ({{ "%.2f"|format(loss_pct) }}%)</span></div>
-                {% endif %}
-                {% if lf.load_power_factor is not none %}
-                <div class="stats-note">Load PF: <strong>{{ "%.3f"|format(lf.load_power_factor) }}</strong> · Gen PF: <strong>{{ "%.3f"|format(lf.gen_power_factor) }}</strong></div>
-                {% endif %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Load Flow</p>
+                <dl class="space-y-1.5">
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Status</dt><dd><span class="{{ 'badge-ok' if lf.converged else 'badge-violation' }}">{{ lf.status_text }}</span></dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Iterations</dt><dd class="font-semibold text-slate-800">{{ lf.iterations }}</dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Load / Gen</dt><dd class="font-mono text-xs">{{ "%.2f"|format(lf.total_load_mw) }} / {{ "%.2f"|format(lf.total_gen_mw) }} MW</dd></div>
+                    {% if loss_pct is not none %}
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Losses</dt><dd class="font-mono text-xs">{{ "%.2f"|format(lf.losses_mw) }} MW ({{ "%.2f"|format(loss_pct) }}%)</dd></div>
+                    {% endif %}
+                </dl>
             </div>
             {% endif %}
 
@@ -102,13 +104,15 @@
             {% set qds_total = lf.qds_steps | length %}
             {% set qds_fail = lf.qds_steps | selectattr('converged', 'eq', false) | list | length %}
             {% set qds_rate = ((qds_total - qds_fail) / qds_total * 100) if qds_total > 0 else none %}
-            <div class="stats-card">
-                <div class="stats-card-title">Quasi-Dynamic</div>
-                <div class="stats-metric-row"><span>Time Steps</span><span class="num">{{ qds_total }}</span></div>
-                <div class="stats-metric-row"><span>Not Converged</span><span class="badge-violation">{{ qds_fail }}</span></div>
-                {% if qds_rate is not none %}
-                <div class="stats-metric-row"><span>Convergence</span><span class="num">{{ "%.1f"|format(qds_rate) }}%</span></div>
-                {% endif %}
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Quasi-Dynamic</p>
+                <dl class="space-y-1.5">
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Time Steps</dt><dd class="font-semibold text-slate-800">{{ qds_total }}</dd></div>
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Not Converged</dt><dd>{% if qds_fail > 0 %}<span class="badge-violation">{{ qds_fail }}</span>{% else %}<span class="badge-ok">0</span>{% endif %}</dd></div>
+                    {% if qds_rate is not none %}
+                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Convergence</dt><dd class="font-semibold {% if qds_rate < 100 %}text-amber-600{% else %}text-emerald-600{% endif %}">{{ "%.1f"|format(qds_rate) }}%</dd></div>
+                    {% endif %}
+                </dl>
             </div>
             {% endif %}
 

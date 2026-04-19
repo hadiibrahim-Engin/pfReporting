@@ -1,0 +1,157 @@
+{% set voltage_total = voltage | length %}
+{% set thermal_total = loading | length %}
+{% set n1_total = n1 | length %}
+{% set v_viol = voltage | selectattr('status', 'eq', 'violation') | list | length %}
+{% set v_warn = voltage | selectattr('status', 'eq', 'warning') | list | length %}
+{% set t_viol = loading | selectattr('status', 'eq', 'violation') | list | length %}
+{% set t_warn = loading | selectattr('status', 'eq', 'warning') | list | length %}
+{% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
+{% set v_viol_pct = (v_viol / voltage_total * 100) if voltage_total > 0 else 0 %}
+{% set t_viol_pct = (t_viol / thermal_total * 100) if thermal_total > 0 else 0 %}
+{% set v_viol_pct_c = [v_viol_pct, 100] | min %}
+{% set t_viol_pct_c = [t_viol_pct, 100] | min %}
+{% set icon_map = {'green': '✅', 'amber': '⚠️', 'red': '❌'} %}
+{% set verdict_color = {
+    'green': 'bg-emerald-50 border-emerald-300 text-emerald-800',
+    'amber': 'bg-amber-50 border-amber-300 text-amber-800',
+    'red':   'bg-red-50 border-red-300 text-red-800'
+} %}
+
+<section id="kpi-hero" class="bg-white rounded-2xl border border-slate-100 shadow-lg p-8 mb-6">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Assessment Result</p>
+        <h2 class="text-2xl font-bold text-slate-900">{{ info.project }}</h2>
+        <p class="text-sm text-slate-400 mt-0.5">{{ info.study_case }} &mdash; {{ info.date }} {{ info.time }}</p>
+    </div>
+
+    <!-- Verdict banner -->
+    <div class="rounded-xl border p-5 mb-8 flex items-start gap-4 {{ verdict_color[ampel.color] }}">
+        <span class="text-4xl leading-none flex-shrink-0 mt-0.5">{{ icon_map[ampel.color] }}</span>
+        <div>
+            <p class="text-xl font-extrabold tracking-tight leading-tight">{{ ampel.verdict }}</p>
+            <ul class="mt-2 text-sm space-y-0.5 list-disc list-inside opacity-90">
+                {% for f in ampel.findings %}<li>{{ f }}</li>{% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- PRIMARY KPI CARDS — hero numbers -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+        <!-- Total Violations — THE HERO NUMBER -->
+        <div class="rounded-2xl p-6 flex flex-col gap-2 border-2
+                    {% if overall.total_violations > 0 %}bg-red-50 border-red-300{% else %}bg-emerald-50 border-emerald-300{% endif %}">
+            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Total Violations</p>
+            <p class="text-7xl font-black leading-none {% if overall.total_violations > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
+                {{ overall.total_violations }}
+            </p>
+            <p class="text-xs text-slate-400">across all analyses</p>
+        </div>
+
+        <!-- Voltage Violations -->
+        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Voltage Violations</p>
+            <p class="text-5xl font-extrabold leading-none {% if v_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
+                {{ v_viol }}
+            </p>
+            <p class="text-xs text-slate-400">{{ v_warn }} warning{{ 's' if v_warn != 1 else '' }}</p>
+            <div class="mt-auto">
+                <div class="h-1.5 rounded-full bg-slate-100">
+                    <div class="h-1.5 rounded-full {% if v_viol > 0 %}bg-red-500{% else %}bg-emerald-400{% endif %} transition-all duration-500"
+                         style="width:{{ v_viol_pct_c | round(1) }}%"></div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(v_viol_pct) }}% of {{ voltage_total }} nodes</p>
+            </div>
+        </div>
+
+        <!-- Thermal Violations -->
+        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Thermal Violations</p>
+            <p class="text-5xl font-extrabold leading-none {% if t_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
+                {{ t_viol }}
+            </p>
+            <p class="text-xs text-slate-400">{{ t_warn }} warning{{ 's' if t_warn != 1 else '' }}</p>
+            <div class="mt-auto">
+                <div class="h-1.5 rounded-full bg-slate-100">
+                    <div class="h-1.5 rounded-full {% if t_viol > 0 %}bg-red-500{% else %}bg-emerald-400{% endif %} transition-all duration-500"
+                         style="width:{{ t_viol_pct_c | round(1) }}%"></div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(t_viol_pct) }}% of {{ thermal_total }} elements</p>
+            </div>
+        </div>
+
+        <!-- N-1 Violations -->
+        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">N-1 Violations</p>
+            <p class="text-5xl font-extrabold leading-none {% if n1_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
+                {{ n1_viol }}
+            </p>
+            <p class="text-xs text-slate-400">{{ n1_total }} cases checked</p>
+        </div>
+
+    </div>
+
+    <!-- SECONDARY METRICS ROW -->
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-3xl font-bold text-slate-800">{{ overall.total_nodes }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Nodes</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-3xl font-bold text-slate-800">{{ overall.total_elements }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-3xl font-bold text-slate-800">{{ overall.total_n1 }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
+        </div>
+        {% if lf %}
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_load_mw) }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Load [MW]</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_gen_mw) }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Gen [MW]</div>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+            <div class="text-2xl font-bold text-slate-800">{{ "%.2f"|format(lf.losses_mw) }}</div>
+            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Losses [MW]</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- CRITICAL ELEMENTS QUICK-VIEW (if any violations) -->
+    {% if top_voltage_violations or top_loading_violations %}
+    <div class="border border-red-100 rounded-xl p-5 bg-red-50">
+        <h4 class="text-xs font-bold text-red-700 uppercase tracking-widest mb-4">Critical Elements</h4>
+        <div class="grid sm:grid-cols-2 gap-5">
+            {% if top_voltage_violations %}
+            <div>
+                <p class="text-xs font-semibold text-slate-600 mb-2">Voltage Violations</p>
+                {% for r in top_voltage_violations %}
+                <div class="flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3">
+                    <span class="truncate text-slate-700 font-medium">{{ r.node }}</span>
+                    <span class="badge-violation flex-shrink-0">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if top_loading_violations %}
+            <div>
+                <p class="text-xs font-semibold text-slate-600 mb-2">Thermal Violations</p>
+                {% for r in top_loading_violations %}
+                <div class="flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3">
+                    <span class="truncate text-slate-700 font-medium">{{ r.name }}</span>
+                    <span class="badge-violation flex-shrink-0">{{ "%.1f"|format(r.loading_pct) }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>

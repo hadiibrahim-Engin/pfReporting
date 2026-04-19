@@ -1,118 +1,121 @@
 {% from 'partials/_macros.html.j2' import badge %}
 {% if calc_options.run_voltage %}
-<section id="sec-voltage">
-    <div class="section-header">
-        <h2>Voltage Band Check</h2>
-        <div class="section-toolbar-right">
-            <button class="section-toggle" data-target="sec-voltage" title="Collapse / Expand">▾</button>
-        </div>
+<section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-voltage">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+         @click="toggleSection('sec-voltage')">
+        <h2 class="text-base font-semibold text-slate-800">
+            Voltage Band Check
+            <span class="ml-2 text-xs font-normal text-slate-400">({{ voltage | length }} nodes)</span>
+        </h2>
+        <svg :class="{'rotate-180': sections['sec-voltage']}"
+             class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
     </div>
-    <div class="section-body">
-        <div class="section-toolbar">
-            <div class="toolbar-left">
-                <span class="limit-info">
-                    Limits: {{ vcfg.lower_violation }}-{{ vcfg.lower_warning }} /
-                    {{ vcfg.upper_warning }}-{{ vcfg.upper_violation }} p.u.
-                </span>
-                <input type="text" class="section-search" data-section="sec-voltage"
-                       placeholder="Suchen …" autocomplete="off">
-            </div>
-            <div class="toolbar-right">
-                <label class="glass-toggle">
-                    <input type="checkbox" class="filter-toggle" checked>
-                    <span class="toggle-track"></span>
-                    <span class="toggle-label">Nur Verletzungen / Warnungen anzeigen</span>
-                </label>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th data-sort="text">Node</th>
-                    <th data-sort="num">U_nom [kV]</th>
-                    <th data-sort="num">U [kV]</th>
-                    <th data-sort="num">U [p.u.]</th>
-                    <th data-sort="num">Dev. [%]</th>
-                    <th>Assessment</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in voltage %}
-                <tr>
-                    <td>{{ r.node }}</td>
-                    <td class="num">{{ "%.1f"|format(r.u_nenn_kv) }}</td>
-                    <td class="num">{{ "%.2f"|format(r.u_kv) }}</td>
-                    <td class="num">{{ "%.4f"|format(r.u_pu) }}</td>
-                    <td class="num">{{ "%+.2f"|format(r.deviation_pct) }}</td>
-                    <td>{{ badge(r.status) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div x-show="!sections['sec-voltage']" x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
 
-        {% if voltage_by_level %}
-        <div style="margin-top:24px;">
-            <h3 style="font-size:14px;font-weight:600;margin-bottom:10px;color:var(--gray-800);">
-                Summary by Voltage Level
-            </h3>
-            <table class="compact-table">
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <span class="text-xs text-slate-500">
+                Limits: {{ vcfg.lower_violation }}&ndash;{{ vcfg.lower_warning }} /
+                {{ vcfg.upper_warning }}&ndash;{{ vcfg.upper_violation }} p.u.
+            </span>
+            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                <input type="checkbox" class="filter-toggle rounded accent-blue-600" checked>
+                <span>Show only violations / warnings</span>
+            </label>
+        </div>
+
+        <!-- DataTables-enabled voltage table -->
+        <div class="overflow-x-auto">
+            <table id="dt-voltage" class="w-full text-sm">
                 <thead>
                     <tr>
-                        <th>U_nom [kV]</th>
-                        <th data-sort="num">Nodes</th>
-                        <th data-sort="num">Min [p.u.]</th>
-                        <th data-sort="num">Max [p.u.]</th>
-                        <th data-sort="num">Violations</th>
-                        <th data-sort="num">Warnings</th>
+                        <th class="text-left px-3 py-2">Node</th>
+                        <th class="text-right px-3 py-2">U_nom [kV]</th>
+                        <th class="text-right px-3 py-2">U [kV]</th>
+                        <th class="text-right px-3 py-2">U [p.u.]</th>
+                        <th class="text-right px-3 py-2">Dev. [%]</th>
+                        <th class="text-left px-3 py-2">Assessment</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for kv, nodes in voltage_by_level.items() %}
-                <tr>
-                    <td>{{ "%.0f"|format(kv) }}</td>
-                    <td class="num">{{ nodes | length }}</td>
-                    <td class="num">{{ "%.4f"|format(nodes | map(attribute='u_pu') | min) }}</td>
-                    <td class="num">{{ "%.4f"|format(nodes | map(attribute='u_pu') | max) }}</td>
-                    <td class="num">
-                        {% set n_viol = nodes | selectattr('status', 'eq', 'violation') | list | length %}
-                        {% if n_viol > 0 %}
-                        <span class="badge-violation">{{ n_viol }}</span>
-                        {% else %}0{% endif %}
-                    </td>
-                    <td class="num">
-                        {% set n_warn = nodes | selectattr('status', 'eq', 'warning') | list | length %}
-                        {% if n_warn > 0 %}
-                        <span class="badge-warning">{{ n_warn }}</span>
-                        {% else %}0{% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
+                    {% for r in voltage %}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                        <td class="px-3 py-2 text-slate-800">{{ r.node }}</td>
+                        <td class="px-3 py-2 text-right font-mono">{{ "%.1f"|format(r.u_nenn_kv) }}</td>
+                        <td class="px-3 py-2 text-right font-mono">{{ "%.2f"|format(r.u_kv) }}</td>
+                        <td class="px-3 py-2 text-right font-mono font-semibold">{{ "%.4f"|format(r.u_pu) }}</td>
+                        <td class="px-3 py-2 text-right font-mono">{{ "%+.2f"|format(r.deviation_pct) }}</td>
+                        <td class="px-3 py-2">{{ badge(r.status) }}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        {% if voltage_by_level %}
+        <div class="mt-6">
+            <h3 class="text-sm font-semibold text-slate-700 mb-3">Summary by Voltage Level</h3>
+            <div class="overflow-x-auto">
+                <table class="w-auto text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200">
+                            <th class="text-left px-3 py-2 font-semibold text-slate-600 bg-slate-50">U_nom [kV]</th>
+                            <th class="text-right px-3 py-2 font-semibold text-slate-600 bg-slate-50">Nodes</th>
+                            <th class="text-right px-3 py-2 font-semibold text-slate-600 bg-slate-50">Min [p.u.]</th>
+                            <th class="text-right px-3 py-2 font-semibold text-slate-600 bg-slate-50">Max [p.u.]</th>
+                            <th class="text-right px-3 py-2 font-semibold text-slate-600 bg-slate-50">Violations</th>
+                            <th class="text-right px-3 py-2 font-semibold text-slate-600 bg-slate-50">Warnings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kv, nodes in voltage_by_level.items() %}
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-3 py-2 font-semibold text-slate-800">{{ "%.0f"|format(kv) }}</td>
+                            <td class="px-3 py-2 text-right font-mono">{{ nodes | length }}</td>
+                            <td class="px-3 py-2 text-right font-mono">{{ "%.4f"|format(nodes | map(attribute='u_pu') | min) }}</td>
+                            <td class="px-3 py-2 text-right font-mono">{{ "%.4f"|format(nodes | map(attribute='u_pu') | max) }}</td>
+                            <td class="px-3 py-2 text-right">
+                                {% set n_viol = nodes | selectattr('status', 'eq', 'violation') | list | length %}
+                                {% if n_viol > 0 %}<span class="badge-violation">{{ n_viol }}</span>{% else %}0{% endif %}
+                            </td>
+                            <td class="px-3 py-2 text-right">
+                                {% set n_warn = nodes | selectattr('status', 'eq', 'warning') | list | length %}
+                                {% if n_warn > 0 %}<span class="badge-warning">{{ n_warn }}</span>{% else %}0{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         {% endif %}
 
         {% if voltage_hm_data %}
-        <div class="hm-toggle-row">
-            <button class="hm-toggle-btn"
+        <div class="mt-5">
+            <button class="hm-toggle-btn text-sm px-4 py-2 border border-blue-300 rounded-lg text-blue-600 font-semibold bg-blue-50 hover:bg-blue-600 hover:text-white transition-colors"
                     data-target="hm-voltage"
                     data-label-open="Show Voltage Heatmap"
                     data-label-close="Hide Voltage Heatmap">
                 Show Voltage Heatmap
             </button>
         </div>
-        <div id="hm-voltage" class="hm-panel" style="display:none;"
+        <div id="hm-voltage" class="hidden mt-4 border border-slate-200 rounded-xl p-4 bg-slate-50"
              data-hm="{{ voltage_hm_data | tojson | e }}">
-            <div class="hm-controls-bar">
-                <button class="hm-select-btn" data-mode="critical">Only anomalies</button>
-                <button class="hm-select-btn" data-mode="all">All</button>
-                <button class="hm-select-btn" data-mode="none">None</button>
-                <span class="hm-info"></span>
+            <div class="flex flex-wrap gap-2 items-center mb-3">
+                <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="critical">Only anomalies</button>
+                <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="all">All</button>
+                <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="none">None</button>
+                <span class="hm-info text-xs text-slate-400 ml-auto"></span>
             </div>
-            <div class="hm-elem-selector"></div>
-            <div class="hm-render-area"></div>
+            <div class="hm-elem-selector flex flex-wrap gap-1.5 mb-3 max-h-36 overflow-y-auto"></div>
+            <div class="hm-render-area overflow-x-auto"></div>
         </div>
         {% endif %}
+
     </div>
 </section>
 {% endif %}

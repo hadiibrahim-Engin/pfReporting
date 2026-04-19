@@ -1,60 +1,64 @@
 {% if calc_options.run_qds %}
-<section id="sec-qds-info">
-    <div class="section-header">
-        <h2>Quasi-Dynamic Simulation - Settings</h2>
-        <button class="section-toggle" data-target="sec-qds-info" title="Collapse / Expand">▾</button>
+<section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-qds-info">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
+         @click="toggleSection('sec-qds-info')">
+        <h2 class="text-base font-semibold text-slate-800">Quasi-Dynamic Simulation — Settings</h2>
+        <svg :class="{'rotate-180': sections['sec-qds-info']}"
+             class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
     </div>
-    <div class="section-body">
-        <div class="qds-info-grid">
-            <div class="qds-info-item">
-                <div class="qds-info-label">Project</div>
-                <div class="qds-info-value">{{ info.project }}</div>
+    <div x-show="!sections['sec-qds-info']" x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Project</div>
+                <div class="text-sm font-semibold text-slate-800">{{ info.project }}</div>
             </div>
-            <div class="qds-info-item">
-                <div class="qds-info-label">Study Case</div>
-                <div class="qds-info-value">{{ info.study_case }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Study Case</div>
+                <div class="text-sm font-semibold text-slate-800">{{ info.study_case }}</div>
             </div>
             {% if qds_info %}
             {% if qds_info.scenario %}
-            <div class="qds-info-item">
-                <div class="qds-info-label">Scenario</div>
-                <div class="qds-info-value">{{ qds_info.scenario }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Scenario</div>
+                <div class="text-sm font-semibold text-slate-800">{{ qds_info.scenario }}</div>
             </div>
             {% endif %}
             {% if qds_info.study_time_start %}
-            <div class="qds-info-item">
-                <div class="qds-info-label">Start Time (Calendar)</div>
-                <div class="qds-info-value">{{ qds_info.study_time_start }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Start Time (Calendar)</div>
+                <div class="text-sm font-semibold text-slate-800">{{ qds_info.study_time_start }}</div>
             </div>
             {% endif %}
-            <div class="qds-info-item">
-                <div class="qds-info-label">Simulation Period</div>
-                <div class="qds-info-value">
-                    {{ "%.2f"|format(qds_info.t_start_h) }} h - {{ "%.2f"|format(qds_info.t_end_h) }} h
-                </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Simulation Period</div>
+                <div class="text-sm font-semibold text-slate-800">{{ "%.2f"|format(qds_info.t_start_h) }} – {{ "%.2f"|format(qds_info.t_end_h) }} h</div>
             </div>
-            <div class="qds-info-item">
-                <div class="qds-info-label">Time Step</div>
-                <div class="qds-info-value">{{ "%.4g"|format(qds_info.dt_h) }} h</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Time Step</div>
+                <div class="text-sm font-semibold text-slate-800">{{ "%.4g"|format(qds_info.dt_h) }} h</div>
             </div>
-            <div class="qds-info-item">
-                <div class="qds-info-label">Number of Steps</div>
-                <div class="qds-info-value">{{ qds_info.n_steps }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Number of Steps</div>
+                <div class="text-sm font-semibold text-slate-800">{{ qds_info.n_steps }}</div>
             </div>
             {% if qds_info.result_file %}
-            <div class="qds-info-item">
-                <div class="qds-info-label">Result File</div>
-                <div class="qds-info-value" style="font-size:12px;">{{ qds_info.result_file }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 col-span-2">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Result File</div>
+                <div class="text-xs font-mono text-slate-700 break-all">{{ qds_info.result_file }}</div>
             </div>
             {% endif %}
             {% endif %}
-            <div class="qds-info-item">
-                <div class="qds-info-label">Created</div>
-                <div class="qds-info-value">{{ info.datetime_full }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Created</div>
+                <div class="text-sm font-semibold text-slate-800">{{ info.datetime_full }}</div>
             </div>
-            <div class="qds-info-item">
-                <div class="qds-info-label">Author</div>
-                <div class="qds-info-value">{{ info.author }}</div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Author</div>
+                <div class="text-sm font-semibold text-slate-800">{{ info.author }}</div>
             </div>
         </div>
     </div>
