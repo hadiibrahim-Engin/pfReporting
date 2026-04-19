@@ -10,14 +10,8 @@
 {% set t_viol_pct = (t_viol / thermal_total * 100) if thermal_total > 0 else 0 %}
 {% set v_viol_pct_c = [v_viol_pct, 100] | min %}
 {% set t_viol_pct_c = [t_viol_pct, 100] | min %}
-{% set icon_map = {'green': '✅', 'amber': '⚠️', 'red': '❌'} %}
-{% set verdict_color = {
-    'green': 'bg-emerald-50 border-emerald-300 text-emerald-800',
-    'amber': 'bg-amber-50 border-amber-300 text-amber-800',
-    'red':   'bg-red-50 border-red-300 text-red-800'
-} %}
 
-<section id="kpi-hero" class="bg-white rounded-2xl border border-slate-100 shadow-lg p-8 mb-6">
+<section id="kpi-hero" class="glass-card rounded-2xl shadow-lg p-8 mb-6">
 
     <!-- Header -->
     <div class="mb-6">
@@ -26,23 +20,12 @@
         <p class="text-sm text-slate-400 mt-0.5">{{ info.study_case }} &mdash; {{ info.date }} {{ info.time }}</p>
     </div>
 
-    <!-- Verdict banner -->
-    <div class="rounded-xl border p-5 mb-8 flex items-start gap-4 {{ verdict_color[ampel.color] }}">
-        <span class="text-4xl leading-none flex-shrink-0 mt-0.5">{{ icon_map[ampel.color] }}</span>
-        <div>
-            <p class="text-xl font-extrabold tracking-tight leading-tight">{{ ampel.verdict }}</p>
-            <ul class="mt-2 text-sm space-y-0.5 list-disc list-inside opacity-90">
-                {% for f in ampel.findings %}<li>{{ f }}</li>{% endfor %}
-            </ul>
-        </div>
-    </div>
-
-    <!-- PRIMARY KPI CARDS — hero numbers -->
+    <!-- PRIMARY KPI CARDS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 
-        <!-- Total Violations — THE HERO NUMBER -->
-        <div class="rounded-2xl p-6 flex flex-col gap-2 border-2
-                    {% if overall.total_violations > 0 %}bg-red-50 border-red-300{% else %}bg-emerald-50 border-emerald-300{% endif %}">
+        <!-- Total Violations — hero number -->
+        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 border-2
+                    {% if overall.total_violations > 0 %}bg-red-50/60 border-red-300{% else %}bg-emerald-50/60 border-emerald-300{% endif %}">
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Total Violations</p>
             <p class="text-7xl font-black leading-none {% if overall.total_violations > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
                 {{ overall.total_violations }}
@@ -50,8 +33,9 @@
             <p class="text-xs text-slate-400">across all analyses</p>
         </div>
 
-        <!-- Voltage Violations -->
-        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+        <!-- Voltage Violations — clickable → tab-tables #sec-voltage -->
+        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
+             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-voltage'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Voltage Violations</p>
             <p class="text-5xl font-extrabold leading-none {% if v_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
                 {{ v_viol }}
@@ -64,10 +48,12 @@
                 </div>
                 <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(v_viol_pct) }}% of {{ voltage_total }} nodes</p>
             </div>
+            <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">→ View table</p>
         </div>
 
-        <!-- Thermal Violations -->
-        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+        <!-- Thermal Violations — clickable → tab-tables #sec-thermal -->
+        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
+             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-thermal'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Thermal Violations</p>
             <p class="text-5xl font-extrabold leading-none {% if t_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
                 {{ t_viol }}
@@ -80,61 +66,69 @@
                 </div>
                 <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(t_viol_pct) }}% of {{ thermal_total }} elements</p>
             </div>
+            <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">→ View table</p>
         </div>
 
-        <!-- N-1 Violations -->
-        <div class="rounded-2xl p-6 flex flex-col gap-2 bg-white border border-slate-200 shadow-sm">
+        <!-- N-1 Violations — clickable → tab-tables #sec-n1 -->
+        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
+             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-n1'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">N-1 Violations</p>
             <p class="text-5xl font-extrabold leading-none {% if n1_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
                 {{ n1_viol }}
             </p>
             <p class="text-xs text-slate-400">{{ n1_total }} cases checked</p>
+            <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-auto">→ View table</p>
         </div>
 
     </div>
 
     <!-- SECONDARY METRICS ROW -->
     <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_nodes }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Nodes</div>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_elements }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_n1 }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
         </div>
         {% if lf %}
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_load_mw) }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Load [MW]</div>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_gen_mw) }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Gen [MW]</div>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-center">
+        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-2xl font-bold text-slate-800">{{ "%.2f"|format(lf.losses_mw) }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Losses [MW]</div>
         </div>
         {% endif %}
     </div>
 
-    <!-- CRITICAL ELEMENTS QUICK-VIEW (if any violations) -->
+    <!-- CRITICAL ELEMENTS — click to jump to exact table row -->
     {% if top_voltage_violations or top_loading_violations %}
-    <div class="border border-red-100 rounded-xl p-5 bg-red-50">
-        <h4 class="text-xs font-bold text-red-700 uppercase tracking-widest mb-4">Critical Elements</h4>
+    <div class="border border-red-100 rounded-xl p-5 bg-red-50/50 backdrop-blur-sm">
+        <h4 class="text-xs font-bold text-red-700 uppercase tracking-widest mb-1">Critical Elements</h4>
+        <p class="text-xs text-red-400 mb-4">Click any row to jump directly to the table</p>
         <div class="grid sm:grid-cols-2 gap-5">
             {% if top_voltage_violations %}
             <div>
                 <p class="text-xs font-semibold text-slate-600 mb-2">Voltage Violations</p>
                 {% for r in top_voltage_violations %}
-                <div class="flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3">
+                <div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
+                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.node | replace("'", "\\'") }}', 'voltage'))">
                     <span class="truncate text-slate-700 font-medium">{{ r.node }}</span>
-                    <span class="badge-violation flex-shrink-0">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
+                    <span class="flex items-center gap-1.5 flex-shrink-0">
+                        <span class="badge-violation">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
+                        <span class="nav-arrow">↗</span>
+                    </span>
                 </div>
                 {% endfor %}
             </div>
@@ -143,9 +137,13 @@
             <div>
                 <p class="text-xs font-semibold text-slate-600 mb-2">Thermal Violations</p>
                 {% for r in top_loading_violations %}
-                <div class="flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3">
+                <div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
+                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.name | replace("'", "\\'") }}', 'thermal'))">
                     <span class="truncate text-slate-700 font-medium">{{ r.name }}</span>
-                    <span class="badge-violation flex-shrink-0">{{ "%.1f"|format(r.loading_pct) }}%</span>
+                    <span class="flex items-center gap-1.5 flex-shrink-0">
+                        <span class="badge-violation">{{ "%.1f"|format(r.loading_pct) }}%</span>
+                        <span class="nav-arrow">↗</span>
+                    </span>
                 </div>
                 {% endfor %}
             </div>

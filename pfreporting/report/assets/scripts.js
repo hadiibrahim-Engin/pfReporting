@@ -74,12 +74,15 @@
 
     document.querySelectorAll('.filter-toggle').forEach(function (cb) {
         var section = cb.closest('section');
-        var tbody   = section ? section.querySelector('table tbody') : null;
+        /* Skip DataTables-managed tables — handled by DT external search in report.html.j2 */
+        if (section && section.querySelector('table[id^="dt-"]')) return;
+        var tbody = section ? section.querySelector('table tbody') : null;
         if (tbody) {
             applyIssueFilter(tbody, cb.checked);
         }
         cb.addEventListener('change', function () {
-            var sec2  = cb.closest('section');
+            var sec2 = cb.closest('section');
+            if (sec2 && sec2.querySelector('table[id^="dt-"]')) return;
             var body2 = sec2 ? sec2.querySelector('table tbody') : null;
             if (!body2) return;
             applyIssueFilter(body2, cb.checked);

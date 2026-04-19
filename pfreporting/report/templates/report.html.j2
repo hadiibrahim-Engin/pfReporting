@@ -5,53 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freischaltbewertung &mdash; {{ info.project }} &mdash; {{ info.date }}</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js CDN (deferred — must be before body usage) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- DataTables CSS (Tailwind-compatible) -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.tailwindcss.min.css">
-
-    <!-- Minimal override CSS -->
     <style>{{ css }}</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased"
+<body class="text-slate-800 font-sans antialiased"
       x-data="reportApp()"
       x-cloak>
 
 {# ==================== STICKY NAVIGATION ==================== #}
-{% set v_count = voltage | length %}
-{% set t_count = loading | length %}
-
-{# Determine tab order and first active tab #}
-{% set first_tab = 'tab-overview' %}
-
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+<nav class="sticky top-0 z-50 glass-nav shadow-sm">
     <div class="max-w-screen-xl mx-auto px-4 flex items-center gap-1 h-14 overflow-x-auto">
 
         <button @click="setTab('tab-overview')"
                 :class="activeTab === 'tab-overview'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:bg-slate-100'"
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50'
+                    : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
             Overview
         </button>
 
-        <button @click="setTab('tab-kpis')"
-                :class="activeTab === 'tab-kpis'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:bg-slate-100'"
+        <button @click="setTab('tab-statistics')"
+                :class="activeTab === 'tab-statistics'
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50'
+                    : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
-            KPIs &amp; Summary
+            Statistics
         </button>
 
         {% if calc_options.run_qds %}
         <button @click="setTab('tab-qds')"
                 :class="activeTab === 'tab-qds'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:bg-slate-100'"
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50'
+                    : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
             Quasi-Dynamic
         </button>
@@ -59,29 +46,28 @@
 
         <button @click="setTab('tab-tables')"
                 :class="activeTab === 'tab-tables'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:bg-slate-100'"
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50'
+                    : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
             Tables
             {% if overall.total_violations > 0 %}
-            <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ overall.total_violations }}</span>
+            <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 animate-pulse">{{ overall.total_violations }}</span>
             {% endif %}
         </button>
 
         <button @click="setTab('tab-details')"
                 :class="activeTab === 'tab-details'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 hover:bg-slate-100'"
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50'
+                    : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
             Details
         </button>
 
         <!-- Jump links -->
         <div class="ml-auto flex items-center gap-3 text-xs text-slate-400 flex-shrink-0 pl-4 border-l border-slate-200">
-            <a href="#kpi-hero" @click="setTab('tab-kpis')" class="hover:text-blue-600 transition-colors whitespace-nowrap">KPIs</a>
-            {% if calc_options.run_voltage %}<a href="#sec-voltage" @click="setTab('tab-tables')" class="hover:text-blue-600 transition-colors whitespace-nowrap">Voltage</a>{% endif %}
-            {% if calc_options.run_thermal %}<a href="#sec-thermal" @click="setTab('tab-tables')" class="hover:text-blue-600 transition-colors whitespace-nowrap">Thermal</a>{% endif %}
-            {% if calc_options.run_n1 %}<a href="#sec-n1" @click="setTab('tab-tables')" class="hover:text-blue-600 transition-colors whitespace-nowrap">N-1</a>{% endif %}
+            {% if calc_options.run_voltage %}<a @click.prevent="setTab('tab-tables')" href="#sec-voltage" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Voltage</a>{% endif %}
+            {% if calc_options.run_thermal %}<a @click.prevent="setTab('tab-tables')" href="#sec-thermal" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Thermal</a>{% endif %}
+            {% if calc_options.run_n1 %}<a @click.prevent="setTab('tab-tables')" href="#sec-n1" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">N-1</a>{% endif %}
         </div>
     </div>
 </nav>
@@ -89,24 +75,24 @@
 {# ==================== MAIN CONTENT ==================== #}
 <main class="max-w-screen-xl mx-auto px-4 py-6">
 
-    {# ---- TAB: OVERVIEW ---- #}
+    {# ---- TAB: OVERVIEW (header + verdict + KPIs + summary + board) ---- #}
     <div x-show="activeTab === 'tab-overview'"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 translate-y-1"
          x-transition:enter-end="opacity-100 translate-y-0">
         {% include 'partials/header.html.j2' %}
         {% include 'partials/ampel.html.j2' %}
+        {% include 'partials/kpi_hero.html.j2' %}
+        {% include 'partials/summary.html.j2' %}
         {% include 'partials/overview_board.html.j2' %}
         {% include 'partials/executive_summary.html.j2' %}
     </div>
 
-    {# ---- TAB: KPIs & SUMMARY ---- #}
-    <div x-show="activeTab === 'tab-kpis'"
+    {# ---- TAB: STATISTICS ---- #}
+    <div x-show="activeTab === 'tab-statistics'"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 translate-y-1"
          x-transition:enter-end="opacity-100 translate-y-0">
-        {% include 'partials/kpi_hero.html.j2' %}
-        {% include 'partials/summary.html.j2' %}
         {% include 'partials/statistics.html.j2' %}
     </div>
 
@@ -120,7 +106,7 @@
         {% if ts_data and not ts_data.is_empty() %}
         {% include 'partials/timeseries.html.j2' %}
         {% else %}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow p-8 text-center text-slate-400">
+        <div class="glass-card rounded-2xl shadow p-8 text-center text-slate-400">
             <p class="text-lg">No time series data available.</p>
             <p class="text-sm mt-2">Run the quasi-dynamic simulation to generate chart data.</p>
         </div>
@@ -135,7 +121,7 @@
          x-transition:enter-end="opacity-100 translate-y-0">
 
         <!-- Global search bar -->
-        <div class="flex items-center gap-3 bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3 mb-5">
+        <div class="flex items-center gap-3 glass-card rounded-xl px-4 py-3 mb-5">
             <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -178,7 +164,7 @@
 {# Chart data payload #}
 <script>window.__chartData = {{ chart_data_json }};</script>
 
-{# Application JS (heatmap, search, sort, filter — vanilla JS kept) #}
+{# Application JS (heatmap, search, sort, filter — vanilla JS) #}
 <script>{{ scripts }}</script>
 
 {# Alpine root component + DataTables init #}
@@ -187,14 +173,14 @@ function reportApp() {
     return {
         activeTab: 'tab-overview',
         sections: {
-            'sec-voltage':    false,
-            'sec-thermal':    false,
-            'sec-n1':         false,
-            'sec-switched':   false,
-            'sec-loadflow':   false,
-            'sec-statistics': false,
-            'sec-qds-info':   false,
-            'sec-timeseries': false,
+            'sec-voltage':     false,
+            'sec-thermal':     false,
+            'sec-n1':          false,
+            'sec-switched':    false,
+            'sec-loadflow':    false,
+            'sec-statistics':  false,
+            'sec-qds-info':    false,
+            'sec-timeseries':  false,
             'sec-calc-params': false,
         },
         setTab: function(id) {
@@ -213,31 +199,65 @@ function reportApp() {
 }
 
 $(document).ready(function() {
-    function reapplyFilter(secId) {
-        var sec = document.getElementById(secId);
-        var cb = sec && sec.querySelector('.filter-toggle');
-        if (cb && cb.checked && typeof applyIssueFilter === 'function') {
-            applyIssueFilter(sec.querySelector('tbody'), true);
-        }
-    }
 
+    /* ---------------------------------------------------------------
+       DataTables external search — violation/warning filter
+       Uses DT's own search pipeline so pagination works correctly.
+    --------------------------------------------------------------- */
+    window.__dtFilterActive = {};
+
+    $.fn.dataTable.ext.search.push(function(settings, rowData, dataIndex) {
+        var tableId = settings.nTable && settings.nTable.id;
+        if (!window.__dtFilterActive[tableId]) return true;
+        var rowNode = settings.aoData[dataIndex] && settings.aoData[dataIndex].nTr;
+        return !!(rowNode && rowNode.querySelector('.badge-violation, .badge-warning'));
+    });
+
+    /* Wire .filter-toggle checkboxes inside DT sections */
+    document.querySelectorAll('.filter-toggle').forEach(function(cb) {
+        var section = cb.closest('section');
+        if (!section) return;
+        var dtTable = section.querySelector('table[id^="dt-"]');
+        if (!dtTable) return;
+        var tid = dtTable.id;
+        window.__dtFilterActive[tid] = cb.checked;
+        cb.addEventListener('change', function() {
+            window.__dtFilterActive[tid] = cb.checked;
+            $('#' + tid).DataTable().draw();
+        });
+    });
+
+    /* ---------------------------------------------------------------
+       DataTables initialization
+    --------------------------------------------------------------- */
     {% if calc_options.run_voltage and voltage %}
     var dtVoltage = $('#dt-voltage').DataTable({
         pageLength: 25,
         order: [[3, 'asc']],
         language: { search: 'Node search:' },
-        columnDefs: [{ orderable: false, targets: 5 }]
+        columnDefs: [{ orderable: false, targets: 5 }],
+        drawCallback: function() {
+            /* Re-highlight navigated row after each draw */
+            if (window.__pendingNavRow) {
+                _highlightRow(window.__pendingNavRow.tableId, window.__pendingNavRow.name);
+            }
+        }
     });
-    dtVoltage.on('draw.dt', function() { reapplyFilter('sec-voltage'); });
+    if (window.__dtFilterActive['dt-voltage']) dtVoltage.draw();
     {% endif %}
 
     {% if calc_options.run_thermal and loading %}
     var dtThermal = $('#dt-thermal').DataTable({
         pageLength: 25,
         order: [[2, 'desc']],
-        columnDefs: [{ orderable: false, targets: [2, 5] }]
+        columnDefs: [{ orderable: false, targets: [2, 5] }],
+        drawCallback: function() {
+            if (window.__pendingNavRow) {
+                _highlightRow(window.__pendingNavRow.tableId, window.__pendingNavRow.name);
+            }
+        }
     });
-    dtThermal.on('draw.dt', function() { reapplyFilter('sec-thermal'); });
+    if (window.__dtFilterActive['dt-thermal']) dtThermal.draw();
     {% endif %}
 
     {% if calc_options.run_n1 and n1 %}
@@ -246,8 +266,51 @@ $(document).ready(function() {
         order: [[3, 'desc']],
         columnDefs: [{ orderable: false, targets: [2, 6, 7] }]
     });
-    dtN1.on('draw.dt', function() { reapplyFilter('sec-n1'); });
+    if (window.__dtFilterActive['dt-n1']) dtN1.draw();
     {% endif %}
+
+    /* ---------------------------------------------------------------
+       Row navigation — jump from critical elements to table rows
+    --------------------------------------------------------------- */
+    function _highlightRow(tableId, elementName) {
+        window.__pendingNavRow = null;
+        var rows = document.querySelectorAll('#' + tableId + ' tbody tr');
+        rows.forEach(function(row) {
+            var cell = row.querySelector('td:first-child');
+            if (cell && cell.textContent.trim() === elementName) {
+                row.classList.add('row-nav-highlight');
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() { row.classList.remove('row-nav-highlight'); }, 2400);
+            }
+        });
+    }
+
+    window.navigateToRow = function(elementName, tableType) {
+        var tableId = tableType === 'voltage'  ? 'dt-voltage'
+                    : tableType === 'thermal'  ? 'dt-thermal'
+                    : tableType === 'n1'       ? 'dt-n1'
+                    : null;
+        if (!tableId || typeof $ === 'undefined' || !$.fn.dataTable.isDataTable('#' + tableId)) return;
+
+        var dt = $('#' + tableId).DataTable();
+        /* Find row and page */
+        var targetPage = null;
+        dt.rows().every(function() {
+            var node = this.node();
+            var cell = node && node.querySelector('td:first-child');
+            if (cell && cell.textContent.trim() === elementName) {
+                var pageLen = dt.page.len();
+                targetPage = Math.floor(this.index() / pageLen);
+                return false;
+            }
+        });
+
+        if (targetPage !== null) {
+            window.__pendingNavRow = { tableId: tableId, name: elementName };
+            dt.page(targetPage).draw('page');
+            setTimeout(function() { _highlightRow(tableId, elementName); }, 250);
+        }
+    };
 });
 </script>
 

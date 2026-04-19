@@ -15,6 +15,13 @@ Prerequisites - making the package available (one of three options):
               sys.path.insert(0, r"C:\\PF_Tools\\pfReporting")
     Option C  Place in the same directory as the script (no sys.path needed)
 
+Execution modes (set EXECUTION_MODE below):
+    ExecutionMode.FULL              — all reports: main + executive summary + QDS detail + LF comparison
+    ExecutionMode.HTML_ONLY         — main report only (skips executive summary)
+    ExecutionMode.SUMMARY_ONLY      — executive summary PDF-ready page only
+    ExecutionMode.CALCULATIONS_ONLY — run PF calculations without generating HTML
+    ExecutionMode.TABLES_ONLY       — like HTML_ONLY but skips QDS charts
+
 Workflow:
     [Step 1]  Run QDS simulation (ComStatsim)
               Read time series from ElmRes
@@ -23,8 +30,8 @@ Workflow:
     [Step 2]  Load flow + voltage band + thermal loading + N-1 analysis
               (each calculation can be toggled via CalculationOptions)
 
-    [Step 3]  Generate portable HTML report with embedded plots
-              Clickable link to the report is printed in the PF output window.
+    [Step 3]  Generate HTML report(s) — returns dict[str, Path] of all outputs
+              Clickable links for each output are printed in the PF output window.
 """
 import sys
 import os
@@ -233,9 +240,18 @@ if CONFIG_JSON_PATH:
     )
     app.PrintInfo(f"Configuration loaded: {CONFIG_JSON_PATH}")
 
-# -- Start workflow ------------------------------------------------------------
-from pfreporting import run_full_workflow
+# -- Execution mode -----------------------------------------------------------
+# Choose which reports to generate. Options:
+#   ExecutionMode.FULL              — all reports
+#   ExecutionMode.HTML_ONLY         — main report only
+#   ExecutionMode.SUMMARY_ONLY      — executive summary only
+#   ExecutionMode.CALCULATIONS_ONLY — calculations only, no HTML output
+#   ExecutionMode.TABLES_ONLY       — main report without QDS charts
+from pfreporting.pipeline import ExecutionMode, run_full_workflow
 
+EXECUTION_MODE = ExecutionMode.FULL
+
+# -- Start workflow ------------------------------------------------------------
 pf_report = _find_intreport_for_script(app, script, CONFIG.report.intreport_name)
 if pf_report is not None:
     app.PrintInfo(
@@ -246,23 +262,30 @@ else:
         "No IntReport found. QDS will run, but IntReport tables will not be written."
     )
 
-dest = run_full_workflow(
+# run_full_workflow returns dict[str, Path] — one entry per generated report
+outputs = run_full_workflow(
     app=app,
     config=CONFIG,
-    pf_report=pf_report,  # QDS always runs; IntReport write is used when available
+    pf_report=pf_report,
+    mode=EXECUTION_MODE,
+    # data_before=None,   # supply a ReportData snapshot for load-flow comparison
 )
 
-# -- Print clickable link in PF output window ----------------------------------
-file_url = "file:///" + str(dest).replace("\\", "/")
-try:
-    # PrintHtml is available in PowerFactory 2022 and later
-    app.PrintHtml(
-        f'<a href="{file_url}">&#128196; Report: {dest}</a>'
-    )
-except Exception:
-    # Fallback for older PowerFactory versions
-    app.PrintPlain("")
-    app.PrintPlain("====================================================")
-    app.PrintPlain(f"Report saved: {dest}")
-    app.PrintPlain(f"Open in browser: {file_url}")
-    app.PrintPlain("====================================================")
+# -- Print clickable links in PF output window ---------------------------------
+_labels = {
+    "main":                "Main Report",
+    "executive_summary":   "Executive Summary",
+    "qds_detail":          "QDS Detail",
+    "loadflow_comparison": "LF Comparison",
+}
+app.PrintPlain("")
+app.PrintPlain("=" * 60)
+for key, dest in outputs.items():
+    label = _labels.get(key, key)
+    file_url = "file:///" + str(dest).replace("\\", "/")
+    try:
+        app.PrintHtml(f'<a href="{file_url}">&#128196; {label}: {dest}</a>')
+    except Exception:
+        app.PrintPlain(f"{label}: {dest}")
+        app.PrintPlain(f"  URL: {file_url}")
+app.PrintPlain("=" * 60)
