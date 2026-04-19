@@ -69,11 +69,11 @@ CONFIG = PFReportConfig(
 
     # -- Which calculations to run --------------------------------------------
     calc=CalculationOptions(
-        run_qds=True,       # Quasi-dynamic simulation + time series charts
-        run_loadflow=True,  # Static load flow (P, Q, losses, power factor)
-        run_voltage=True,   # Voltage band check for all nodes
-        run_thermal=True,   # Thermal loading of all lines and transformers
-        run_n1=True,        # N-1 contingency analysis (outage loop)
+        run_qds=True,        # Quasi-dynamic simulation + time series charts
+        run_loadflow=False,  # Static load flow (disabled — kept for future use)
+        run_voltage=True,    # Voltage band check for all nodes
+        run_thermal=True,    # Thermal loading of all lines and transformers
+        run_n1=False,        # N-1 contingency analysis (disabled — kept for future use)
     ),
 
     # -- QDS time range (optional overrides) ----------------------------------
@@ -178,7 +178,9 @@ CONFIG = PFReportConfig(
 CONFIG_JSON_PATH = ""  # e.g. r"C:\PF_Tools\my_config.json"
 
 # Execution mode — controls which report files are generated.
-EXECUTION_MODE = ExecutionMode.FULL
+# HTML_ONLY = single main report (all tabs: Overview, Statistics, QDS, Tables, Details)
+# FULL      = main report + executive summary PDF page + QDS detail + LF comparison
+EXECUTION_MODE = ExecutionMode.HTML_ONLY
 
 
 # ============================================================================
@@ -232,6 +234,13 @@ def _find_intreport_for_script(app, script, preferred_name=None):
 # ============================================================================
 
 def main():
+    # Force Python to release any stale COM wrappers from the previous run before
+    # PowerFactory's internal cleanup runs.  Without this, the old app reference
+    # held by the logging handler (and any other cached objects) is still alive when
+    # PF invalidates it, which triggers "already deleted" on the second run.
+    import gc
+    gc.collect()
+
     # Fresh reference every time — avoids "already deleted" on repeated runs
     app    = powerfactory.GetApplication()
     script = app.GetCurrentScript()

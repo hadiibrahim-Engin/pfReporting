@@ -150,10 +150,10 @@
 
 </main>
 
-{# ==================== VENDOR JS (inlined, offline-capable) ==================== #}
-<script>{{ vendor_js.hammer }}</script>
-<script>{{ vendor_js.chart }}</script>
-<script>{{ vendor_js.zoom }}</script>
+{# ==================== VENDOR JS (CDN) ==================== #}
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 
 {# DataTables (CDN, requires internet) #}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"

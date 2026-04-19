@@ -1,11 +1,8 @@
-"""HTML report generator - converts ReportData into a portable HTML file."""
+"""HTML report generator — converts ReportData into a portable HTML file."""
 from __future__ import annotations
 
 import json
-import math
-import logging
 from collections import defaultdict
-from importlib import resources
 from pathlib import Path
 
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -14,22 +11,17 @@ from pfreporting.config import PFReportConfig
 from pfreporting.exceptions import ReportError
 from pfreporting.logger import get_logger
 from pfreporting.report.builder import ReportData
+from pfreporting.report.transformer import ReportDataTransformer
 
 log = get_logger()
 
-# Assets directory of this file
 _ASSETS_DIR = Path(__file__).parent / "assets"
 
 
 class HTMLReportGenerator:
-    """Generate a fully portable (offline-capable) HTML report."""
+    """Generate a fully portable HTML report from a ReportData snapshot."""
 
     def __init__(self, config: PFReportConfig) -> None:
-        """Prepare template environment and inline assets.
-
-        Args:
-            config: Report configuration used for rendering and threshold lines.
-        """
         self.config = config
         self._env = Environment(
             loader=PackageLoader("pfreporting.report", "templates"),
@@ -37,54 +29,37 @@ class HTMLReportGenerator:
             trim_blocks=True,
             lstrip_blocks=True,
         )
-        self._css = self._read_asset("style.css")
+        self._css     = self._read_asset("style.css")
         self._scripts = self._read_asset("scripts.js")
-        self._vendor = {
-            "chart":  self._read_asset("vendor/chart.min.js"),
-            "hammer": self._read_asset("vendor/hammer.min.js"),
-            "zoom":   self._read_asset("vendor/chartjs-plugin-zoom.min.js"),
-        }
 
     # -- Public API --------------------------------------------------------
 
     def generate(self, data: ReportData) -> str:
-        """Render the complete HTML report.
-
-        Args:
-            data: Fully assembled report data model.
-
-        Returns:
-            HTML document as a string.
-
-        Raises:
-            ReportError: If template loading or rendering fails.
-        """
+        """Render the complete HTML report string."""
         try:
             template = self._env.get_template("report.html.j2")
         except Exception as exc:
             raise ReportError(f"Template load error: {exc}") from exc
 
-        chart_data = self._build_chart_data(data)
-        heatmap_data = self._build_heatmap_data(data)
+        t = ReportDataTransformer(self.config)
 
-        thermal_hm = self._build_thermal_hm_data(data)
-        voltage_hm = self._build_voltage_hm_data(data)
+        chart_data  = t.build_chart_data(data)
+        heatmap     = t.build_heatmap_data(data)
+        thermal_hm  = t.build_thermal_hm_data(data)
+        voltage_hm  = t.build_voltage_hm_data(data)
+        ampel       = t.build_ampel(data)
+        stats       = t.build_statistics(data)
 
-        ampel = self._build_ampel(data)
-        stats = self._build_statistics(data)
-
-        # Top violations for quick-view panel in summary
         top_voltage_violations = sorted(
             [r for r in data.voltage if r.status == "violation"],
-            key=lambda r: r.u_pu,  # ascending → worst undervoltage first
+            key=lambda r: r.u_pu,
         )
         top_loading_violations = sorted(
             [r for r in data.loading if r.status == "violation"],
             key=lambda r: r.loading_pct,
-            reverse=True,  # descending → worst overload first
+            reverse=True,
         )
 
-        # Voltage grouped by nominal voltage level
         voltage_by_level: dict[float, list] = defaultdict(list)
         for r in data.voltage:
             voltage_by_level[round(r.u_nenn_kv, 1)].append(r)
@@ -103,7 +78,7 @@ class HTMLReportGenerator:
                 ts_data=data.ts_data,
                 viz_requests=self.config.visualizations,
                 warnings=data.warnings,
-                heatmap_data=heatmap_data,
+                heatmap_data=heatmap,
                 thermal_hm_data=thermal_hm,
                 voltage_hm_data=voltage_hm,
                 vcfg=self.config.voltage,
@@ -117,7 +92,6 @@ class HTMLReportGenerator:
                 stats=stats,
                 css=self._css,
                 scripts=self._scripts,
-                vendor_js=self._vendor,
                 chart_data_json=json.dumps(chart_data, ensure_ascii=False),
             )
         except Exception as exc:
@@ -126,371 +100,10 @@ class HTMLReportGenerator:
         log.info("HTML report generated (%d characters)", len(html))
         return html
 
-    # -- Chart data --------------------------------------------------------
-
-    @staticmethod
-    def _build_chart_data_static(data: ReportData, config: PFReportConfig) -> list[dict]:
-        """Build ``window.__chartData`` payload consumed by ``scripts.js``.
-
-        Args:
-            data: Report dataset with filtered time-series sections.
-            config: Report configuration with visualization settings.
-
-        Returns:
-            List of chart configuration dictionaries.
-        """
-        if data.ts_data.is_empty():
-            return []
-
-        result: list[dict] = []
-        time_labels = [float(t) if isinstance(t, float) else t for t in data.ts_data.time]
-        sample_idx = HTMLReportGenerator._downsample_indices(time_labels, config.report.max_points)
-        if sample_idx is not None:
-            time_labels = [time_labels[i] for i in sample_idx]
-
-        for vr in config.visualizations:
-            cid = vr.chart_id
-            section = data.ts_data.sections.get(cid)
-            if not section:
-                continue
-
-            series_list = []
-            for name, ts in section.items():
-                values = [float(v) if v is not None else None for v in ts.values]
-                if sample_idx is not None:
-                    values = [values[i] if i < len(values) else None for i in sample_idx]
-                series_list.append({"name": name, "values": values})
-
-            result.append({
-                "id":              f"chart-{cid}",
-                "label":           vr.label,
-                "unit":            vr.unit,
-                "variable":        vr.variable,
-                "value_precision": 8 if vr.variable == "c:loading" else 4,
-                "warn_hi":         vr.warn_hi,
-                "violation_hi":    vr.violation_hi,
-                "warn_lo":         vr.warn_lo,
-                "violation_lo":    vr.violation_lo,
-                "time":            time_labels,
-                "series":          series_list,
-            })
-
-        return result
-
-    def _build_chart_data(self, data: ReportData) -> list[dict]:
-        return self._build_chart_data_static(data, self.config)
-
-    @staticmethod
-    def _downsample_indices(time_labels: list[float | str], max_points: int | None) -> list[int] | None:
-        """Return evenly spaced indices for downsampling, or None when unused."""
-        if not max_points or len(time_labels) <= max_points:
-            return None
-        count = len(time_labels)
-        step = max(1, math.floor(count / max_points))
-        idx = list(range(0, count, step))
-        if idx[-1] != count - 1:
-            idx.append(count - 1)
-        if len(idx) > max_points:
-            idx = idx[: max_points - 1] + [count - 1]
-        return idx
-
-    @staticmethod
-    def _build_heatmap_data_static(data: ReportData, config: PFReportConfig) -> dict[str, dict]:
-        """Build generic heatmap payloads keyed by visualization chart id.
-
-        Args:
-            data: Report dataset with raw and filtered time series.
-            config: Report configuration with visualization settings.
-
-        Returns:
-            ``dict[chart_id, heatmap_payload]`` for enabled heatmap requests.
-        """
-        result: dict[str, dict] = {}
-        src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
-        if src.is_empty():
-            return result
-
-        for vr in config.visualizations:
-            if not vr.heatmap:
-                continue
-            cid = vr.chart_id
-            section = src.sections.get(cid)
-            if not section:
-                continue
-
-            rows = [
-                {
-                    "name": name,
-                    "values": [
-                        float(v) if v is not None else None
-                        for v in ts.values
-                    ],
-                }
-                for name, ts in section.items()
-                if not vr.heatmap_elements or name in vr.heatmap_elements
-            ]
-            result[cid] = {
-                "time": [float(t) if isinstance(t, float) else t for t in src.time],
-                "rows": rows,
-                "unit": vr.unit,
-            }
-
-        return result
-
-    def _build_heatmap_data(self, data: ReportData) -> dict[str, dict]:
-        return self._build_heatmap_data_static(data, self.config)
-
-    def _get_loading_hm_vr(self) -> "VizRequest | None":
-        """Return loading heatmap visualization request if configured.
-
-        Returns:
-            First matching ``VizRequest`` or ``None``.
-        """
-        from pfreporting.config import VizRequest  # noqa: F401 (type hint only)
-        return next(
-            (vr for vr in self.config.visualizations if vr.variable == "c:loading" and vr.heatmap),
-            None,
-        )
-
-    def _get_voltage_hm_vr(self) -> "VizRequest | None":
-        """Return voltage heatmap visualization request if configured.
-
-        Returns:
-            First matching ``VizRequest`` or ``None``.
-        """
-        return next(
-            (vr for vr in self.config.visualizations
-             if vr.element_class == "ElmTerm" and vr.variable == "m:u" and vr.heatmap),
-            None,
-        )
-
-    def _build_thermal_hm_data(self, data: ReportData) -> dict | None:
-        """Build thermal loading heatmap data for section-level rendering.
-
-        Args:
-            data: Report dataset with loading and time-series values.
-
-        Returns:
-            Heatmap payload for thermal section, or ``None`` if unavailable.
-
-        Selection rules:
-            - include only series where ``variable == 'c:loading'``
-            - keep at most one row per element name
-            - optionally apply ``heatmap_elements`` whitelist
-        """
-        src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
-        if src.is_empty():
-            return None
-        hm_vr = self._get_loading_hm_vr()
-        whitelist = hm_vr.heatmap_elements if hm_vr else None
-        status_map = {r.name: r.status for r in data.loading}
-        time = [float(t) for t in src.time]
-        seen: set[str] = set()
-        rows: list[dict] = []
-        for section in src.sections.values():
-            for name, ts in section.items():
-                if ts.variable != "c:loading" or name in seen:
-                    continue
-                if whitelist and name not in whitelist:
-                    continue
-                seen.add(name)
-                rows.append({
-                    "name":   name,
-                    "values": [float(v) if v is not None else None for v in ts.values],
-                    "status": status_map.get(name, "ok"),
-                })
-        if not rows:
-            log.debug("thermal_hm_data: no c:loading series found in ts_raw")
-            return None
-        return {
-            "time":         time,
-            "rows":         rows,
-            "unit":         "%",
-            "warn_hi":      self.config.thermal.warning_pct,
-            "violation_hi": self.config.thermal.violation_pct,
-        }
-
-    def _build_voltage_hm_data(self, data: ReportData) -> dict | None:
-        """Build bus-voltage heatmap data for section-level rendering.
-
-        Args:
-            data: Report dataset with voltage and time-series values.
-
-        Returns:
-            Heatmap payload for voltage section, or ``None`` if unavailable.
-
-        Selection rules:
-            - include only ``ElmTerm`` series
-            - deduplicate element names across sections
-            - optionally apply ``heatmap_elements`` whitelist
-        """
-        src = data.ts_raw if not data.ts_raw.is_empty() else data.ts_data
-        if src.is_empty():
-            return None
-        hm_vr = self._get_voltage_hm_vr()
-        whitelist = hm_vr.heatmap_elements if hm_vr else None
-        status_map = {r.node: r.status for r in data.voltage}
-        time = [float(t) for t in src.time]
-        seen: set[str] = set()
-        rows: list[dict] = []
-        for section in src.sections.values():
-            for name, ts in section.items():
-                if ts.element_class != "ElmTerm" or name in seen:
-                    continue
-                if whitelist and name not in whitelist:
-                    continue
-                seen.add(name)
-                rows.append({
-                    "name":   name,
-                    "values": [float(v) if v is not None else None for v in ts.values],
-                    "status": status_map.get(name, "ok"),
-                })
-        if not rows:
-            log.debug("voltage_hm_data: no ElmTerm series found in ts_raw")
-            return None
-        return {
-            "time":         time,
-            "rows":         rows,
-            "unit":         "p.u.",
-            "warn_lo":      self.config.voltage.lower_warning,
-            "violation_lo": self.config.voltage.lower_violation,
-            "warn_hi":      self.config.voltage.upper_warning,
-            "violation_hi": self.config.voltage.upper_violation,
-        }
-
-    @staticmethod
-    def _build_ampel(data: ReportData) -> dict:
-        """Compute traffic-light verdict and summary findings.
-
-        Args:
-            data: Report dataset with analyzed status values.
-
-        Returns:
-            Dictionary with ``color``, ``verdict`` and ``findings`` keys.
-
-        Decision precedence is strict: red (any violation) > amber (warnings
-        without violations) > green (all clear).
-        """
-        volt_viol = [r for r in data.voltage if r.status == "violation"]
-        volt_warn = [r for r in data.voltage if r.status == "warning"]
-        therm_viol = [r for r in data.loading if r.status == "violation"]
-        therm_warn = [r for r in data.loading if r.status == "warning"]
-        n1_viol = [r for r in data.n1 if r.status == "violation"]
-
-        if volt_viol or therm_viol or n1_viol:
-            color = "red"
-            verdict = "DE-ENERGIZATION NOT FEASIBLE"
-        elif volt_warn or therm_warn:
-            color = "amber"
-            verdict = "DE-ENERGIZATION FEASIBLE WITH RESERVATIONS"
-        else:
-            color = "green"
-            verdict = "DE-ENERGIZATION FEASIBLE"
-
-        findings: list[str] = []
-        if volt_viol:
-            worst = min(volt_viol, key=lambda r: r.u_pu)
-            findings.append(
-                f"{len(volt_viol)} bus voltage violation(s) — worst: "
-                f"{worst.node} ({worst.u_pu:.4f} p.u.)"
-            )
-        if therm_viol:
-            worst_t = max(therm_viol, key=lambda r: r.loading_pct)
-            findings.append(
-                f"{len(therm_viol)} thermal overload(s) — worst: "
-                f"{worst_t.name} ({worst_t.loading_pct:.1f}%)"
-            )
-        if n1_viol:
-            findings.append(f"{len(n1_viol)} N-1 contingency violation(s)")
-        if volt_warn and not volt_viol:
-            findings.append(f"{len(volt_warn)} bus voltage warning(s)")
-        if therm_warn and not therm_viol:
-            findings.append(f"{len(therm_warn)} thermal warning(s)")
-        if not findings:
-            findings.append("All elements within normal operating limits.")
-
-        return {"color": color, "verdict": verdict, "findings": findings}
-
-    @staticmethod
-    def _build_statistics(data: ReportData) -> dict:
-        """Compute distribution buckets and high-level report statistics.
-
-        Args:
-            data: Report dataset containing voltage/loading/n1 sections.
-
-        Returns:
-            Statistics dictionary used by the report statistics section.
-
-        Voltage buckets use p.u. ranges:
-            ``<0.90``, ``0.90-0.95``, ``0.95-1.05``, ``1.05-1.10``, ``>1.10``.
-        Loading buckets use percent ranges:
-            ``0-25%``, ``25-50%``, ``50-80%``, ``80-100%``, ``>100%``.
-        """
-        volt_buckets: dict[str, int] = {
-            "<0.90": 0, "0.90-0.95": 0, "0.95-1.05": 0, "1.05-1.10": 0, ">1.10": 0,
-        }
-        for r in data.voltage:
-            v = r.u_pu
-            if v < 0.90:
-                volt_buckets["<0.90"] += 1
-            elif v < 0.95:
-                volt_buckets["0.90-0.95"] += 1
-            elif v <= 1.05:
-                volt_buckets["0.95-1.05"] += 1
-            elif v <= 1.10:
-                volt_buckets["1.05-1.10"] += 1
-            else:
-                volt_buckets[">1.10"] += 1
-
-        load_buckets: dict[str, int] = {
-            "0-25%": 0, "25-50%": 0, "50-80%": 0, "80-100%": 0, ">100%": 0,
-        }
-        for r in data.loading:
-            p = r.loading_pct
-            if p < 25:
-                load_buckets["0-25%"] += 1
-            elif p < 50:
-                load_buckets["25-50%"] += 1
-            elif p < 80:
-                load_buckets["50-80%"] += 1
-            elif p <= 100:
-                load_buckets["80-100%"] += 1
-            else:
-                load_buckets[">100%"] += 1
-
-        n1_total = len(data.n1)
-        n1_violated = sum(1 for r in data.n1 if r.status == "violation")
-        worst_n1 = max(data.n1, key=lambda r: r.max_loading_pct, default=None)
-
-        return {
-            "volt_buckets": volt_buckets,
-            "load_buckets": load_buckets,
-            "n1_total": n1_total,
-            "n1_violated": n1_violated,
-            "worst_n1": worst_n1,
-            "volt_worst": min(data.voltage, key=lambda r: r.u_pu, default=None),
-            "load_worst": max(data.loading, key=lambda r: r.loading_pct, default=None),
-            "power_balance": {
-                "load_mw":   data.lf.total_load_mw,
-                "gen_mw":    data.lf.total_gen_mw,
-                "losses_mw": data.lf.losses_mw,
-                "load_mvar": data.lf.total_load_mvar,
-                "gen_mvar":  data.lf.total_gen_mvar,
-            },
-        }
-
-    # -- Helper methods ----------------------------------------------------
+    # -- Asset loading -----------------------------------------------------
 
     @staticmethod
     def _read_asset(relative_path: str) -> str:
-        """Read one bundled text asset.
-
-        Args:
-            relative_path: Asset path under the report ``assets`` directory.
-
-        Returns:
-            Asset file content, or a CSS/JS comment stub when missing.
-        """
         path = _ASSETS_DIR / relative_path
         if not path.exists():
             log.warning("Asset not found: %s", path)

@@ -9,7 +9,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from pfreporting.config import PFReportConfig
 from pfreporting.logger import get_logger
 from pfreporting.report.builder import ReportData
-from pfreporting.report.generator import HTMLReportGenerator
+from pfreporting.report.transformer import ReportDataTransformer
 
 log = get_logger()
 
@@ -37,19 +37,15 @@ class QDSDetailRenderer:
     """Standalone QDS detail report (time series + heatmaps, no tabs)."""
 
     def __init__(self, config: PFReportConfig) -> None:
-        self.config = config
-        self._env = _make_env()
-        self._css = _read_asset("style.css")
+        self.config   = config
+        self._env     = _make_env()
+        self._css     = _read_asset("style.css")
         self._scripts = _read_asset("scripts.js")
-        self._vendor = {
-            "chart":  _read_asset("vendor/chart.min.js"),
-            "hammer": _read_asset("vendor/hammer.min.js"),
-            "zoom":   _read_asset("vendor/chartjs-plugin-zoom.min.js"),
-        }
 
     def render(self, data: ReportData) -> str:
-        chart_data = HTMLReportGenerator._build_chart_data_static(data, self.config)
-        heatmap_data = HTMLReportGenerator._build_heatmap_data_static(data, self.config)
+        t            = ReportDataTransformer(self.config)
+        chart_data   = t.build_chart_data(data)
+        heatmap_data = t.build_heatmap_data(data)
 
         template = self._env.get_template("qds_detail.html.j2")
         return template.render(
@@ -62,7 +58,6 @@ class QDSDetailRenderer:
             calc_options=self.config.calc,
             css=self._css,
             scripts=self._scripts,
-            vendor_js=self._vendor,
             chart_data_json=json.dumps(chart_data, ensure_ascii=False),
         )
 
@@ -72,8 +67,8 @@ class LoadFlowComparisonRenderer:
 
     def __init__(self, config: PFReportConfig) -> None:
         self.config = config
-        self._env = _make_env()
-        self._css = _read_asset("style.css")
+        self._env   = _make_env()
+        self._css   = _read_asset("style.css")
 
     def render(self, data: ReportData, data_before: ReportData | None = None) -> str:
         voltage_rows = self._build_voltage_comparison(data, data_before)
@@ -93,47 +88,35 @@ class LoadFlowComparisonRenderer:
 
     @staticmethod
     def _build_voltage_comparison(
-        data: ReportData,
-        data_before: ReportData | None,
+        data: ReportData, data_before: ReportData | None,
     ) -> list[dict]:
-        before_map = (
-            {r.node: r.u_pu for r in data_before.voltage}
-            if data_before
-            else {}
-        )
+        before_map = {r.node: r.u_pu for r in data_before.voltage} if data_before else {}
         rows = []
         for r in data.voltage:
             u_before = before_map.get(r.node)
-            delta = (r.u_pu - u_before) if u_before is not None else None
             rows.append({
-                "node":      r.node,
-                "u_nenn_kv": r.u_nenn_kv,
+                "node":        r.node,
+                "u_nenn_kv":   r.u_nenn_kv,
                 "u_pu_before": u_before,
                 "u_pu_after":  r.u_pu,
-                "delta":     delta,
-                "status":    r.status,
+                "delta":       (r.u_pu - u_before) if u_before is not None else None,
+                "status":      r.status,
             })
         return sorted(rows, key=lambda r: (r["status"] != "violation", r["status"] != "warning", r["node"]))
 
     @staticmethod
     def _build_loading_comparison(
-        data: ReportData,
-        data_before: ReportData | None,
+        data: ReportData, data_before: ReportData | None,
     ) -> list[dict]:
-        before_map = (
-            {r.name: r.loading_pct for r in data_before.loading}
-            if data_before
-            else {}
-        )
+        before_map = {r.name: r.loading_pct for r in data_before.loading} if data_before else {}
         rows = []
         for r in data.loading:
             l_before = before_map.get(r.name)
-            delta = (r.loading_pct - l_before) if l_before is not None else None
             rows.append({
                 "name":           r.name,
                 "loading_before": l_before,
                 "loading_after":  r.loading_pct,
-                "delta":          delta,
+                "delta":          (r.loading_pct - l_before) if l_before is not None else None,
                 "status":         r.status,
             })
         return sorted(rows, key=lambda r: (r["status"] != "violation", r["status"] != "warning", r["name"]))
@@ -146,12 +129,13 @@ class ExecSummaryRenderer:
 
     def __init__(self, config: PFReportConfig) -> None:
         self.config = config
-        self._env = _make_env()
-        self._css = _read_asset("style.css")
+        self._env   = _make_env()
+        self._css   = _read_asset("style.css")
 
     def render(self, data: ReportData) -> str:
-        ampel = HTMLReportGenerator._build_ampel(data)
-        stats = HTMLReportGenerator._build_statistics(data)
+        t      = ReportDataTransformer(self.config)
+        ampel  = t.build_ampel(data)
+        stats  = t.build_statistics(data)
 
         top_voltage = sorted(
             [r for r in data.voltage if r.status == "violation"],

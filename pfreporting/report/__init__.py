@@ -1,4 +1,4 @@
-"""Report subpackage - HTML generation."""
+"""Report subpackage — HTML generation."""
 from pfreporting.report.builder import ReportData
 from pfreporting.report.generator import HTMLReportGenerator
 from pfreporting.report.renderers import (
@@ -6,10 +6,12 @@ from pfreporting.report.renderers import (
     LoadFlowComparisonRenderer,
     QDSDetailRenderer,
 )
+from pfreporting.report.transformer import ReportDataTransformer
 
 __all__ = [
     "ReportData",
     "HTMLReportGenerator",
+    "ReportDataTransformer",
     "QDSDetailRenderer",
     "LoadFlowComparisonRenderer",
     "ExecSummaryRenderer",

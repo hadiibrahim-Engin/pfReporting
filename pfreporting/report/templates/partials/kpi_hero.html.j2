@@ -21,7 +21,7 @@
     </div>
 
     <!-- PRIMARY KPI CARDS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 {% if calc_options.run_n1 %}md:grid-cols-4{% else %}md:grid-cols-3{% endif %} gap-4 mb-6">
 
         <!-- Total Violations — hero number -->
         <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 border-2
@@ -69,6 +69,7 @@
             <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">→ View table</p>
         </div>
 
+        {% if calc_options.run_n1 %}
         <!-- N-1 Violations — clickable → tab-tables #sec-n1 -->
         <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
              @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-n1'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
@@ -79,6 +80,7 @@
             <p class="text-xs text-slate-400">{{ n1_total }} cases checked</p>
             <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-auto">→ View table</p>
         </div>
+        {% endif %}
 
     </div>
 
@@ -92,11 +94,13 @@
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_elements }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
         </div>
+        {% if calc_options.run_n1 %}
         <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_n1 }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
         </div>
-        {% if lf %}
+        {% endif %}
+        {% if calc_options.run_loadflow and lf %}
         <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_load_mw) }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Load [MW]</div>

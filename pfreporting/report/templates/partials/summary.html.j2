@@ -14,7 +14,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {{ kpi_pill(overall.total_nodes, 'Nodes checked') }}
             {{ kpi_pill(overall.total_elements, 'Elements checked') }}
-            {{ kpi_pill(overall.total_n1, 'N-1 cases') }}
+            {% if calc_options.run_n1 %}{{ kpi_pill(overall.total_n1, 'N-1 cases') }}{% endif %}
             {{ kpi_pill(overall.total_violations, 'Total violations', highlight=(overall.total_violations > 0)) }}
         </div>
     </div>

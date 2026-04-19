@@ -134,16 +134,17 @@ class PowerFactoryLogHandler(logging.Handler):
         """
         try:
             msg = self.format(record)
-            
-            # Route to appropriate PowerFactory output method based on level
             if record.levelno >= logging.ERROR:
                 self._app.PrintError(msg)
             elif record.levelno >= logging.WARNING:
                 self._app.PrintWarn(msg)
             elif record.levelno >= logging.INFO:
                 self._app.PrintInfo(msg)
-            else:  # DEBUG
+            else:
                 self._app.PrintPlain(msg)
+        except RuntimeError:
+            # PowerFactory COM object was deleted between runs — silently discard.
+            pass
         except Exception:
             self.handleError(record)
 

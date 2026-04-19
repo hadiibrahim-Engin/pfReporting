@@ -23,10 +23,12 @@
                 <div class="text-3xl font-bold text-blue-700">{{ overall.total_elements }}</div>
                 <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
             </div>
+            {% if calc_options.run_n1 %}
             <div class="rounded-xl p-4 text-center bg-slate-50 border border-slate-200">
                 <div class="text-3xl font-bold text-blue-700">{{ overall.total_n1 }}</div>
                 <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
             </div>
+            {% endif %}
             <div class="rounded-xl p-4 text-center {% if overall.total_violations > 0 %}bg-red-50 border border-red-200{% else %}bg-emerald-50 border border-emerald-200{% endif %}">
                 <div class="text-3xl font-bold {% if overall.total_violations > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ overall.total_violations }}</div>
                 <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Violations</div>
