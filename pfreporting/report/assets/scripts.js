@@ -425,14 +425,13 @@
         };
     }
 
-    function _computeTickPrecision(basePrecision, yLimits) {
-        if (!yLimits) return basePrecision;
+    /* Returns how many decimal places are needed to distinguish adjacent ticks.
+       Deliberately ignores data precision — ticks need only be readable. */
+    function _computeTickPrecision(yLimits) {
+        if (!yLimits) return 2;
         var span = Math.abs(yLimits.span);
-        if (!Number.isFinite(span) || span <= 0) {
-            return Math.min(Math.max(basePrecision, 6), 12);
-        }
-        var spanPrecision = Math.max(0, Math.ceil(-Math.log10(span)) + 1);
-        return Math.min(Math.max(basePrecision, spanPrecision), 12);
+        if (!Number.isFinite(span) || span <= 0) return 2;
+        return Math.min(5, Math.max(0, Math.ceil(-Math.log10(span)) + 1));
     }
 
     function initCharts() {
@@ -454,7 +453,11 @@
                 ? cfg.value_precision
                 : (cfg.variable === 'c:loading' ? 8 : 4);
             var yLimits = _computeYLimits(cfg.series || [], cfg.variable === 'c:loading' ? 1e-8 : 1e-6);
-            var tickPrecision = _computeTickPrecision(valuePrecision, yLimits);
+            var tickPrecision = _computeTickPrecision(yLimits);
+
+            /* Unit-based axis fallbacks when there is no finite data at all */
+            var yFallbackMin = (cfg.unit === '%') ? 0 : (cfg.unit === 'p.u.') ? 0.8 : undefined;
+            var yFallbackMax = (cfg.unit === '%') ? 120 : (cfg.unit === 'p.u.') ? 1.2 : undefined;
 
             var datasets = cfg.series.map(function (s, i) {
                 return {
@@ -513,9 +516,9 @@
                             },
                         },
                         zoom: {
-                            limits: {
-                                y: yLimits ? { min: yLimits.min, max: yLimits.max } : undefined,
-                            },
+                            /* limits.y intentionally omitted: y-axis is not zoomable
+                               (mode:'x'), and passing limits confuses some plugin
+                               versions on resetZoom(), causing the axis to jump. */
                             zoom: {
                                 wheel: { enabled: true },
                                 pinch: { enabled: true },
@@ -543,8 +546,8 @@
                         },
                         y: {
                             type: 'linear',
-                            min: yLimits ? yLimits.min : undefined,
-                            max: yLimits ? yLimits.max : undefined,
+                            min: yLimits ? yLimits.min : yFallbackMin,
+                            max: yLimits ? yLimits.max : yFallbackMax,
                             title: {
                                 display: true,
                                 text: cfg.unit,
@@ -592,7 +595,8 @@
         });
     }
 
-    window.initCharts = initCharts;
+    window.initCharts      = initCharts;
+    window.initRadarChart  = initRadarChart;
     window.refreshCharts = function () {
         if (!window.__chartsInitialized) {
             initCharts();
@@ -622,6 +626,90 @@
         }
     }
 
+    /* ----------------------------------------------------------
+       Radar chart — System Health overview
+    ---------------------------------------------------------- */
+    function initRadarChart() {
+        if (window.__radarInit) return;
+        if (typeof Chart === 'undefined' || !window.__radarData) return;
+        var canvas = document.getElementById('radar-health');
+        if (!canvas) return;
+        window.__radarInit = true;
+
+        var d      = window.__radarData;
+        var scores = d.scores || [];
+        var minS   = scores.length ? Math.min.apply(null, scores) : 100;
+        var clrFill   = minS >= 80 ? 'rgba(16,163,74,0.18)'  : minS >= 50 ? 'rgba(217,119,6,0.18)'  : 'rgba(220,38,38,0.18)';
+        var clrBorder = minS >= 80 ? 'rgb(16,163,74)'         : minS >= 50 ? 'rgb(217,119,6)'         : 'rgb(220,38,38)';
+
+        new Chart(canvas, {
+            type: 'radar',
+            data: {
+                labels: d.labels || [],
+                datasets: [{
+                    label: 'Health',
+                    data: scores,
+                    backgroundColor: clrFill,
+                    borderColor: clrBorder,
+                    borderWidth: 2,
+                    pointBackgroundColor: clrBorder,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: false,
+                animation: false,
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 25,
+                            font: { size: 9 },
+                            color: '#94a3b8',
+                            backdropColor: 'transparent',
+                        },
+                        grid:        { color: 'rgba(148,163,184,0.2)' },
+                        angleLines:  { color: 'rgba(148,163,184,0.3)' },
+                        pointLabels: { font: { size: 10 }, color: '#475569' },
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                var i   = ctx.dataIndex;
+                                var det = d.detail && d.detail[i] ? ' — ' + d.detail[i] : '';
+                                return ctx.parsed.r.toFixed(1) + ' %' + det;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    function setupRadarInitTrigger() {
+        /* On the multi-page stats page #sec-statistics doesn't exist (no Alpine tabs),
+           so fall through and init immediately once Chart.js is available. */
+        var target = document.getElementById('sec-statistics') || document.getElementById('radar-health');
+        if (!target) return;
+
+        if ('IntersectionObserver' in window) {
+            var obs = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) { initRadarChart(); obs.disconnect(); }
+                });
+            }, { rootMargin: '200px' });
+            obs.observe(target);
+        } else {
+            initRadarChart();
+        }
+    }
+
     setupChartInitTriggers();
+    setupRadarInitTrigger();
 
 })();

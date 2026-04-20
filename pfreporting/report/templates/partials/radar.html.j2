@@ -1,0 +1,34 @@
+{% if radar_data %}
+<div class="bg-white rounded-2xl border border-slate-100 shadow p-6 mb-4">
+    <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-5">System Health Radar</h3>
+    <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+
+        <!-- Fixed-size container so Chart.js always gets valid dimensions -->
+        <div class="flex-shrink-0" style="width:260px;height:260px;position:relative;">
+            <canvas id="radar-health" width="260" height="260"></canvas>
+        </div>
+
+        <!-- Score legend -->
+        <div class="flex-1 w-full space-y-3 self-center">
+            {% for i in range(radar_data.scores | length) %}
+            {% set score = radar_data.scores[i] %}
+            {% set bar_cls = 'bg-emerald-500' if score >= 80 else ('bg-amber-400' if score >= 50 else 'bg-red-500') %}
+            {% set txt_cls = 'text-emerald-600' if score >= 80 else ('text-amber-600' if score >= 50 else 'text-red-600') %}
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-600 w-36 flex-shrink-0">{{ radar_data.labels[i] }}</span>
+                <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-2 rounded-full {{ bar_cls }}" style="width:{{ score }}%"></div>
+                </div>
+                <span class="text-xs font-mono font-semibold w-12 text-right flex-shrink-0 {{ txt_cls }}">
+                    {{ "%.1f"|format(score) }}&thinsp;%
+                </span>
+                <span class="text-xs text-slate-400 hidden sm:inline w-44 flex-shrink-0">
+                    {{ radar_data.detail[i] }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endif %}

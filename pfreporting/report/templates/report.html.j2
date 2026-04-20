@@ -160,8 +160,9 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.tailwindcss.min.js"></script>
 
-{# Chart data payload #}
+{# Chart data payloads #}
 <script>window.__chartData = {{ chart_data_json }};</script>
+<script>window.__radarData = {{ radar_data_json }};</script>
 
 {# Application JS (heatmap, search, sort, filter — vanilla JS) #}
 <script>{{ scripts }}</script>
@@ -184,10 +185,12 @@ function reportApp() {
         setTab: function(id) {
             this.activeTab = id;
             this.$nextTick(function() {
-                if (id === 'tab-qds' && typeof refreshCharts === 'function') {
-                    refreshCharts();
-                } else if (id === 'tab-qds' && typeof initCharts === 'function') {
-                        initCharts();
+                if (id === 'tab-qds') {
+                    if (typeof refreshCharts === 'function') refreshCharts();
+                    else if (typeof initCharts === 'function') initCharts();
+                }
+                if (id === 'tab-statistics' && typeof initRadarChart === 'function') {
+                    initRadarChart();
                 }
             });
         },

@@ -42,6 +42,7 @@ class _BaseReportGenerator:
         voltage_hm = t.build_voltage_hm_data(data)
         ampel      = t.build_ampel(data)
         stats      = t.build_statistics(data)
+        radar      = t.build_radar_data(data)
 
         top_voltage_violations = sorted(
             [r for r in data.voltage if r.status == "violation"],
@@ -82,6 +83,8 @@ class _BaseReportGenerator:
             ampel=ampel,
             stats=stats,
             chart_data_json=json.dumps(chart_data, ensure_ascii=False),
+            radar_data=radar,
+            radar_data_json=json.dumps(radar, ensure_ascii=False),
             multipage=False,
         )
 

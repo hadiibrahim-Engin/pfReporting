@@ -4,3 +4,7 @@
 {% include 'partials/statistics.html.j2' %}
 {% include 'partials/loadflow.html.j2' %}
 {% endblock %}
+{% block scripts %}
+<script src="{{ asset_urls.chartjs }}"></script>
+<script>window.__radarData = {{ radar_data_json }};</script>
+{% endblock %}

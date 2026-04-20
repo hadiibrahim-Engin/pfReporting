@@ -167,6 +167,49 @@ class ReportDataTransformer:
             "violation_hi": self.config.voltage.upper_violation,
         }
 
+    # -- Radar / health chart data -----------------------------------------
+
+    def build_radar_data(self, data: ReportData) -> dict:
+        """Compute normalised 0-100 health scores for the system health radar."""
+        v_total = len(data.voltage)
+        t_total = len(data.loading)
+        v_viol  = sum(1 for r in data.voltage if r.status == "violation")
+        t_viol  = sum(1 for r in data.loading if r.status == "violation")
+
+        v_comp = round((1.0 - v_viol / v_total) * 100.0, 1) if v_total else 100.0
+        t_comp = round((1.0 - t_viol / t_total) * 100.0, 1) if t_total else 100.0
+
+        qds_steps = data.lf.qds_steps or []
+        qds_total = len(qds_steps)
+        qds_ok    = sum(1 for s in qds_steps if s.converged)
+        qds_conv  = round(qds_ok / qds_total * 100.0, 1) if qds_total else 100.0
+
+        min_u = min((r.u_pu for r in data.voltage), default=1.0)
+        max_l = max((r.loading_pct for r in data.loading), default=0.0)
+        vlo   = self.config.voltage.lower_violation
+        vhi   = self.config.thermal.violation_pct
+
+        v_qual = round(max(0.0, min(100.0, (min_u - vlo) / max(1.0 - vlo, 1e-9) * 100.0)), 1)
+        t_qual = round(max(0.0, min(100.0, (1.0 - max_l / max(vhi, 1e-9)) * 100.0)), 1)
+
+        return {
+            "labels": [
+                "Voltage Compliance",
+                "Thermal Compliance",
+                "QDS Convergence",
+                "Voltage Quality",
+                "Thermal Headroom",
+            ],
+            "scores": [v_comp, t_comp, qds_conv, v_qual, t_qual],
+            "detail": [
+                f"{v_total - v_viol}/{v_total} nodes OK" if v_total else "Not run",
+                f"{t_total - t_viol}/{t_total} elements OK" if t_total else "Not run",
+                f"{qds_ok}/{qds_total} steps converged" if qds_total else "Not run",
+                f"Worst: {min_u:.4f} p.u." if data.voltage else "No data",
+                f"Worst: {max_l:.1f} %" if data.loading else "No data",
+            ],
+        }
+
     # -- Traffic-light verdict ---------------------------------------------
 
     @staticmethod
