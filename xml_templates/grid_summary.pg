@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="5">
+    <GroupHeaderBandMainTitle Ref="1" type="GroupHeaderBand" isKey="true">
+      <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+      <Brush>[181:18:62]</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle Ref="2" type="Text" isKey="true">
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <GrowToHeight>True</GrowToHeight>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>1,1,0,0</Margins>
+          <Name>TextMainTitle</Name>
+          <Page isRef="0" />
+          <Parent isRef="1" />
+          <Pointer>{Localisation.Int_Report_iopt_grd}</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Localisation.Int_Report_iopt_grd}</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle>
+    <GroupHeaderBandTitle0 Ref="3" type="GroupHeaderBand" isKey="true">
+      <BeforePrintEvent>ChapterNumber += 1;
+SectionNumber = 0;</BeforePrintEvent>
+      <Border>None;[255:255:255];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,2,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextTitle0 Ref="4" type="Text" isKey="true">
+          <Bookmark>{ChapterNumber} {Localisation.Int_Report_iopt_grd}</Bookmark>
+          <Border>All;[255:255:255];1;Solid;False;4;Black</Border>
+          <Brush>[255:255:255]</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,10,Bold</Font>
+          <GrowToHeight>True</GrowToHeight>
+          <Margins>1,1,0,0</Margins>
+          <Name>TextTitle0</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <Pointer>{ChapterNumber} {Localisation.Int_Report_iopt_grd}</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ChapterNumber} {Localisation.Int_Report_iopt_grd}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextTitle0>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandTitle0</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandTitle0>
+    <TableElmNetMeta Ref="5" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <BusinessObjectGuid isNull="true" />
+      <ClientRectangle>0,3.6,16.5,0.8</ClientRectangle>
+      <ColumnCount>1</ColumnCount>
+      <Components isList="true" count="1">
+        <TableElmNetMeta_Cell1 Ref="6" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <CanGrow>True</CanGrow>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <GrowToHeight>True</GrowToHeight>
+          <ID>0</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableElmNetMeta_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="5" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Localisation.Int_Report_number_Of_Grids}: {ElmNetMeta.record_count - 1}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableElmNetMeta_Cell1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataSourceName>ElmNetMeta</DataSourceName>
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableElmNetMeta</Name>
+      <NumberID>3</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableElmNetMeta>
+    <TableElmNetDataOne Ref="7" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <AutoWidth>Page</AutoWidth>
+      <AutoWidthType>LastColumns</AutoWidthType>
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <BusinessObjectGuid isNull="true" />
+      <ClientRectangle>0,5.2,16.5,0.8</ClientRectangle>
+      <ColumnCount>1</ColumnCount>
+      <Components isList="true" count="1">
+        <TableElmNetDataOne_Cell1 Ref="8" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableElmNetDataOne_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="7" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ElmNet.e_c_Display_Name}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableElmNetDataOne_Cell1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <DataSourceName>ElmNet</DataSourceName>
+      <EvenStyle>DigsiStyle_Data1_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="1">
+        <value>_x007B_ElmNet.e_isummary_x0020__x003D__x003D__x0020_0_x007D_</value>
+      </Filters>
+      <MinHeight>0.1</MinHeight>
+      <Name>TableElmNetDataOne</Name>
+      <NumberID>6</NumberID>
+      <OddStyle>DigsiStyle_Data1_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableElmNetDataOne>
+    <DataBandSpacing4 Ref="9" type="DataBand" isKey="true">
+      <Border>Top;[155:155:155];1;Solid;False;4;Black;True</Border>
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,6.8,16.5,0.1</ClientRectangle>
+      <Components isList="true" count="0" />
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <Expressions isList="true" count="1">
+        <value>Enabled,ElmNetMeta.record_count_x0020__x003E__x0020_0</value>
+      </Expressions>
+      <Filters isList="true" count="0" />
+      <Name>DataBandSpacing4</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <Sort isList="true" count="0" />
+    </DataBandSpacing4>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>e7a1a349329841e0b9934b54fd299d4f</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>Grid_Summary:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>

@@ -1,0 +1,877 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="10">
+    <GroupHeaderBandMainTitle1 Ref="1" type="GroupHeaderBand" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle1 Ref="200" type="Text" isKey="true">
+          <Bookmark>Violation Tables</Bookmark>
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,1,1,0</Margins>
+          <Name>TextMainTitle1</Name>
+          <Page isRef="0" />
+          <Parent isRef="1" />
+          <Pointer>Violation Tables</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Violation Tables</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle1>
+    <TextSwitchedTitle Ref="2" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,1.6,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextSwitchedTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>De-Energized Equipment</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextSwitchedTitle>
+    <TableSwitchedHeader Ref="3" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,2.2,16.5,0.7</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableSwitchedHeader_Cell1 Ref="4" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>0,0,5.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedHeader_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Name</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedHeader_Cell1>
+        <TableSwitchedHeader_Cell2 Ref="5" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>5.5,0,3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedHeader_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Type</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedHeader_Cell2>
+        <TableSwitchedHeader_Cell3 Ref="6" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>8.5,0,4,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedHeader_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Status Before</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedHeader_Cell3>
+        <TableSwitchedHeader_Cell4 Ref="7" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>12.5,0,4,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedHeader_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Status Assessment</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedHeader_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableSwitchedHeader</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableSwitchedHeader>
+    <TableSwitchedData Ref="8" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,2.9,16.5,0.7</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableSwitchedData_Cell1 Ref="9" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,5.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedData_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Switched.name}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedData_Cell1>
+        <TableSwitchedData_Cell2 Ref="10" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>5.5,0,3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedData_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Switched.type}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedData_Cell2>
+        <TableSwitchedData_Cell3 Ref="11" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.5,0,4,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedData_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Switched.status_before}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedData_Cell3>
+        <TableSwitchedData_Cell4 Ref="12" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.5,0,4,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableSwitchedData_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Switched.status_assessment}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableSwitchedData_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataSourceName>Switched</DataSourceName>
+      <EvenStyle>DigsiStyle_Data1_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableSwitchedData</Name>
+      <OddStyle>DigsiStyle_Data1_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableSwitchedData>
+    <TextVoltageTitle Ref="13" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,4.0,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextVoltageTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Voltage Band Check</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextVoltageTitle>
+    <TableVoltageHeader Ref="14" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,4.6,16.5,0.7</ClientRectangle>
+      <ColumnCount>6</ColumnCount>
+      <Components isList="true" count="6">
+        <TableVoltageHeader_Cell1 Ref="15" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>0,0,5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Node</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell1>
+        <TableVoltageHeader_Cell2 Ref="16" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>5,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>U_nom [kV]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell2>
+        <TableVoltageHeader_Cell3 Ref="17" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>7.3,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>U [kV]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell3>
+        <TableVoltageHeader_Cell4 Ref="18" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>9.6,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>U [p.u.]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell4>
+        <TableVoltageHeader_Cell5 Ref="19" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>11.9,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>4</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell5</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Dev. [%]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell5>
+        <TableVoltageHeader_Cell6 Ref="20" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>14.2,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>5</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageHeader_Cell6</Name>
+          <Page isRef="0" />
+          <Parent isRef="14" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Assessment</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageHeader_Cell6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableVoltageHeader</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableVoltageHeader>
+    <TableVoltageData Ref="21" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,5.3,16.5,0.7</ClientRectangle>
+      <ColumnCount>6</ColumnCount>
+      <Components isList="true" count="6">
+        <TableVoltageData_Cell1 Ref="22" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.node}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell1>
+        <TableVoltageData_Cell2 Ref="23" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>5,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.u_nenn_kv}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell2>
+        <TableVoltageData_Cell3 Ref="24" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>7.3,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.u_kv}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell3>
+        <TableVoltageData_Cell4 Ref="25" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>9.6,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.u_pu}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell4>
+        <TableVoltageData_Cell5 Ref="26" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>11.9,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>4</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell5</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.deviation_pct}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell5>
+        <TableVoltageData_Cell6 Ref="27" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>14.2,0,2.3,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>5</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableVoltageData_Cell6</Name>
+          <Page isRef="0" />
+          <Parent isRef="21" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Voltage.status}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableVoltageData_Cell6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataSourceName>Voltage</DataSourceName>
+      <EvenStyle>DigsiStyle_Data1_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableVoltageData</Name>
+      <OddStyle>DigsiStyle_Data1_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableVoltageData>
+    <TextThermalTitle Ref="28" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,6.4,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextThermalTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Thermal Loading</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextThermalTitle>
+    <TableThermalHeader Ref="29" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,7.0,16.5,0.7</ClientRectangle>
+      <ColumnCount>6</ColumnCount>
+      <Components isList="true" count="6">
+        <TableThermalHeader_Cell1 Ref="30" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>0,0,4.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Element</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell1>
+        <TableThermalHeader_Cell2 Ref="31" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>4.5,0,2.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Type</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell2>
+        <TableThermalHeader_Cell3 Ref="32" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>7.0,0,3.0,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Loading [%]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell3>
+        <TableThermalHeader_Cell4 Ref="33" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>10.0,0,2.2,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>I [kA]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell4>
+        <TableThermalHeader_Cell5 Ref="34" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>12.2,0,2.2,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>4</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell5</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>I_nom [kA]</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell5>
+        <TableThermalHeader_Cell6 Ref="35" type="TableCell" isKey="true">
+          <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>14.4,0,2.1,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>5</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalHeader_Cell6</Name>
+          <Page isRef="0" />
+          <Parent isRef="29" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Assessment</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalHeader_Cell6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableThermalHeader</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableThermalHeader>
+    <TableThermalData Ref="36" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,7.7,16.5,0.7</ClientRectangle>
+      <ColumnCount>6</ColumnCount>
+      <Components isList="true" count="6">
+        <TableThermalData_Cell1 Ref="37" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.name}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell1>
+        <TableThermalData_Cell2 Ref="38" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.5,0,2.5,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.type}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell2>
+        <TableThermalData_Cell3 Ref="39" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>7.0,0,3.0,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>2</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.loading_pct}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell3>
+        <TableThermalData_Cell4 Ref="40" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>10.0,0,2.2,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>3</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.i_ka}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell4>
+        <TableThermalData_Cell5 Ref="41" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.2,0,2.2,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>4</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell5</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.i_nenn_ka}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell5>
+        <TableThermalData_Cell6 Ref="42" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>14.4,0,2.1,0.7</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>5</ID>
+          <Margins>1,1,0,0</Margins>
+          <Name>TableThermalData_Cell6</Name>
+          <Page isRef="0" />
+          <Parent isRef="36" />
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Loading.status}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableThermalData_Cell6>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataSourceName>Loading</DataSourceName>
+      <EvenStyle>DigsiStyle_Data1_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <MinHeight>0.1</MinHeight>
+      <Name>TableThermalData</Name>
+      <OddStyle>DigsiStyle_Data1_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+    </TableThermalData>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>468496ccc7b742a58830257f5cc185d6</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>Tables:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>

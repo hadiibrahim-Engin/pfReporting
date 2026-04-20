@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="16">
+    <GroupHeaderBandMainTitle1 Ref="1" type="GroupHeaderBand" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle1 Ref="200" type="Text" isKey="true">
+          <Bookmark>Freischaltbewertung</Bookmark>
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,1,1,0</Margins>
+          <Name>TextMainTitle1</Name>
+          <Page isRef="0" />
+          <Parent isRef="1" />
+          <Pointer>Freischaltbewertung</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Freischaltbewertung</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle1>
+    <TextProjectName Ref="2" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,1.4,10.8,0.6</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,10,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextProjectName</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Project: {Info.project}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextProjectName>
+    <TextCompany Ref="3" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>10.8,1.4,5.7,0.6</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,10,Bold</Font>
+      <HorAlignment>Right</HorAlignment>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextCompany</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>{Info.company}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextCompany>
+    <TextStudyCase Ref="4" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,2.1,10.8,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextStudyCase</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Study Case: {Info.study_case}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextStudyCase>
+    <TextAuthor Ref="5" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>10.8,2.1,5.7,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <HorAlignment>Right</HorAlignment>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextAuthor</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Author: {Info.author}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextAuthor>
+    <TextDateTime Ref="6" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,2.7,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextDateTime</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>{Info.date} {Info.time}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextDateTime>
+    <TextVerdictTitle Ref="7" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,3.6,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextVerdictTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Assessment Result</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextVerdictTitle>
+    <TextVerdict Ref="8" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>[255:255:255]</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,4.2,16.5,0.7</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,10,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextVerdict</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>{Ampel.verdict}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextVerdict>
+    <TextFindingsTitle Ref="9" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,5.0,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextFindingsTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Key Findings</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextFindingsTitle>
+    <TextFindings Ref="10" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,5.6,16.5,1.0</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextFindings</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>{Ampel.findings}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextFindings>
+    <TextKpiTitle Ref="11" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,6.8,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextKpiTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Key Metrics</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextKpiTitle>
+    <TextNodes Ref="12" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,7.4,5.5,0.6</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <HorAlignment>Center</HorAlignment>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextNodes</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Nodes: {Overall.total_nodes}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextNodes>
+    <TextElements Ref="13" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>5.5,7.4,5.5,0.6</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <HorAlignment>Center</HorAlignment>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextElements</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Elements: {Overall.total_elements}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextElements>
+    <TextViolations Ref="14" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>11,7.4,5.5,0.6</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <HorAlignment>Center</HorAlignment>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextViolations</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Violations: {Overall.voltage_violations + Overall.thermal_violations}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextViolations>
+    <TextSummaryTitle Ref="15" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,8.4,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextSummaryTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Assessment Summary</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextSummaryTitle>
+    <TextSummary Ref="16" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,9.0,16.5,1.2</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextSummary</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Status: {Overall.status}  |  Warnings: {Warnings}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextSummary>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>9aea85b735c34568b12b7af4de7efa01</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>Overview:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>

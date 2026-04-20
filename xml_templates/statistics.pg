@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="9">
+    <GroupHeaderBandMainTitle1 Ref="1" type="GroupHeaderBand" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle1 Ref="200" type="Text" isKey="true">
+          <Bookmark>Statistics</Bookmark>
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,1,1,0</Margins>
+          <Name>TextMainTitle1</Name>
+          <Page isRef="0" />
+          <Parent isRef="1" />
+          <Pointer>Statistics</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Statistics</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle1>
+    <TextVoltageTitle Ref="2" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,1.6,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextVoltageTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Voltage Statistics</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextVoltageTitle>
+    <TextVoltageStats Ref="3" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,2.2,16.5,0.8</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextVoltageStats</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Nodes: {Count(Voltage.node)} | Violations: {Sum(IIF(Voltage.status == &quot;violation&quot;, 1, 0))} | Warnings: {Sum(IIF(Voltage.status == &quot;warning&quot;, 1, 0))} | Min/Avg/Max: {Min(Voltage.u_pu)} / {Avg(Voltage.u_pu)} / {Max(Voltage.u_pu)}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextVoltageStats>
+    <TextThermalTitle Ref="4" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,3.3,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextThermalTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Thermal Statistics</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextThermalTitle>
+    <TextThermalStats Ref="5" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,3.9,16.5,0.8</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextThermalStats</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Elements: {Count(Loading.name)} | Violations: {Sum(IIF(Loading.status == &quot;violation&quot;, 1, 0))} | Warnings: {Sum(IIF(Loading.status == &quot;warning&quot;, 1, 0))} | Max Loading: {Max(Loading.loading_pct)}%</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextThermalStats>
+    <TextLoadflowTitle Ref="6" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,5.0,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextLoadflowTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Load Flow Summary</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextLoadflowTitle>
+    <TextLoadflowStats Ref="7" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,5.6,16.5,0.9</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextLoadflowStats</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Status: {LF.status_text} | Iterations: {LF.iterations} | Load: {LF.total_load_mw} MW | Gen: {LF.total_gen_mw} MW | Losses: {LF.losses_mw} MW</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextLoadflowStats>
+    <TextQdsTitle Ref="8" type="Text" isKey="true">
+      <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,6.8,16.5,0.5</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Report_Title2</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,9,Bold</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextQdsTitle</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Quasi-Dynamic Summary</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextQdsTitle>
+    <TextQdsStats Ref="9" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,7.4,16.5,0.8</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextQdsStats</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Period: {QdsInfo.t_start_h} - {QdsInfo.t_end_h} h | Step: {QdsInfo.dt_h} h | Steps: {QdsInfo.n_steps}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextQdsStats>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>69648b511b10432ab4bd3a3a99f7eedd</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>Statistics:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>

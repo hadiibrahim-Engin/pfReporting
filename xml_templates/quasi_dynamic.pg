@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="3">
+    <Chart1 Ref="1" type="Stimulsoft.Report.Chart.StiChart" isKey="true">
+      <Area Ref="2" type="Stimulsoft.Report.Chart.StiClusteredColumnArea" isKey="true">
+        <BorderColor>Transparent</BorderColor>
+        <BorderThickness>1</BorderThickness>
+        <Brush>[255:255:255]</Brush>
+        <Chart isRef="1" />
+        <GridLinesHor Ref="3" type="Stimulsoft.Report.Chart.StiGridLinesHor" isKey="true">
+          <Area isRef="2" />
+          <Color>50, 105, 105, 105</Color>
+          <MinorColor>50, 105, 105, 105</MinorColor>
+        </GridLinesHor>
+        <GridLinesHorRight Ref="4" type="Stimulsoft.Report.Chart.StiGridLinesHor" isKey="true">
+          <Area isRef="2" />
+          <Color>Silver</Color>
+          <MinorColor>Gainsboro</MinorColor>
+          <Visible>False</Visible>
+        </GridLinesHorRight>
+        <GridLinesVert Ref="5" type="Stimulsoft.Report.Chart.StiGridLinesVert" isKey="true">
+          <Area isRef="2" />
+          <Color>50, 105, 105, 105</Color>
+          <MinorColor>50, 105, 105, 105</MinorColor>
+        </GridLinesVert>
+        <InterlacingHor Ref="6" type="Stimulsoft.Report.Chart.StiInterlacingHor" isKey="true">
+          <Area isRef="2" />
+          <InterlacedBrush>[10:155:155:155]</InterlacedBrush>
+        </InterlacingHor>
+        <InterlacingVert Ref="7" type="Stimulsoft.Report.Chart.StiInterlacingVert" isKey="true">
+          <Area isRef="2" />
+          <InterlacedBrush>[10:155:155:155]</InterlacedBrush>
+        </InterlacingVert>
+        <XAxis Ref="8" type="Stimulsoft.Report.Chart.StiXBottomAxis" isKey="true">
+          <Area isRef="2" />
+          <Labels Ref="9" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+            <Axis isRef="8" />
+            <Color>140, 140, 140</Color>
+            <Font>Tahoma,8</Font>
+          </Labels>
+          <LineColor>140, 140, 140</LineColor>
+        </XAxis>
+        <XTopAxis Ref="10" type="Stimulsoft.Report.Chart.StiXTopAxis" isKey="true">
+          <Area isRef="2" />
+          <Labels Ref="11" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+            <Axis isRef="10" />
+            <Color>140, 140, 140</Color>
+            <Font>Tahoma,8</Font>
+          </Labels>
+          <LineColor>140, 140, 140</LineColor>
+        </XTopAxis>
+        <YAxis Ref="12" type="Stimulsoft.Report.Chart.StiYLeftAxis" isKey="true">
+          <Area isRef="2" />
+          <Labels Ref="13" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+            <Axis isRef="12" />
+            <Color>140, 140, 140</Color>
+            <Font>Tahoma,8</Font>
+          </Labels>
+          <LineColor>140, 140, 140</LineColor>
+          <Title Ref="14" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+            <Color>140, 140, 140</Color>
+            <Direction>BottomToTop</Direction>
+            <Font>Tahoma,12,Bold</Font>
+          </Title>
+        </YAxis>
+        <YRightAxis Ref="15" type="Stimulsoft.Report.Chart.StiYRightAxis" isKey="true">
+          <Area isRef="2" />
+          <Labels Ref="16" type="Stimulsoft.Report.Chart.StiAxisLabels" isKey="true">
+            <Axis isRef="15" />
+            <Color>140, 140, 140</Color>
+            <Font>Tahoma,8</Font>
+            <TextAlignment>Left</TextAlignment>
+          </Labels>
+          <LineColor>140, 140, 140</LineColor>
+          <Title Ref="17" type="Stimulsoft.Report.Chart.StiAxisTitle" isKey="true">
+            <Color>140, 140, 140</Color>
+            <Direction>TopToBottom</Direction>
+            <Font>Tahoma,12,Bold</Font>
+          </Title>
+        </YRightAxis>
+      </Area>
+      <Brush>[255:255:255]</Brush>
+      <ClientRectangle>1.2,3.2,13.6,7.6</ClientRectangle>
+      <Conditions isList="true" count="0" />
+      <ConstantLines isList="true" count="0" />
+      <CustomStyleName />
+      <EditorType>Advanced</EditorType>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <Legend Ref="18" type="Stimulsoft.Report.Chart.StiLegend" isKey="true">
+        <BorderColor>Transparent</BorderColor>
+        <Brush>[255:255:255]</Brush>
+        <Chart isRef="1" />
+        <Font>Arial,8</Font>
+        <LabelsColor>140, 140, 140</LabelsColor>
+        <MarkerSize>10, 10</MarkerSize>
+        <ShowShadow>False</ShowShadow>
+        <TitleColor>105, 105, 105</TitleColor>
+        <TitleFont>Arial,14,Bold</TitleFont>
+      </Legend>
+      <Name>Chart1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <Series isList="true" count="1">
+        <Item2 Ref="19" type="Stimulsoft.Report.Chart.StiLineSeries" isKey="true">
+          <Chart isRef="1" />
+          <Conditions isList="true" count="0" />
+          <Filters isList="true" count="0" />
+          <Lighting>False</Lighting>
+          <LineColor>52, 152, 219</LineColor>
+          <LineColorNegative>Firebrick</LineColorNegative>
+          <LineMarker Ref="20" type="Stimulsoft.Report.Chart.StiLineMarker" isKey="true">
+            <BorderColor>0, 2, 69</BorderColor>
+            <Brush>[102:202:255]</Brush>
+          </LineMarker>
+          <Marker Ref="21" type="Stimulsoft.Report.Chart.StiMarker" isKey="true">
+            <BorderColor>0, 52, 119</BorderColor>
+            <Brush>[152:252:255]</Brush>
+            <Visible>False</Visible>
+          </Marker>
+          <SeriesLabels Ref="22" type="Stimulsoft.Report.Chart.StiOutsideEndAxisLabels" isKey="true">
+            <BorderColor>Transparent</BorderColor>
+            <Brush>[119:255:255:255]</Brush>
+            <Chart isRef="1" />
+            <Font>Arial,10</Font>
+            <LabelColor>50, 58, 69</LabelColor>
+            <MarkerSize>8, 6</MarkerSize>
+            <ValueTypeSeparator>-</ValueTypeSeparator>
+            <Width>0</Width>
+          </SeriesLabels>
+          <ShowShadow>False</ShowShadow>
+          <Title>Series 1</Title>
+          <TrendLines isList="true" count="0" />
+          <ValueDataColumn>ScriptedLineTimeSeries.Line_04___05</ValueDataColumn>
+        </Item2>
+      </Series>
+      <SeriesLabels Ref="23" type="Stimulsoft.Report.Chart.StiCenterAxisLabels" isKey="true">
+        <BorderColor>Transparent</BorderColor>
+        <Brush>[119:255:255:255]</Brush>
+        <Chart isRef="1" />
+        <Font>Arial,10</Font>
+        <LabelColor>50, 58, 69</LabelColor>
+        <MarkerSize>8, 6</MarkerSize>
+        <ValueTypeSeparator>-</ValueTypeSeparator>
+        <Width>0</Width>
+      </SeriesLabels>
+      <SeriesLabelsConditions isList="true" count="0" />
+      <Sort isList="true" count="0" />
+      <Strips isList="true" count="0" />
+      <Style Ref="24" type="Stimulsoft.Report.Chart.StiStyle29" isKey="true">
+        <Conditions isList="true" count="0" />
+        <Name />
+      </Style>
+    </Chart1>
+    <GroupHeaderBandMainTitle1 Ref="25" type="GroupHeaderBand" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle1 Ref="200" type="Text" isKey="true">
+          <Bookmark>Quasi-Dynamic</Bookmark>
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,1,1,0</Margins>
+          <Name>TextMainTitle1</Name>
+          <Page isRef="0" />
+          <Parent isRef="25" />
+          <Pointer>Quasi-Dynamic</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>Quasi-Dynamic</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle1>
+    <TextQdsInfo Ref="26" type="Text" isKey="true">
+      <Border>All;[155:155:155];1;Solid;False;4;Black</Border>
+      <Brush>Transparent</Brush>
+      <CanGrow>True</CanGrow>
+      <ClientRectangle>0,1.6,16.5,1.2</ClientRectangle>
+      <ComponentStyle>DigsiStyle_Data1</ComponentStyle>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Font>Segoe UI,8</Font>
+      <Margins>1,1,0,0</Margins>
+      <Name>TextQdsInfo</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <ShrinkFontToFit>True</ShrinkFontToFit>
+      <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+      <Text>Project: {Info.project} | Study Case: {Info.study_case} | Period: {QdsInfo.t_start_h} - {QdsInfo.t_end_h} h | Step: {QdsInfo.dt_h} h | Steps: {QdsInfo.n_steps}</Text>
+      <TextBrush>[55:55:55]</TextBrush>
+      <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+      <Type>Expression</Type>
+      <VertAlignment>Center</VertAlignment>
+    </TextQdsInfo>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>0d45eb178da941c0b6396dfaffdf5438</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>QuasiDynamic:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>

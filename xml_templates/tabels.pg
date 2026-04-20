@@ -1,0 +1,1076 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StiSerializer version="1.02" type="Net" application="StiPage">
+  <Border>None;Black;2;Solid;False;4;Black</Border>
+  <Brush>Transparent</Brush>
+  <Components isList="true" count="10">
+    <GroupHeaderBandMainTitle1 Ref="1" type="GroupHeaderBand" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,0.4,16.5,0.8</ClientRectangle>
+      <Components isList="true" count="1">
+        <TextMainTitle1 Ref="2" type="Text" isKey="true">
+          <Bookmark>{ComLdfMeta.e_title1_desc}</Bookmark>
+          <Border>All;[181:18:62];1;Solid;False;4;Black</Border>
+          <Brush>[181:18:62]</Brush>
+          <ClientRectangle>0,0,16.5,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Report_Title1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <DockStyle>Fill</DockStyle>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,14,Bold</Font>
+          <HorAlignment>Center</HorAlignment>
+          <Margins>0,1,1,0</Margins>
+          <Name>TextMainTitle1</Name>
+          <Page isRef="0" />
+          <Parent isRef="1" />
+          <Pointer>{ComLdfMeta.e_title1_desc}</Pointer>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_title1_desc}</Text>
+          <TextBrush>[255:255:255]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TextMainTitle1>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <Expressions isList="true" count="0" />
+      <Name>GroupHeaderBandMainTitle1</Name>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+    </GroupHeaderBandMainTitle1>
+    <Table1 Ref="3" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,2,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <Table1_Cell1 Ref="4" type="TableCell" isKey="true">
+          <Border>Top, Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>0</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table1_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_net_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>DataColumn</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table1_Cell1>
+        <Table1_Cell2 Ref="5" type="TableCell" isKey="true">
+          <Border>Top;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>1</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table1_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Choose(ComLdf.e_iopt_net + 1, ComLdfMeta.e_iopt__desc, ComLdfMeta.e_iopt_rst_desc, ComLdfMeta.e_iopt_dc_desc)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table1_Cell2>
+        <Table1_Cell3 Ref="6" type="TableCell" isKey="true">
+          <Border>Top, Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>25</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table1_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_apdist_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table1_Cell3>
+        <Table1_Cell4 Ref="7" type="TableCell" isKey="true">
+          <Border>Top, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>26</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table1_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="3" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Choose(ComLdf.e_iopt_apdist + 1, ComLdfMeta.e_iopt_disp_desc, ComLdfMeta.e_iopt_secc_desc, ComLdfMeta.e_iopt_pric_desc, ComLdfMeta.e_iopt_iner_desc)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table1_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>Table1</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </Table1>
+    <TableWhite2 Ref="8" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,3.6,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableWhite2_Cell1 Ref="9" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>5</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite2_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_at_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite2_Cell1>
+        <TableWhite2_Cell2 Ref="10" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>6</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite2_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_at == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite2_Cell2>
+        <TableWhite2_Cell3 Ref="11" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>27</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite2_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_i_Pbalancing_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite2_Cell3>
+        <TableWhite2_Cell4 Ref="12" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>28</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite2_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="8" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Choose(ComLdf.e_i_Pbalancing + 1, ComLdfMeta.e_i_Pbal_refm_desc, ComLdfMeta.e_i_Pbal_distl_desc, ComLdfMeta.e_i_Pbal_distg_desc, ComLdfMeta.e_i_Pbal_distga_desc, ComLdfMeta.e_i_Pbal_refl_desc, ComLdfMeta.e_i_Pbal_refg_desc)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite2_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>TableWhite2</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableWhite2>
+    <Table3 Ref="13" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,5.2,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <Table3_Cell1 Ref="14" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>10</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table3_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="13" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_asht_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <VertAlignment>Center</VertAlignment>
+        </Table3_Cell1>
+        <Table3_Cell2 Ref="15" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>11</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table3_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="13" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_asht == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table3_Cell2>
+        <Table3_Cell3 Ref="16" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>29</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table3_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="13" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_i_power_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table3_Cell3>
+        <Table3_Cell4 Ref="17" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>30</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table3_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="13" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Choose(ComLdf.e_i_power + 1, ComLdfMeta.e_curr_eq_desc, ComLdfMeta.e_power_eq_desc)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table3_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>Table3</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </Table3>
+    <TableWhite4 Ref="18" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,6.8,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableWhite4_Cell1 Ref="19" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>15</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite4_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="18" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_i_P_S_T_at_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite4_Cell1>
+        <TableWhite4_Cell2 Ref="20" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>16</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite4_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="18" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_i_P_S_T_at == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite4_Cell2>
+        <TableWhite4_Cell3 Ref="21" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Enabled>False</Enabled>
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>31</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite4_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="18" />
+          <ParentJoin>32</ParentJoin>
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite4_Cell3>
+        <Table4Meta_Cell4 Ref="22" type="TableCell" isKey="true">
+          <Border>Left, Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>[191:191:191]</Brush>
+          <ClientRectangle>8.3,0,8.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Header1</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>32</ID>
+          <Join>True</Join>
+          <JoinCells isList="true" count="2">
+            <value>31</value>
+            <value>32</value>
+          </JoinCells>
+          <JoinHeight>1</JoinHeight>
+          <JoinWidth>2</JoinWidth>
+          <Margins>1,1,0,0</Margins>
+          <Name>Table4Meta_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="18" />
+          <ParentJoin>32</ParentJoin>
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_frame2_desc}:</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table4Meta_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>TableWhite4</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableWhite4>
+    <Table5 Ref="23" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,8.4,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <Table5_Cell1 Ref="24" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>20</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table5_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="23" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_plim_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <VertAlignment>Center</VertAlignment>
+        </Table5_Cell1>
+        <Table5_Cell2 Ref="25" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>21</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table5_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="23" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_plim == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table5_Cell2>
+        <Table5_Cell3 Ref="26" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>33</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table5_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="23" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_errlf_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table5_Cell3>
+        <Table5_Cell4 Ref="27" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>34</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table5_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="23" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdf.e_errlf_string} {ComLdfMeta.e_errlf_unit}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table5_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>Table5</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </Table5>
+    <TableWhite6 Ref="28" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,10,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableWhite6_Cell1 Ref="29" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>35</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite6_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="28" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_lim_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite6_Cell1>
+        <TableWhite6_Cell2 Ref="30" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>36</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite6_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="28" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_lim == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite6_Cell2>
+        <TableWhite6_Cell3 Ref="31" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>37</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite6_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="28" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_allowed_Bus_Err_Mv_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite6_Cell3>
+        <TableWhite6_Cell4 Ref="32" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>38</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableWhite6_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="28" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdf.e_allowed_Bus_Err_Mv_string} {ComLdfMeta.e_allowed_Bus_Err_Mv_unit}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableWhite6_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>TableWhite6</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableWhite6>
+    <Table7 Ref="33" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,11.6,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <Table7_Cell1 Ref="34" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>39</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table7_Cell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="33" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_fr_temp_desc} {ComLdfMeta.e_iopt_tem_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table7_Cell1>
+        <Table7_Cell2 Ref="35" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>40</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table7_Cell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="33" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{Switch(ComLdf.e_iopt_tem == "0", ComLdfMeta.e_iopt_t20_desc, ComLdf.e_iopt_tem == "1", ComLdfMeta.e_iopt_tmx_desc, ComLdf.e_iopt_tem == "2", ComLdfMeta.e_iopt_top_desc, ComLdf.e_iopt_tem == "3", ComLdfMeta.e_temperature_desc + " " + ComLdf.e_temperature_string + " " + ComLdfMeta.e_temperature_unit)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table7_Cell2>
+        <Table7_Cell3 Ref="36" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>41</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table7_Cell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="33" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_allowed_Bus_Err_Lv_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table7_Cell3>
+        <Table7_Cell4 Ref="37" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>42</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>Table7_Cell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="33" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdf.e_allowed_Bus_Err_Lv_string} {ComLdfMeta.e_allowed_Bus_Err_Lv_unit}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </Table7_Cell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>Table7</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </Table7>
+    <TableWhite8 Ref="38" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,13.2,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableCell1 Ref="39" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>35</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell1</Name>
+          <Page isRef="0" />
+          <Parent isRef="38" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_pq_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell1>
+        <TableCell2 Ref="40" type="TableCell" isKey="true">
+          <Border>None;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>36</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell2</Name>
+          <Page isRef="0" />
+          <Parent isRef="38" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_pq == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell2>
+        <TableCell3 Ref="41" type="TableCell" isKey="true">
+          <Border>Left;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>37</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell3</Name>
+          <Page isRef="0" />
+          <Parent isRef="38" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_erreq_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell3>
+        <TableCell4 Ref="42" type="TableCell" isKey="true">
+          <Border>Right;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>White</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2_White</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>38</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell4</Name>
+          <Page isRef="0" />
+          <Parent isRef="38" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdf.e_erreq_string} {ComLdfMeta.e_erreq_unit}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell4>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>TableWhite8</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </TableWhite8>
+    <Table9 Ref="43" type="Stimulsoft.Report.Components.Table.StiTable" isKey="true">
+      <Brush>Transparent</Brush>
+      <ClientRectangle>0,14.8,16.5,0.8</ClientRectangle>
+      <ColumnCount>4</ColumnCount>
+      <Components isList="true" count="4">
+        <TableCell5 Ref="44" type="TableCell" isKey="true">
+          <Border>Left, Bottom;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>0,0,4.2,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>39</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell5</Name>
+          <Page isRef="0" />
+          <Parent isRef="43" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{ComLdfMeta.e_iopt_fls_desc}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell5>
+        <TableCell6 Ref="45" type="TableCell" isKey="true">
+          <Border>Bottom;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>4.2,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>40</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell6</Name>
+          <Page isRef="0" />
+          <Parent isRef="43" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <Text>{IIF(ComLdf.e_iopt_fls == "0", Localisation.Int_Report_com_Sh_mod_off, Localisation.Int_Report_com_Sh_mod_on)}</Text>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell6>
+        <TableCell7 Ref="46" type="TableCell" isKey="true">
+          <Border>Left, Bottom;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>8.3,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>41</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell7</Name>
+          <Page isRef="0" />
+          <Parent isRef="43" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell7>
+        <TableCell8 Ref="47" type="TableCell" isKey="true">
+          <Border>Right, Bottom;[155:155:155];1;Solid;False;4;Black</Border>
+          <Brush>Transparent</Brush>
+          <ClientRectangle>12.4,0,4.1,0.8</ClientRectangle>
+          <ComponentStyle>DigsiStyle_Data2</ComponentStyle>
+          <Conditions isList="true" count="0" />
+          <Expressions isList="true" count="0" />
+          <Font>Segoe UI,8</Font>
+          <ID>42</ID>
+          <JoinCells isList="true" count="0" />
+          <Margins>1,1,0,0</Margins>
+          <Name>TableCell8</Name>
+          <Page isRef="0" />
+          <Parent isRef="43" />
+          <Restrictions>AllowMove, AllowSelect, AllowChange</Restrictions>
+          <ShrinkFontToFit>True</ShrinkFontToFit>
+          <ShrinkFontToFitMinimumSize>6</ShrinkFontToFitMinimumSize>
+          <TextBrush>[55:55:55]</TextBrush>
+          <TextOptions>,,,Trimming=Character,WordWrap=True,A=0</TextOptions>
+          <Type>Expression</Type>
+          <VertAlignment>Center</VertAlignment>
+        </TableCell8>
+      </Components>
+      <Conditions isList="true" count="0" />
+      <DataRelationName isNull="true" />
+      <EvenStyle>DigsiStyle_Data2_Even_Style</EvenStyle>
+      <Expressions isList="true" count="0" />
+      <Filters isList="true" count="0" />
+      <KeepChildTogether>True</KeepChildTogether>
+      <KeepDetails>KeepDetailsTogether</KeepDetails>
+      <MinHeight>0.6000000000000001</MinHeight>
+      <Name>Table9</Name>
+      <NumberID>45</NumberID>
+      <OddStyle>DigsiStyle_Data2_Odd_Style</OddStyle>
+      <Page isRef="0" />
+      <Parent isRef="0" />
+      <RowCount>1</RowCount>
+      <Sort isList="true" count="0" />
+    </Table9>
+  </Components>
+  <Conditions isList="true" count="0" />
+  <Expressions isList="true" count="0" />
+  <Guid>ce644083cebc4acebf0c4e0b8e7b9e2e</Guid>
+  <Margins>2.5,2,1,1</Margins>
+  <Name>Page1:Unit:Stimulsoft.Report.Units.StiCentimetersUnit</Name>
+  <PageHeight>29.7</PageHeight>
+  <PageWidth>21</PageWidth>
+</StiSerializer>
