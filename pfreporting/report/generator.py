@@ -256,10 +256,6 @@ class MultiPageReportGenerator(_BaseReportGenerator):
                 "datatables/dataTables.min.js",
                 "https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js",
             ),
-            "datatables_tailwind_js": _asset_url(
-                "datatables/dataTables.tailwindcss.min.js",
-                "https://cdn.datatables.net/1.13.8/js/dataTables.tailwindcss.min.js",
-            ),
             "datatables_css": _asset_url(
                 "datatables/dataTables.tailwindcss.min.css",
                 "https://cdn.datatables.net/1.13.8/css/dataTables.tailwindcss.min.css",

@@ -458,6 +458,8 @@
             /* Unit-based axis fallbacks when there is no finite data at all */
             var yFallbackMin = (cfg.unit === '%') ? 0 : (cfg.unit === 'p.u.') ? 0.8 : undefined;
             var yFallbackMax = (cfg.unit === '%') ? 120 : (cfg.unit === 'p.u.') ? 1.2 : undefined;
+            var ySuggestedMin = yLimits ? yLimits.min : yFallbackMin;
+            var ySuggestedMax = yLimits ? yLimits.max : yFallbackMax;
 
             var datasets = cfg.series.map(function (s, i) {
                 return {
@@ -546,8 +548,8 @@
                         },
                         y: {
                             type: 'linear',
-                            min: yLimits ? yLimits.min : yFallbackMin,
-                            max: yLimits ? yLimits.max : yFallbackMax,
+                            suggestedMin: ySuggestedMin,
+                            suggestedMax: ySuggestedMax,
                             title: {
                                 display: true,
                                 text: cfg.unit,

@@ -61,10 +61,6 @@ CDN_ASSETS = [
         "https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js",
     ),
     (
-        "datatables/dataTables.tailwindcss.min.js",
-        "https://cdn.datatables.net/1.13.8/js/dataTables.tailwindcss.min.js",
-    ),
-    (
         "datatables/dataTables.tailwindcss.min.css",
         "https://cdn.datatables.net/1.13.8/css/dataTables.tailwindcss.min.css",
     ),
@@ -79,7 +75,11 @@ def download(rel_path: str, url: str) -> None:
         return
     print(f"  [DOWN] {rel_path} …", end=" ", flush=True)
     try:
-        with urllib.request.urlopen(url, context=_ssl_ctx) as resp:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        with urllib.request.urlopen(req, context=_ssl_ctx) as resp:
             dest.write_bytes(resp.read())
         size_kb = dest.stat().st_size // 1024
         print(f"OK ({size_kb} KB)")
