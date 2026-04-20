@@ -1,5 +1,5 @@
 {% from 'partials/_macros.html.j2' import badge %}
-{% if calc_options.run_n1 %}
+{% if false %}{# N-1 section intentionally hidden from HTML output #}
 <section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-n1">
     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none"
          @click="toggleSection('sec-n1')">
@@ -29,8 +29,9 @@
         </div>
 
         <!-- DataTables-enabled N-1 table -->
-        <div class="overflow-x-auto">
-            <table id="dt-n1" class="w-full text-sm">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table id="dt-n1" class="report-table text-sm">
                 <thead>
                     <tr>
                         <th class="text-left px-3 py-2">Outage Element</th>
@@ -71,6 +72,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </section>

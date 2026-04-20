@@ -14,7 +14,7 @@
             var table = th.closest('table');
             if (!table) return;
             /* Skip DataTables-managed tables */
-            if (table.id && (table.id === 'dt-voltage' || table.id === 'dt-thermal' || table.id === 'dt-n1')) return;
+            if (table.id && (table.id === 'dt-voltage' || table.id === 'dt-thermal')) return;
             var tbody = table.querySelector('tbody');
             var rows  = Array.from(tbody.querySelectorAll('tr'));
             var idx   = Array.from(th.parentNode.children).indexOf(th);
@@ -373,13 +373,71 @@
     }
 
     /* ----------------------------------------------------------
-       ECharts — initialization from window.__chartData
+       Chart.js — initialization from window.__chartData
     ---------------------------------------------------------- */
-    var _echartsInstances = [];
+    var _chartInstances = [];
+
+    function _computeYLimits(series, fallbackSpan) {
+        var min = Number.POSITIVE_INFINITY;
+        var max = Number.NEGATIVE_INFINITY;
+
+        series.forEach(function (s) {
+            (s.values || []).forEach(function (v) {
+                if (v == null) return;
+                var val = Number(v);
+                if (!Number.isFinite(val)) return;
+                min = Math.min(min, val);
+                max = Math.max(max, val);
+            });
+        });
+
+        if (!Number.isFinite(min) || !Number.isFinite(max)) {
+            return null;
+        }
+
+        var center  = (min + max) / 2;
+        var rawSpan = max - min;
+
+        /* Enforce a minimum readable span so Chart.js ticking stays stable
+           when all values are nearly identical (tiny decimal differences).
+           Floor: 0.1 % of |center| OR 1e-4 absolute, whichever is larger. */
+        var minSpan = Math.max(
+            Number.isFinite(center) ? Math.abs(center) * 0.001 : 0,
+            1e-4,
+            (fallbackSpan || 1e-6) * 10
+        );
+        var span = Math.max(rawSpan, minSpan);
+
+        var pad  = span * 0.15;
+        var yMin = center - span / 2 - pad;
+        var yMax = center + span / 2 + pad;
+
+        if (!Number.isFinite(yMin) || !Number.isFinite(yMax) || yMax <= yMin) {
+            yMin = center - minSpan / 2;
+            yMax = center + minSpan / 2;
+            span = minSpan;
+        }
+
+        return {
+            min: yMin,
+            max: yMax,
+            span: span,
+        };
+    }
+
+    function _computeTickPrecision(basePrecision, yLimits) {
+        if (!yLimits) return basePrecision;
+        var span = Math.abs(yLimits.span);
+        if (!Number.isFinite(span) || span <= 0) {
+            return Math.min(Math.max(basePrecision, 6), 12);
+        }
+        var spanPrecision = Math.max(0, Math.ceil(-Math.log10(span)) + 1);
+        return Math.min(Math.max(basePrecision, spanPrecision), 12);
+    }
 
     function initCharts() {
         if (window.__chartsInitialized) return;
-        if (typeof echarts === 'undefined' || !window.__chartData) return;
+        if (typeof Chart === 'undefined' || !window.__chartData) return;
         window.__chartsInitialized = true;
 
         var COLORS = [
@@ -389,94 +447,128 @@
         ];
 
         window.__chartData.forEach(function (cfg) {
-            var div = document.getElementById(cfg.id);
-            if (!div) return;
-
-            var nPoints = cfg.time ? cfg.time.length : 0;
-            var useLarge = nPoints > 2000;
+            var canvas = document.getElementById(cfg.id);
+            if (!canvas) return;
 
             var valuePrecision = Number.isInteger(cfg.value_precision)
                 ? cfg.value_precision
                 : (cfg.variable === 'c:loading' ? 8 : 4);
+            var yLimits = _computeYLimits(cfg.series || [], cfg.variable === 'c:loading' ? 1e-8 : 1e-6);
+            var tickPrecision = _computeTickPrecision(valuePrecision, yLimits);
 
-            /* Build series */
-            var series = cfg.series.map(function (s, i) {
-                var data = [];
-                for (var k = 0; k < (cfg.time || []).length; k++) {
-                    data.push([cfg.time[k], s.values[k] == null ? null : s.values[k]]);
-                }
+            var datasets = cfg.series.map(function (s, i) {
                 return {
-                    name: s.name,
-                    type: 'line',
-                    data: data,
-                    large: useLarge,
-                    largeThreshold: 2000,
-                    symbol: 'none',
-                    lineStyle: { width: 1.5, color: COLORS[i % COLORS.length] },
-                    itemStyle: { color: COLORS[i % COLORS.length] },
-                    connectNulls: false,
+                    label: s.name,
+                    data: (cfg.time || []).map(function (t, k) {
+                        var raw = s.values[k];
+                        var num = (raw == null) ? null : Number(raw);
+                        return { x: t, y: (num !== null && Number.isFinite(num)) ? num : null };
+                    }),
+                    borderColor: COLORS[i % COLORS.length],
+                    backgroundColor: COLORS[i % COLORS.length],
+                    pointRadius: 0,
+                    pointHitRadius: 8,
+                    borderWidth: 2,
+                    tension: 0.15,
+                    spanGaps: false,
                 };
             });
 
-            var option = {
-                animation: false,
-                grid: { left: 60, right: 20, top: 30, bottom: 80 },
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: function (params) {
-                        var t = params[0] ? Number(params[0].value[0]).toFixed(4) + ' h' : '';
-                        var lines = params.map(function (p) {
-                            var val = p.value[1];
-                            var vStr = val == null ? 'n/a' : Number(val).toFixed(valuePrecision) + ' ' + cfg.unit;
-                            return p.marker + ' ' + p.seriesName + ': <b>' + vStr + '</b>';
-                        });
-                        return t + '<br>' + lines.join('<br>');
+            var chart = new Chart(canvas, {
+                type: 'line',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    parsing: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'line',
+                                boxWidth: 12,
+                                boxHeight: 3,
+                                font: { size: 11 },
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function (items) {
+                                    if (!items.length) return '';
+                                    return 'Time: ' + Number(items[0].parsed.x).toFixed(4) + ' h';
+                                },
+                                label: function (context) {
+                                    var val = context.parsed.y;
+                                    var vStr = val == null
+                                        ? 'n/a'
+                                        : Number(val).toFixed(valuePrecision) + ' ' + cfg.unit;
+                                    return context.dataset.label + ': ' + vStr;
+                                },
+                            },
+                        },
+                        zoom: {
+                            limits: {
+                                y: yLimits ? { min: yLimits.min, max: yLimits.max } : undefined,
+                            },
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'x',
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                                threshold: 4,
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time [h]',
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return Number(value).toFixed(2);
+                                },
+                            },
+                        },
+                        y: {
+                            type: 'linear',
+                            min: yLimits ? yLimits.min : undefined,
+                            max: yLimits ? yLimits.max : undefined,
+                            title: {
+                                display: true,
+                                text: cfg.unit,
+                            },
+                            ticks: {
+                                maxTicksLimit: 8,
+                                callback: function (value) {
+                                    var num = Number(value);
+                                    if (!Number.isFinite(num)) return '';
+                                    return num.toFixed(tickPrecision);
+                                },
+                            },
+                        },
                     },
                 },
-                legend: {
-                    bottom: 30,
-                    type: 'scroll',
-                    textStyle: { fontSize: 11 },
-                },
-                dataZoom: [
-                    { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-                    { type: 'slider', xAxisIndex: 0, bottom: 4, height: 20, filterMode: 'none' },
-                ],
-                xAxis: {
-                    type: 'value',
-                    name: 'Time [h]',
-                    nameLocation: 'middle',
-                    nameGap: 28,
-                    nameTextStyle: { fontSize: 11 },
-                    axisLabel: { fontSize: 10, formatter: function (v) { return Number(v).toFixed(2); } },
-                    min: 'dataMin',
-                    max: 'dataMax',
-                },
-                yAxis: {
-                    type: 'value',
-                    name: cfg.unit,
-                    nameLocation: 'middle',
-                    nameGap: 45,
-                    nameTextStyle: { fontSize: 11 },
-                    axisLabel: {
-                        fontSize: 10,
-                        formatter: function (v) { return Number(v).toFixed(valuePrecision); },
-                    },
-                },
-                series: series,
-            };
-
-            var chart = echarts.init(div, null, { renderer: 'canvas' });
-            chart.setOption(option);
-            _echartsInstances.push(chart);
-
-            /* Double-click → reset zoom */
-            chart.getZr().on('dblclick', function () {
-                chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
             });
 
-            /* "Hide all / Show all" button */
-            var cardParent = div.parentElement;
+            canvas.addEventListener('dblclick', function () {
+                if (typeof chart.resetZoom === 'function') {
+                    chart.resetZoom();
+                }
+            });
+
+            var cardParent = canvas.parentElement;
             if (cardParent) {
                 var ctrlBar = document.createElement('div');
                 ctrlBar.className = 'flex justify-end mb-2';
@@ -486,45 +578,47 @@
                 var allHidden = false;
                 hideBtn.addEventListener('click', function () {
                     allHidden = !allHidden;
-                    cfg.series.forEach(function (s) {
-                        chart.dispatchAction({
-                            type: allHidden ? 'legendUnSelect' : 'legendSelect',
-                            name: s.name,
-                        });
+                    chart.data.datasets.forEach(function (_, index) {
+                        chart.setDatasetVisibility(index, !allHidden);
                     });
+                    chart.update();
                     hideBtn.textContent = allHidden ? 'Show all' : 'Hide all';
                 });
                 ctrlBar.appendChild(hideBtn);
-                cardParent.insertBefore(ctrlBar, div);
+                cardParent.insertBefore(ctrlBar, canvas);
             }
-        });
 
-        /* Resize all instances when window resizes */
-        window.addEventListener('resize', function () {
-            _echartsInstances.forEach(function (c) { c.resize(); });
+            _chartInstances.push(chart);
         });
     }
 
-    /* Expose initCharts for Alpine setTab() call */
     window.initCharts = initCharts;
-
-    /* Initialize charts immediately if the timeseries section is visible */
-    function setupChartInitTriggers() {
-        var tsSection = document.getElementById('sec-timeseries');
-        if (!tsSection) {
+    window.refreshCharts = function () {
+        if (!window.__chartsInitialized) {
             initCharts();
             return;
         }
+        _chartInstances.forEach(function (chart) {
+            chart.resize();
+        });
+    };
+
+    function setupChartInitTriggers() {
+        var tsSection = document.getElementById('sec-timeseries');
+        if (!tsSection) return;
 
         if ('IntersectionObserver' in window) {
             var obs = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
-                    if (entry.isIntersecting) { initCharts(); obs.disconnect(); }
+                    if (entry.isIntersecting) {
+                        window.refreshCharts();
+                        obs.disconnect();
+                    }
                 });
             }, { rootMargin: '200px' });
             obs.observe(tsSection);
         } else {
-            initCharts();
+            window.refreshCharts();
         }
     }
 

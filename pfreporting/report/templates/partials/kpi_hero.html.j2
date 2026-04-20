@@ -1,11 +1,9 @@
 {% set voltage_total = voltage | length %}
 {% set thermal_total = loading | length %}
-{% set n1_total = n1 | length %}
 {% set v_viol = voltage | selectattr('status', 'eq', 'violation') | list | length %}
 {% set v_warn = voltage | selectattr('status', 'eq', 'warning') | list | length %}
 {% set t_viol = loading | selectattr('status', 'eq', 'violation') | list | length %}
 {% set t_warn = loading | selectattr('status', 'eq', 'warning') | list | length %}
-{% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
 {% set v_viol_pct = (v_viol / voltage_total * 100) if voltage_total > 0 else 0 %}
 {% set t_viol_pct = (t_viol / thermal_total * 100) if thermal_total > 0 else 0 %}
 {% set v_viol_pct_c = [v_viol_pct, 100] | min %}
@@ -21,21 +19,22 @@
     </div>
 
     <!-- PRIMARY KPI CARDS -->
-    <div class="grid grid-cols-2 {% if calc_options.run_n1 %}md:grid-cols-4{% else %}md:grid-cols-3{% endif %} gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
 
-        <!-- Total Violations — hero number -->
+        <!-- Total Violations — hero number (voltage + thermal only) -->
         <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 border-2
-                    {% if overall.total_violations > 0 %}bg-red-50/60 border-red-300{% else %}bg-emerald-50/60 border-emerald-300{% endif %}">
+                    {% if (v_viol + t_viol) > 0 %}bg-red-50/60 border-red-300{% else %}bg-emerald-50/60 border-emerald-300{% endif %}">
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Total Violations</p>
-            <p class="text-7xl font-black leading-none {% if overall.total_violations > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
-                {{ overall.total_violations }}
+            <p class="text-7xl font-black leading-none {% if (v_viol + t_viol) > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
+                {{ v_viol + t_viol }}
             </p>
-            <p class="text-xs text-slate-400">across all analyses</p>
+            <p class="text-xs text-slate-400">voltage &amp; thermal</p>
         </div>
 
         <!-- Voltage Violations — clickable → tab-tables #sec-voltage -->
-        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
-             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-voltage'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
+        {% if multipage %}<a href="./tables.html#sec-voltage" class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group">
+        {% else %}<div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
+             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-voltage'); if(el) el.scrollIntoView({behavior:'smooth'}); })">{% endif %}
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Voltage Violations</p>
             <p class="text-5xl font-extrabold leading-none {% if v_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
                 {{ v_viol }}
@@ -49,11 +48,12 @@
                 <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(v_viol_pct) }}% of {{ voltage_total }} nodes</p>
             </div>
             <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">→ View table</p>
-        </div>
+        {% if multipage %}</a>{% else %}</div>{% endif %}
 
         <!-- Thermal Violations — clickable → tab-tables #sec-thermal -->
-        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
-             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-thermal'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
+        {% if multipage %}<a href="./tables.html#sec-thermal" class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group">
+        {% else %}<div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
+             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-thermal'); if(el) el.scrollIntoView({behavior:'smooth'}); })">{% endif %}
             <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Thermal Violations</p>
             <p class="text-5xl font-extrabold leading-none {% if t_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
                 {{ t_viol }}
@@ -67,20 +67,7 @@
                 <p class="text-xs text-slate-400 mt-1">{{ "%.1f"|format(t_viol_pct) }}% of {{ thermal_total }} elements</p>
             </div>
             <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">→ View table</p>
-        </div>
-
-        {% if calc_options.run_n1 %}
-        <!-- N-1 Violations — clickable → tab-tables #sec-n1 -->
-        <div class="glass-kpi rounded-2xl p-6 flex flex-col gap-2 group cursor-pointer"
-             @click="setTab('tab-tables'); $nextTick(() => { var el = document.getElementById('sec-n1'); if(el) el.scrollIntoView({behavior:'smooth'}); })">
-            <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">N-1 Violations</p>
-            <p class="text-5xl font-extrabold leading-none {% if n1_viol > 0 %}text-red-600{% else %}text-slate-300{% endif %}">
-                {{ n1_viol }}
-            </p>
-            <p class="text-xs text-slate-400">{{ n1_total }} cases checked</p>
-            <p class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity mt-auto">→ View table</p>
-        </div>
-        {% endif %}
+        {% if multipage %}</a>{% else %}</div>{% endif %}
 
     </div>
 
@@ -94,12 +81,6 @@
             <div class="text-3xl font-bold text-slate-800">{{ overall.total_elements }}</div>
             <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">Elements</div>
         </div>
-        {% if calc_options.run_n1 %}
-        <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
-            <div class="text-3xl font-bold text-slate-800">{{ overall.total_n1 }}</div>
-            <div class="text-xs text-slate-500 uppercase tracking-wide mt-1">N-1 Cases</div>
-        </div>
-        {% endif %}
         {% if calc_options.run_loadflow and lf %}
         <div class="rounded-xl bg-white/50 border border-slate-200/70 p-4 text-center card-hover">
             <div class="text-2xl font-bold text-slate-800">{{ "%.1f"|format(lf.total_load_mw) }}</div>
@@ -126,14 +107,15 @@
             <div>
                 <p class="text-xs font-semibold text-slate-600 mb-2">Voltage Violations</p>
                 {% for r in top_voltage_violations %}
-                <div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
-                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.node | replace("'", "\\'") }}', 'voltage'))">
+                {% if multipage %}<a href="./tables.html#sec-voltage" class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1">
+                {% else %}<div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
+                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.node | replace("'", "\\'") }}', 'voltage'))">{% endif %}
                     <span class="truncate text-slate-700 font-medium">{{ r.node }}</span>
                     <span class="flex items-center gap-1.5 flex-shrink-0">
                         <span class="badge-violation">{{ "%.4f"|format(r.u_pu) }} p.u.</span>
                         <span class="nav-arrow">↗</span>
                     </span>
-                </div>
+                {% if multipage %}</a>{% else %}</div>{% endif %}
                 {% endfor %}
             </div>
             {% endif %}
@@ -141,14 +123,15 @@
             <div>
                 <p class="text-xs font-semibold text-slate-600 mb-2">Thermal Violations</p>
                 {% for r in top_loading_violations %}
-                <div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
-                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.name | replace("'", "\\'") }}', 'thermal'))">
+                {% if multipage %}<a href="./tables.html#sec-thermal" class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1">
+                {% else %}<div class="crit-link flex justify-between items-center py-1.5 border-b border-red-100 text-xs gap-3 rounded px-1"
+                     @click="setTab('tab-tables'); $nextTick(() => navigateToRow('{{ r.name | replace("'", "\\'") }}', 'thermal'))">{% endif %}
                     <span class="truncate text-slate-700 font-medium">{{ r.name }}</span>
                     <span class="flex items-center gap-1.5 flex-shrink-0">
                         <span class="badge-violation">{{ "%.1f"|format(r.loading_pct) }}%</span>
                         <span class="nav-arrow">↗</span>
                     </span>
-                </div>
+                {% if multipage %}</a>{% else %}</div>{% endif %}
                 {% endfor %}
             </div>
             {% endif %}

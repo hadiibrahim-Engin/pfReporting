@@ -70,26 +70,6 @@
             </div>
             {% endif %}
 
-            {% if calc_options.run_n1 %}
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">N-1 Criteria</p>
-                <dl class="divide-y divide-slate-100">
-                    <div class="flex justify-between py-1.5 text-xs">
-                        <dt class="text-slate-500">Max. Loading</dt>
-                        <dd class="font-semibold text-red-600">&gt; {{ n1cfg.max_loading_pct }}%</dd>
-                    </div>
-                    <div class="flex justify-between py-1.5 text-xs">
-                        <dt class="text-slate-500">Min. Voltage</dt>
-                        <dd class="font-semibold text-red-600">&lt; {{ n1cfg.min_voltage_pu }} p.u.</dd>
-                    </div>
-                    <div class="flex justify-between py-1.5 text-xs">
-                        <dt class="text-slate-500">Max. Voltage</dt>
-                        <dd class="font-semibold text-red-600">&gt; {{ n1cfg.max_voltage_pu }} p.u.</dd>
-                    </div>
-                </dl>
-            </div>
-            {% endif %}
-
             {% if calc_options.run_qds and qds_info %}
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Quasi-Dynamic Simulation</p>

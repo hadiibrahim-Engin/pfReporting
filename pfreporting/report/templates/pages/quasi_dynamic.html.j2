@@ -1,0 +1,19 @@
+{% extends 'pages/_base.html.j2' %}
+{% block title %}Quasi-Dynamic{% endblock %}
+{% block content %}
+{% include 'partials/qds_info.html.j2' %}
+{% if ts_data and not ts_data.is_empty() %}
+{% include 'partials/timeseries.html.j2' %}
+{% else %}
+<div class="glass-card rounded-2xl shadow p-8 text-center text-slate-400">
+    <p class="text-lg">No time series data available.</p>
+    <p class="text-sm mt-2">Run the quasi-dynamic simulation to generate chart data.</p>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{{ asset_urls.chartjs }}"></script>
+<script src="{{ asset_urls.hammer_js }}"></script>
+<script src="{{ asset_urls.chartjs_zoom }}"></script>
+<script>window.__chartData = {{ chart_data_json }};</script>
+{% endblock %}

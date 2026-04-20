@@ -11,7 +11,9 @@
             <p class="font-bold text-lg leading-tight">{{ ampel.verdict }}</p>
             <ul class="text-sm mt-1.5 space-y-0.5 list-disc list-inside opacity-90">
                 {% for f in ampel.findings %}
+                {% if 'N-1' not in f %}
                 <li>{{ f }}</li>
+                {% endif %}
                 {% endfor %}
             </ul>
         </div>

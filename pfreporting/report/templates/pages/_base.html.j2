@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Freischaltbewertung{% endblock %} &mdash; {{ info.project }} &mdash; {{ info.date }}</title>
+    <script src="{{ asset_urls.tailwind }}"></script>
+    <script defer src="{{ asset_urls.alpine }}"></script>
+    <link rel="stylesheet" href="{{ asset_urls.datatables_css }}">
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body class="text-slate-800 font-sans antialiased"
+      x-data="reportApp()"
+      x-cloak>
+
+{% include 'pages/_nav.html.j2' %}
+
+<main class="max-w-screen-xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+</main>
+
+{% block scripts %}{% endblock %}
+<script src="./assets/scripts.js"></script>
+<script>
+function reportApp() {
+    return {
+        sections: {
+            'sec-voltage':     false,
+            'sec-thermal':     false,
+            'sec-switched':    false,
+            'sec-loadflow':    false,
+            'sec-statistics':  false,
+            'sec-qds-info':    false,
+            'sec-timeseries':  false,
+            'sec-calc-params': false,
+        },
+        toggleSection: function(id) {
+            this.sections[id] = !this.sections[id];
+        }
+    };
+}
+if (typeof refreshCharts === 'function') refreshCharts();
+if (typeof initCharts === 'function') initCharts();
+</script>
+
+</body>
+</html>

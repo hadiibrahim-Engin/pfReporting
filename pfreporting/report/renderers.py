@@ -41,6 +41,9 @@ class QDSDetailRenderer:
         self._env     = _make_env()
         self._css     = _read_asset("style.css")
         self._scripts = _read_asset("scripts.js")
+        self._chartjs = _read_asset("vendor/chart.min.js")
+        self._chartjs_zoom = _read_asset("vendor/chartjs-plugin-zoom.min.js")
+        self._hammer_js = _read_asset("vendor/hammer.min.js")
 
     def render(self, data: ReportData) -> str:
         t            = ReportDataTransformer(self.config)
@@ -58,6 +61,9 @@ class QDSDetailRenderer:
             calc_options=self.config.calc,
             css=self._css,
             scripts=self._scripts,
+            chartjs=self._chartjs,
+            chartjs_zoom=self._chartjs_zoom,
+            hammer_js=self._hammer_js,
             chart_data_json=json.dumps(chart_data, ensure_ascii=False),
         )
 

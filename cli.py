@@ -79,6 +79,12 @@ def generate(
         "-m",
         help="Execution mode: full | calculations_only | tables_only | html_only | summary_only",
     ),
+    fmt: str = typer.Option(
+        "",
+        "--format",
+        "-f",
+        help="Output format: single (one .html file, default) | multi (folder of linked pages).",
+    ),
 ) -> None:
     """Generate a De-Energization Assessment report.
 
@@ -99,6 +105,12 @@ def generate(
 
     if output_dir:
         cfg.report.output_dir = str(output_dir)
+
+    if fmt:
+        if fmt not in ("single", "multi"):
+            console.print(f"[red]Invalid --format '{fmt}'.[/] Valid values: single | multi")
+            raise typer.Exit(1)
+        cfg.report.output_format = fmt
 
     try:
         exec_mode = ExecutionMode[mode.upper().replace("-", "_")]
@@ -210,7 +222,7 @@ def _run_mock(cfg, pdf: bool, exec_mode=None) -> None:
         exec_mode: ExecutionMode controlling which reports are generated.
     """
     from pfreporting.report.builder import ReportData
-    from pfreporting.report.generator import HTMLReportGenerator
+    from pfreporting.report.generator import HTMLReportGenerator, MultiPageReportGenerator
     from pfreporting.report.renderers import ExecSummaryRenderer
     from pfreporting._mock_data import build_mock_data
     from pfreporting.pipeline import ExecutionMode
@@ -228,13 +240,20 @@ def _run_mock(cfg, pdf: bool, exec_mode=None) -> None:
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
     if exec_mode in (ExecutionMode.FULL, ExecutionMode.HTML_ONLY, ExecutionMode.TABLES_ONLY):
-        generator = HTMLReportGenerator(cfg)
-        html = generator.generate(data)
-        dest = out_dir / f"DeEnergizationAssessment_DEMO_{ts}.html"
-        dest.write_text(html, encoding="utf-8")
-        console.print(f"[green]Report saved:[/] {dest}")
-        if pdf:
-            _export_pdf(dest)
+        if cfg.report.output_format == "multi":
+            folder = MultiPageReportGenerator(cfg).generate(data)
+            console.print(f"[green]Report folder saved:[/] {folder}")
+            if pdf:
+                for page in sorted(folder.glob("*.html")):
+                    _export_pdf(page)
+        else:
+            generator = HTMLReportGenerator(cfg)
+            html = generator.generate(data)
+            dest = out_dir / f"DeEnergizationAssessment_DEMO_{ts}.html"
+            dest.write_text(html, encoding="utf-8")
+            console.print(f"[green]Report saved:[/] {dest}")
+            if pdf:
+                _export_pdf(dest)
 
     if exec_mode in (ExecutionMode.FULL, ExecutionMode.SUMMARY_ONLY):
         exec_html = ExecSummaryRenderer(cfg).render(data)

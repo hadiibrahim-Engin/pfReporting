@@ -1,0 +1,125 @@
+{% extends 'pages/_base.html.j2' %}
+{% block title %}Tables{% endblock %}
+{% block content %}
+
+<!-- Global search bar -->
+<div class="flex items-center gap-3 glass-card rounded-xl px-4 py-3 mb-5">
+    <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input type="text" id="global-search"
+           placeholder="Search across all tables (node name, element …)"
+           autocomplete="off"
+           class="flex-1 text-sm outline-none bg-transparent placeholder-slate-400">
+    <span id="search-count" class="text-xs text-slate-400 flex-shrink-0"></span>
+</div>
+
+{% include 'partials/switched.html.j2' %}
+{% if calc_options.run_voltage %}{% include 'partials/voltage.html.j2' %}{% endif %}
+{% if calc_options.run_thermal %}{% include 'partials/thermal.html.j2' %}{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ asset_urls.jquery }}"></script>
+<script src="{{ asset_urls.datatables_js }}"></script>
+<script src="{{ asset_urls.datatables_tailwind_js }}"></script>
+<script>
+$(document).ready(function() {
+
+    window.__dtFilterActive = {};
+
+    $.fn.dataTable.ext.search.push(function(settings, rowData, dataIndex) {
+        var tableId = settings.nTable && settings.nTable.id;
+        if (!window.__dtFilterActive[tableId]) return true;
+        var rowNode = settings.aoData[dataIndex] && settings.aoData[dataIndex].nTr;
+        return !!(rowNode && rowNode.querySelector('.badge-violation, .badge-warning'));
+    });
+
+    document.querySelectorAll('.filter-toggle').forEach(function(cb) {
+        var section = cb.closest('section');
+        if (!section) return;
+        var dtTable = section.querySelector('table[id^="dt-"]');
+        if (!dtTable) return;
+        var tid = dtTable.id;
+        window.__dtFilterActive[tid] = cb.checked;
+        cb.addEventListener('change', function() {
+            window.__dtFilterActive[tid] = cb.checked;
+            $('#' + tid).DataTable().draw();
+        });
+    });
+
+    {% if calc_options.run_voltage and voltage %}
+    var dtVoltage = $('#dt-voltage').DataTable({
+        pageLength: 25,
+        order: [[3, 'asc']],
+        language: {
+            search: 'Node search:',
+            paginate: { previous: 'Previous', next: 'Next' },
+        },
+        columnDefs: [{ orderable: false, targets: 5 }],
+        drawCallback: function() {
+            if (window.__pendingNavRow) {
+                _highlightRow(window.__pendingNavRow.tableId, window.__pendingNavRow.name);
+            }
+        }
+    });
+    if (window.__dtFilterActive['dt-voltage']) dtVoltage.draw();
+    {% endif %}
+
+    {% if calc_options.run_thermal and loading %}
+    var dtThermal = $('#dt-thermal').DataTable({
+        pageLength: 25,
+        order: [[2, 'desc']],
+        language: {
+            paginate: { previous: 'Previous', next: 'Next' },
+        },
+        columnDefs: [{ orderable: false, targets: [2, 5] }],
+        drawCallback: function() {
+            if (window.__pendingNavRow) {
+                _highlightRow(window.__pendingNavRow.tableId, window.__pendingNavRow.name);
+            }
+        }
+    });
+    if (window.__dtFilterActive['dt-thermal']) dtThermal.draw();
+    {% endif %}
+
+    function _highlightRow(tableId, elementName) {
+        window.__pendingNavRow = null;
+        var rows = document.querySelectorAll('#' + tableId + ' tbody tr');
+        rows.forEach(function(row) {
+            var cell = row.querySelector('td:first-child');
+            if (cell && cell.textContent.trim() === elementName) {
+                row.classList.add('row-nav-highlight');
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() { row.classList.remove('row-nav-highlight'); }, 2400);
+            }
+        });
+    }
+
+    window.navigateToRow = function(elementName, tableType) {
+        var tableId = tableType === 'voltage' ? 'dt-voltage'
+                    : tableType === 'thermal' ? 'dt-thermal'
+                    : null;
+        if (!tableId || typeof $ === 'undefined' || !$.fn.dataTable.isDataTable('#' + tableId)) return;
+
+        var dt = $('#' + tableId).DataTable();
+        var targetPage = null;
+        dt.rows().every(function() {
+            var node = this.node();
+            var cell = node && node.querySelector('td:first-child');
+            if (cell && cell.textContent.trim() === elementName) {
+                var pageLen = dt.page.len();
+                targetPage = Math.floor(this.index() / pageLen);
+                return false;
+            }
+        });
+
+        if (targetPage !== null) {
+            window.__pendingNavRow = { tableId: tableId, name: elementName };
+            dt.page(targetPage).draw('page');
+            setTimeout(function() { _highlightRow(tableId, elementName); }, 250);
+        }
+    };
+});
+</script>
+{% endblock %}

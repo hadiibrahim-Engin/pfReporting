@@ -50,8 +50,9 @@
                     : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'"
                 class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap">
             Tables
-            {% if overall.total_violations > 0 %}
-            <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 animate-pulse">{{ overall.total_violations }}</span>
+            {% set _ui_viol = overall.voltage_violations + overall.thermal_violations %}
+            {% if _ui_viol > 0 %}
+            <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 animate-pulse">{{ _ui_viol }}</span>
             {% endif %}
         </button>
 
@@ -67,7 +68,6 @@
         <div class="ml-auto flex items-center gap-3 text-xs text-slate-400 flex-shrink-0 pl-4 border-l border-slate-200">
             {% if calc_options.run_voltage %}<a @click.prevent="setTab('tab-tables')" href="#sec-voltage" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Voltage</a>{% endif %}
             {% if calc_options.run_thermal %}<a @click.prevent="setTab('tab-tables')" href="#sec-thermal" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Thermal</a>{% endif %}
-            {% if calc_options.run_n1 %}<a @click.prevent="setTab('tab-tables')" href="#sec-n1" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">N-1</a>{% endif %}
         </div>
     </div>
 </nav>
@@ -136,7 +136,6 @@
         {% include 'partials/loadflow.html.j2' %}
         {% if calc_options.run_voltage %}{% include 'partials/voltage.html.j2' %}{% endif %}
         {% if calc_options.run_thermal %}{% include 'partials/thermal.html.j2' %}{% endif %}
-        {% if calc_options.run_n1 %}{% include 'partials/n1.html.j2' %}{% endif %}
     </div>
 
     {# ---- TAB: DETAILS ---- #}
@@ -150,8 +149,10 @@
 
 </main>
 
-{# ==================== VENDOR JS (CDN) ==================== #}
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+{# ==================== VENDOR JS ==================== #}
+<script>{{ chartjs }}</script>
+<script>{{ hammer_js }}</script>
+<script>{{ chartjs_zoom }}</script>
 
 {# DataTables (CDN, requires internet) #}
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -173,7 +174,6 @@ function reportApp() {
         sections: {
             'sec-voltage':     false,
             'sec-thermal':     false,
-            'sec-n1':          false,
             'sec-switched':    false,
             'sec-loadflow':    false,
             'sec-statistics':  false,
@@ -183,10 +183,11 @@ function reportApp() {
         },
         setTab: function(id) {
             this.activeTab = id;
-            var self = this;
             this.$nextTick(function() {
-                if (id === 'tab-qds' && typeof initCharts === 'function') {
-                    initCharts();
+                if (id === 'tab-qds' && typeof refreshCharts === 'function') {
+                    refreshCharts();
+                } else if (id === 'tab-qds' && typeof initCharts === 'function') {
+                        initCharts();
                 }
             });
         },
@@ -232,7 +233,10 @@ $(document).ready(function() {
     var dtVoltage = $('#dt-voltage').DataTable({
         pageLength: 25,
         order: [[3, 'asc']],
-        language: { search: 'Node search:' },
+            language: {
+                search: 'Node search:',
+                paginate: { previous: 'Previous', next: 'Next' },
+            },
         columnDefs: [{ orderable: false, targets: 5 }],
         drawCallback: function() {
             /* Re-highlight navigated row after each draw */
@@ -248,6 +252,9 @@ $(document).ready(function() {
     var dtThermal = $('#dt-thermal').DataTable({
         pageLength: 25,
         order: [[2, 'desc']],
+            language: {
+                paginate: { previous: 'Previous', next: 'Next' },
+            },
         columnDefs: [{ orderable: false, targets: [2, 5] }],
         drawCallback: function() {
             if (window.__pendingNavRow) {
@@ -256,15 +263,6 @@ $(document).ready(function() {
         }
     });
     if (window.__dtFilterActive['dt-thermal']) dtThermal.draw();
-    {% endif %}
-
-    {% if calc_options.run_n1 and n1 %}
-    var dtN1 = $('#dt-n1').DataTable({
-        pageLength: 25,
-        order: [[3, 'desc']],
-        columnDefs: [{ orderable: false, targets: [2, 6, 7] }]
-    });
-    if (window.__dtFilterActive['dt-n1']) dtN1.draw();
     {% endif %}
 
     /* ---------------------------------------------------------------
@@ -286,7 +284,6 @@ $(document).ready(function() {
     window.navigateToRow = function(elementName, tableType) {
         var tableId = tableType === 'voltage'  ? 'dt-voltage'
                     : tableType === 'thermal'  ? 'dt-thermal'
-                    : tableType === 'n1'       ? 'dt-n1'
                     : null;
         if (!tableId || typeof $ === 'undefined' || !$.fn.dataTable.isDataTable('#' + tableId)) return;
 
@@ -311,6 +308,14 @@ $(document).ready(function() {
     };
 });
 </script>
+
+{% if calc_options.run_qds %}
+<script>
+if (typeof initCharts === 'function') {
+    initCharts();
+}
+</script>
+{% endif %}
 
 </body>
 </html>

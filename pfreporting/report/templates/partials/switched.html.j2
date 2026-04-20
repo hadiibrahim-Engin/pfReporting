@@ -14,8 +14,9 @@
     <div x-show="!sections['sec-switched']" x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="p-6">
         {% if switched %}
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table class="report-table text-sm">
                 <thead>
                     <tr class="border-b border-slate-200">
                         <th class="text-left px-3 py-2 font-semibold text-slate-600 bg-slate-50" data-sort="text">Name</th>
@@ -35,6 +36,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
         {% else %}
         <p class="text-slate-400 text-sm">No equipment de-energized.</p>

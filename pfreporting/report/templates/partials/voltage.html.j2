@@ -29,8 +29,9 @@
         </div>
 
         <!-- DataTables-enabled voltage table -->
-        <div class="overflow-x-auto">
-            <table id="dt-voltage" class="w-full text-sm">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table id="dt-voltage" class="report-table text-sm">
                 <thead>
                     <tr>
                         <th class="text-left px-3 py-2">Node</th>
@@ -54,13 +55,15 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
 
         {% if voltage_by_level %}
         <div class="mt-6">
             <h3 class="text-sm font-semibold text-slate-700 mb-3">Summary by Voltage Level</h3>
-            <div class="overflow-x-auto">
-                <table class="w-auto text-sm">
+            <div class="report-table-shell">
+                <div class="table-scroll">
+                <table class="report-table report-table--compact w-auto text-sm">
                     <thead>
                         <tr class="border-b border-slate-200">
                             <th class="text-left px-3 py-2 font-semibold text-slate-600 bg-slate-50">U_nom [kV]</th>
@@ -90,6 +93,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -104,7 +108,7 @@
             </button>
         </div>
         <div id="hm-voltage" class="hidden mt-4 border border-slate-200 rounded-xl p-4 bg-slate-50"
-             data-hm="{{ voltage_hm_data | tojson | e }}">
+             data-hm="{{ voltage_hm_data | tojson | forceescape }}">
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="critical">Only anomalies</button>
                 <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="all">All</button>

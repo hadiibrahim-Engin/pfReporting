@@ -65,26 +65,6 @@
             </div>
             {% endif %}
 
-            {% if calc_options.run_n1 %}
-            {% set n1_total = n1 | length %}
-            {% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
-            {% set n1_conv = n1 | selectattr('converged', 'eq', true) | list | length %}
-            {% set n1_rate = (n1_conv / n1_total * 100) if n1_total > 0 else none %}
-            {% set n1_worst_load = n1 | max(attribute='max_loading_pct') if n1_total > 0 else none %}
-            {% set n1_worst_minv = n1 | min(attribute='min_voltage_pu') if n1_total > 0 else none %}
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">(N-1) Contingency</p>
-                <dl class="space-y-1.5">
-                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Cases</dt><dd class="font-semibold text-slate-800">{{ n1_total }}</dd></div>
-                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Violations</dt><dd><span class="badge-violation">{{ n1_viol }}</span></dd></div>
-                    {% if n1_rate is not none %}
-                    <div class="flex justify-between text-sm"><dt class="text-slate-500">Convergence</dt><dd class="font-semibold {% if n1_rate < 100 %}text-amber-600{% else %}text-emerald-600{% endif %}">{{ "%.1f"|format(n1_rate) }}%</dd></div>
-                    {% endif %}
-                    {% if n1_worst_load %}<div class="text-xs text-slate-400 mt-1">Worst load: <strong class="text-slate-600">{{ n1_worst_load.outage_element }}</strong> ({{ "%.1f"|format(n1_worst_load.max_loading_pct) }}%)</div>{% endif %}
-                </dl>
-            </div>
-            {% endif %}
-
             {% if calc_options.run_loadflow %}
             {% set loss_pct = (lf.losses_mw / lf.total_gen_mw * 100) if lf.total_gen_mw > 0 else none %}
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">

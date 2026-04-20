@@ -26,7 +26,7 @@
                 <span class="text-xs font-normal text-slate-400 ml-2">[{{ viz.unit }}] &mdash; {{ ts_data.sections[cid] | length }} elements</span>
             </h3>
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <div id="chart-{{ cid }}" class="chart-wrapper"></div>
+                <canvas id="chart-{{ cid }}" class="chart-wrapper chart-canvas"></canvas>
                 <p class="text-xs text-slate-400 mt-2 text-right">Scroll: Zoom &middot; Drag: Pan &middot; Double-click: Reset</p>
             </div>
         </div>
@@ -35,7 +35,7 @@
         <div class="mb-8">
             <h4 class="text-sm font-semibold text-slate-600 mb-2">Heatmap &mdash; {{ viz.label }}</h4>
             <div class="overflow-x-auto border border-slate-200 rounded-xl p-3 bg-slate-50">
-                <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
+                <div data-heatmap="{{ heatmap_data[cid] | tojson | forceescape }}"></div>
             </div>
         </div>
         {% endif %}

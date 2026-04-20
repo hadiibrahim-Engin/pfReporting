@@ -57,8 +57,9 @@
             </span>
             <span class="text-sm text-slate-500">steps converged ({{ "%.1f"|format(conv_pct) }}%)</span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="text-xs w-full border-collapse">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table class="report-table report-table--compact text-xs">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600">
                         <th class="text-left px-3 py-2 font-semibold">Step</th>
@@ -82,6 +83,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </section>
     {% endif %}
@@ -100,21 +102,21 @@
                 <span class="text-xs font-normal text-slate-400 ml-2">[{{ viz.unit }}] &mdash; {{ ts_data.sections[cid] | length }} elements</span>
             </h3>
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <div id="chart-{{ cid }}" class="chart-wrapper"></div>
+                <canvas id="chart-{{ cid }}" class="chart-wrapper chart-canvas"></canvas>
             </div>
         </div>
         {% endif %}
         {% endfor %}
     </section>
 
-    {# ---- Heatmaps ---- #}
+        {# ---- Heatmaps ---- #}
     {% for viz in viz_requests %}
     {% set cid = viz.chart_id %}
     {% if viz.heatmap and cid in heatmap_data %}
     <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
         <h2 class="text-base font-semibold text-slate-800 mb-4">Heatmap &mdash; {{ viz.label }}</h2>
         <div class="overflow-x-auto border border-slate-200 rounded-xl p-3 bg-slate-50">
-            <div data-heatmap="{{ heatmap_data[cid] | tojson | e }}"></div>
+            <div data-heatmap="{{ heatmap_data[cid] | tojson | forceescape }}"></div>
         </div>
     </section>
     {% endif %}
@@ -123,15 +125,12 @@
 
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>{{ chartjs }}</script>
+<script>{{ hammer_js }}</script>
+<script>{{ chartjs_zoom }}</script>
 <script>window.__chartData = {{ chart_data_json }};</script>
 <script>{{ scripts }}</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof initCharts === 'function') initCharts();
-    if (typeof initHeatmaps === 'function') initHeatmaps();
-});
-</script>
+<script>if (typeof initCharts === 'function') initCharts();</script>
 
 </body>
 </html>

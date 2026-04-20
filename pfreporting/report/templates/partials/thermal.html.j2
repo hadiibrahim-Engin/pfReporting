@@ -28,8 +28,9 @@
         </div>
 
         <!-- DataTables-enabled thermal table -->
-        <div class="overflow-x-auto">
-            <table id="dt-thermal" class="w-full text-sm">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table id="dt-thermal" class="report-table text-sm">
                 <thead>
                     <tr>
                         <th class="text-left px-3 py-2">Element</th>
@@ -53,6 +54,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
 
         {% if thermal_hm_data %}
@@ -65,7 +67,7 @@
             </button>
         </div>
         <div id="hm-thermal" class="hidden mt-4 border border-slate-200 rounded-xl p-4 bg-slate-50"
-             data-hm="{{ thermal_hm_data | tojson | e }}">
+             data-hm="{{ thermal_hm_data | tojson | forceescape }}">
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="critical">Only anomalies</button>
                 <button class="hm-select-btn text-xs px-3 py-1 border border-slate-300 rounded-lg bg-white text-slate-600 hover:border-blue-400 hover:text-blue-600" data-mode="all">All</button>

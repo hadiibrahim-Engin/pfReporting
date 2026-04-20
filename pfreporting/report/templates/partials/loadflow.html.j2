@@ -70,8 +70,8 @@
                 QDS convergence per time step
                 ({{ lf.qds_steps | length }} steps{% if n_fail > 0 %}, <span class="text-red-500">{{ n_fail }} not converged</span>{% endif %})
             </summary>
-            <div class="max-h-72 overflow-y-auto">
-                <table class="qds-steps-table">
+            <div class="max-h-72 overflow-y-auto qds-steps-shell">
+                <table class="qds-steps-table report-table report-table--compact">
                     <thead><tr><th>Time [h]</th><th>Load Flow</th></tr></thead>
                     <tbody>
                         {% for step in lf.qds_steps %}

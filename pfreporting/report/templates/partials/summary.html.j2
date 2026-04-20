@@ -2,7 +2,17 @@
 <section class="bg-white rounded-2xl border border-slate-100 shadow mb-4" id="sec-summary">
     {{ section_header('Assessment Summary', 'sec-summary') if false }}
     <div class="p-6">
-        <p class="text-slate-700 leading-relaxed text-sm mb-4">{{ overall.summary_text | safe }}</p>
+        {% if overall.status == 'ok' %}
+        <p class="text-slate-700 leading-relaxed text-sm mb-4">
+            De-energization is <strong>permissible</strong>. No system security violations detected.
+        </p>
+        {% else %}
+        <p class="text-slate-700 leading-relaxed text-sm mb-4">
+            De-energization is <strong>NOT permissible</strong>. System security violations are present.
+            {% if overall.voltage_violations %}<br> - {{ overall.voltage_violations }} voltage band violation(s){% endif %}
+            {% if overall.thermal_violations %}<br> - {{ overall.thermal_violations }} thermal overload(s){% endif %}
+        </p>
+        {% endif %}
         {% if warnings %}
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-900 mb-4">
             <strong>Warnings:</strong>
@@ -14,8 +24,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {{ kpi_pill(overall.total_nodes, 'Nodes checked') }}
             {{ kpi_pill(overall.total_elements, 'Elements checked') }}
-            {% if calc_options.run_n1 %}{{ kpi_pill(overall.total_n1, 'N-1 cases') }}{% endif %}
-            {{ kpi_pill(overall.total_violations, 'Total violations', highlight=(overall.total_violations > 0)) }}
+            {{ kpi_pill(overall.voltage_violations + overall.thermal_violations, 'Total violations', highlight=((overall.voltage_violations + overall.thermal_violations) > 0)) }}
         </div>
     </div>
 </section>

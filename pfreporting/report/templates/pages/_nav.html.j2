@@ -1,0 +1,48 @@
+{# Shared navigation bar for multi-page report. active_page is one of:
+   overview | statistics | quasi_dynamic | tables | details #}
+<nav class="sticky top-0 z-50 glass-nav shadow-sm">
+    <div class="max-w-screen-xl mx-auto px-4 flex items-center gap-1 h-14 overflow-x-auto">
+
+        <a href="./index.html"
+           class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap
+                  {{ 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50' if active_page == 'overview' else 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
+            Overview
+        </a>
+
+        <a href="./statistics.html"
+           class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap
+                  {{ 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50' if active_page == 'statistics' else 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
+            Statistics
+        </a>
+
+        {% if calc_options.run_qds %}
+        <a href="./quasi_dynamic.html"
+           class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap
+                  {{ 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50' if active_page == 'quasi_dynamic' else 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
+            Quasi-Dynamic
+        </a>
+        {% endif %}
+
+        <a href="./tables.html"
+           class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap
+                  {{ 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50' if active_page == 'tables' else 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
+            Tables
+            {% set _ui_viol = overall.voltage_violations + overall.thermal_violations %}
+            {% if _ui_viol > 0 %}
+            <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 animate-pulse">{{ _ui_viol }}</span>
+            {% endif %}
+        </a>
+
+        <a href="./details.html"
+           class="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap
+                  {{ 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300/50' if active_page == 'details' else 'text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
+            Details
+        </a>
+
+        <!-- Jump links to table sections -->
+        <div class="ml-auto flex items-center gap-3 text-xs text-slate-400 flex-shrink-0 pl-4 border-l border-slate-200">
+            {% if calc_options.run_voltage %}<a href="./tables.html#sec-voltage" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Voltage</a>{% endif %}
+            {% if calc_options.run_thermal %}<a href="./tables.html#sec-thermal" class="hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">Thermal</a>{% endif %}
+        </div>
+    </div>
+</nav>

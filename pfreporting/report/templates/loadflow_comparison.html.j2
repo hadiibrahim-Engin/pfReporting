@@ -64,8 +64,9 @@
             Voltage Comparison
             <span class="text-xs font-normal text-slate-400 ml-2">{{ voltage_rows | length }} nodes</span>
         </h2>
-        <div class="overflow-x-auto">
-            <table class="text-xs w-full border-collapse">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table class="report-table report-table--compact text-xs">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 text-left">
                         <th class="px-3 py-2 font-semibold">Node</th>
@@ -112,6 +113,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </section>
     {% endif %}
@@ -123,8 +125,9 @@
             Thermal Loading Comparison
             <span class="text-xs font-normal text-slate-400 ml-2">{{ loading_rows | length }} elements</span>
         </h2>
-        <div class="overflow-x-auto">
-            <table class="text-xs w-full border-collapse">
+        <div class="report-table-shell">
+            <div class="table-scroll">
+            <table class="report-table report-table--compact text-xs">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 text-left">
                         <th class="px-3 py-2 font-semibold">Element</th>
@@ -169,20 +172,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </section>
-    {% endif %}
-
-    {# ---- N-1 Summary (after-state) ---- #}
-    {% if calc_options.run_n1 and n1 %}
-    {% set n1_viol = n1 | selectattr('status', 'eq', 'violation') | list | length %}
-    <section class="bg-white rounded-2xl border border-slate-100 shadow p-6">
-        <h2 class="text-base font-semibold text-slate-800 mb-3">N-1 Summary (After State)</h2>
-        <div class="flex items-baseline gap-3">
-            <span class="text-5xl font-extrabold {% if n1_viol > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">
-                {{ n1_viol }}
-            </span>
-            <span class="text-sm text-slate-500">violation{{ 's' if n1_viol != 1 else '' }} out of {{ n1 | length }} N-1 cases</span>
+            </div>
         </div>
     </section>
     {% endif %}

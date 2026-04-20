@@ -213,6 +213,7 @@ class ReportConfig(BaseModel):
     intreport_name: str | None = None
     log_level: str = "INFO"
     max_points: int | None = Field(default=None, ge=50)
+    output_format: str = "single"
 
     @field_validator("log_level")
     @classmethod
@@ -221,6 +222,13 @@ class ReportConfig(BaseModel):
         if level not in logging._nameToLevel:
             raise ValueError("log_level must be a valid logging level name")
         return level
+
+    @field_validator("output_format")
+    @classmethod
+    def _validate_output_format(cls, v: str) -> str:
+        if v not in ("single", "multi"):
+            raise ValueError("output_format must be 'single' or 'multi'")
+        return v
 
 
 # --- Main config --------------------------------------------------------------

@@ -17,7 +17,7 @@ from pfreporting.logger import configure_log_level, get_logger, log_step_header
 from pfreporting.models import LoadFlowResult, QDSStep, TimeSeriesData
 from pfreporting.reader import PowerFactoryReader
 from pfreporting.report.builder import ReportData
-from pfreporting.report.generator import HTMLReportGenerator
+from pfreporting.report.generator import HTMLReportGenerator, MultiPageReportGenerator
 
 log = get_logger()
 
@@ -235,12 +235,17 @@ def _render_phase(
     outputs: dict[str, Path] = {}
 
     if render_main:
-        html = HTMLReportGenerator(config).generate(data)
-        dest = _resolve_output_path(data, config, output_path, suffix="")
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(html, encoding="utf-8")
-        log.info("Main report saved: %s", dest)
-        outputs["main"] = dest
+        if config.report.output_format == "multi":
+            folder = MultiPageReportGenerator(config).generate(data)
+            log.info("Main report folder saved: %s", folder)
+            outputs["main"] = folder
+        else:
+            html = HTMLReportGenerator(config).generate(data)
+            dest = _resolve_output_path(data, config, output_path, suffix="")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(html, encoding="utf-8")
+            log.info("Main report saved: %s", dest)
+            outputs["main"] = dest
 
     if render_exec:
         from pfreporting.report.renderers import ExecSummaryRenderer
