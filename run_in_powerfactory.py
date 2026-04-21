@@ -108,11 +108,12 @@ CONFIG = PFReportConfig(
 
     # -- Report output --------------------------------------------------------
     report=ReportConfig(
-        output_dir=r"C:\PF_Reports",
+        output_dir="./output",
         company="Amprion GmbH",
         use_timestamp_subdir=True,
         quasi_dynamic_result_file="Quasi-Dynamic Simulation AC.ElmRes",
         intreport_name=None,  # e.g. "MyReport" to target a specific IntReport
+        output_format="multi",  # "single" or "multi" (folder of linked pages)
     ),
 
     # -- Quasi-dynamic visualizations -----------------------------------------
@@ -178,9 +179,9 @@ CONFIG = PFReportConfig(
 CONFIG_JSON_PATH = ""  # e.g. r"C:\PF_Tools\my_config.json"
 
 # Execution mode — controls which report files are generated.
-# HTML_ONLY = single main report (all tabs: Overview, Statistics, QDS, Tables, Details)
 # FULL      = main report + executive summary PDF page + QDS detail + LF comparison
-EXECUTION_MODE = ExecutionMode.HTML_ONLY
+# HTML_ONLY = single main report (all tabs: Overview, Statistics, QDS, Tables, Details)
+EXECUTION_MODE = ExecutionMode.FULL
 
 
 # ============================================================================
